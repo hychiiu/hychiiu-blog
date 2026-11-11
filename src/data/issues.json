@@ -12,9 +12,21 @@
       "tags": [],
       "url": "https://github.com/hychiiu/hychiiu-blog/issues/1",
       "createdAt": "2026-11-11T10:31:40Z",
-      "updatedAt": "2026-11-11T10:31:40Z",
+      "updatedAt": "2026-11-11T10:31:55Z",
       "closedAt": null,
-      "comments": []
+      "comments": [
+        {
+          "id": 6793466251,
+          "author": "hychiiu",
+          "avatar": "https://avatars.githubusercontent.com/u/27754907?v=4",
+          "authorUrl": "https://github.com/hychiiu",
+          "association": "OWNER",
+          "body": "测试评论：支持 **Markdown**、`code` 和公式 $x^2$。",
+          "url": "https://github.com/hychiiu/hychiiu-blog/issues/1#issuecomment-6793466251",
+          "createdAt": "2026-11-11T10:31:54Z",
+          "updatedAt": "2026-11-11T10:31:54Z"
+        }
+      ]
     }
   ]
 }
