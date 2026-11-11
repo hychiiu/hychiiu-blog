@@ -31,21 +31,22 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 24
-      - name: Fetch issues
-        run: node scripts/sync-issues.mjs "$GITHUB_REPOSITORY"
+      - name: Sync and commit
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Commit if changed
+          MSG: "content: sync issues (${{ github.event_name }}${{ github.event.issue.number && format(' #{0}', github.event.issue.number) || '' }})"
         run: |
-          if git diff --quiet -- src/data/issues.json; then
-            echo "no changes"; exit 0
-          fi
           git config user.name "github-actions[bot]"
           git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
-          git add src/data/issues.json
-          git commit -m "content: sync issues (${{ github.event_name }}${{ github.event.issue.number && format(' #{0}', github.event.issue.number) || '' }})"
-          for i in 1 2 3; do
-            git pull --rebase --autostash origin "${GITHUB_REF_NAME}" && git push && exit 0
-            sleep 5
+          BRANCH="${GITHUB_REF_NAME:-main}"
+          # 数据完全由 Issues 重新生成，所以冲突时直接基于最新 main 重跑，而不是合并
+          for i in 1 2 3 4 5; do
+            git fetch -q origin "$BRANCH" && git reset -q --hard "origin/$BRANCH"
+            node scripts/sync-issues.mjs "$GITHUB_REPOSITORY"
+            if git diff --quiet -- src/data/issues.json; then echo "no changes"; exit 0; fi
+            git add src/data/issues.json
+            git commit -q -m "$MSG"
+            if git push -q origin "HEAD:$BRANCH"; then exit 0; fi
+            echo "push rejected, retrying ($i)"; sleep $((i * 3))
           done
           exit 1
