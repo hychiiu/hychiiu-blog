@@ -86,6 +86,12 @@
   --shadow-float:
     0 1px 2px rgb(24 24 27 / 0.04), 0 6px 16px -6px rgb(24 24 27 / 0.1), 0 22px 44px -18px rgb(24 24 27 / 0.16);
   --shadow-pop: 0 4px 14px -4px rgb(24 24 27 / 0.18);
+  --shadow-dock: 0 1px 2px rgb(24 24 27 / 0.04), 0 8px 24px -12px rgb(24 24 27 / 0.12);
+
+  /* 侧边 Dock（§10） */
+  --dock-w: 56px;
+  --dock-inset: 16px;
+  --dock-safe: calc(var(--dock-inset) + var(--dock-w) + var(--sp-6));
 
   /* 动效：只用减速曲线，无回弹 */
   --dur-1: 80ms; /* 按压、旧页淡出 */
@@ -123,6 +129,7 @@
   --surface-2: rgb(255 255 255 / 0.06);
   --shadow-float: 0 1px 2px rgb(0 0 0 / 0.3), 0 10px 24px -8px rgb(0 0 0 / 0.45), 0 28px 56px -20px rgb(0 0 0 / 0.55);
   --shadow-pop: 0 4px 14px -4px rgb(0 0 0 / 0.5);
+  --shadow-dock: 0 1px 2px rgb(0 0 0 / 0.25), 0 8px 24px -12px rgb(0 0 0 / 0.5);
 
   color-scheme: dark;
 }

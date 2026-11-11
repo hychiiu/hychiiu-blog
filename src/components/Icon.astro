@@ -7,6 +7,13 @@ interface Props {
 }
 const { name, size = 18, class: cls } = Astro.props;
 const icons: Record<string, string> = {
+  home: '<g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10.2 12 4l8 6.2V19a1.5 1.5 0 0 1-1.5 1.5H15v-5.5H9v5.5H5.5A1.5 1.5 0 0 1 4 19Z"/></g>',
+  archive:
+    '<g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="4.5" rx="1"/><path d="M5 8.5V18a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8.5M10 12.5h4"/></g>',
+  'sun-line':
+    '<g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="3.8"/><path d="M12 2.8v1.8M12 19.4v1.8M5.5 5.5l1.3 1.3M17.2 17.2l1.3 1.3M2.8 12h1.8M19.4 12h1.8M5.5 18.5l1.3-1.3M17.2 6.8l1.3-1.3"/></g>',
+  'moon-line':
+    '<path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.6A7.8 7.8 0 0 1 9.4 4.5a7.8 7.8 0 1 0 10.1 10.1Z"/>',
   posts:
     '<g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3.5H7a1.8 1.8 0 0 0-1.8 1.8v13.4A1.8 1.8 0 0 0 7 20.5h10a1.8 1.8 0 0 0 1.8-1.8V8.3Z"/><path d="M14 3.5v4.8h4.8M8.8 12.5h6.4M8.8 16h4.4"/></g>',
   notes:

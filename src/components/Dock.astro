@@ -1,0 +1,121 @@
+---
+/**
+ * 侧边 Dock（≥1024px，规范见 docs/DESIGN.md §10）：
+ * 头像 → 分隔线 → 首页 / 文章 / 手记 / 关于（/ 归档）→ 分隔线 → 语言 / 主题。
+ * transition:persist：跨 ClientRouter 跳转保留同一个 DOM 与放大状态；
+ * 放大引擎与跳转后的同步见 scripts/dock.ts，主题 / 语言点击见 scripts/controls.ts 的事件委托。
+ */
+import { site, type Lang } from '../site.config';
+import { ui, localizePath, stripLang, useT } from '../i18n';
+import { getPosts, getNotes } from '../utils/content';
+import Icon from './Icon.astro';
+import '../styles/dock.css';
+interface Props {
+  lang: Lang;
+  alternates: Record<Lang, string>;
+}
+const { lang, alternates } = Astro.props;
+const t = useT(lang);
+const path = stripLang(Astro.url.pathname);
+const hasArchive = [...(await getPosts()), ...(await getNotes())].some((e) => e.data.archived);
+const items = [
+  { key: 'home', path: '/' },
+  { key: 'posts', path: '/posts/' },
+  { key: 'notes', path: '/notes/' },
+  { key: 'about', path: '/about/' },
+  ...(hasArchive ? [{ key: 'archive', path: '/archive/' }] : []),
+];
+const label = (l: Lang, k: string) => (ui[l] as Record<string, unknown>)[k] as string;
+const isActive = (p: string) => (p === '/' ? path === '/' : path.startsWith(p.replace(/\/$/, '')));
+const other: Lang = lang === 'zh' ? 'en' : 'zh';
+---
+
+<nav
+  class="dock"
+  data-dock
+  aria-label={t('dock.label')}
+  data-label-zh={label('zh', 'dock.label')}
+  data-label-en={label('en', 'dock.label')}
+  transition:persist="dock"
+  transition:name="dock"
+  transition:animate="none"
+>
+  <div class="dock-bg" aria-hidden="true"></div>
+  <span class="dock-dot" data-dock-dot aria-hidden="true"></span>
+  <ul class="dock-list" data-dock-list>
+    <li class="dock-item is-avatar">
+      <a
+        href={localizePath(lang, '/')}
+        class="dock-avatar"
+        data-home
+        aria-label={site.name}
+        data-href-zh={localizePath('zh', '/')}
+        data-href-en={localizePath('en', '/')}
+      >
+        <img src={site.avatar} alt="" width="34" height="34" decoding="async" />
+      </a>
+    </li>
+    <li class="dock-sep" aria-hidden="true"></li>
+    {items.map((item) => (
+      <li class="dock-item" data-mag>
+        <a
+          href={localizePath(lang, item.path)}
+          class="dock-btn"
+          aria-current={isActive(item.path) ? 'page' : undefined}
+          aria-label={label(lang, `nav.${item.key}`)}
+          data-nav={item.key}
+          data-path={item.path}
+          data-href-zh={localizePath('zh', item.path)}
+          data-href-en={localizePath('en', item.path)}
+          data-label-zh={label('zh', `nav.${item.key}`)}
+          data-label-en={label('en', `nav.${item.key}`)}
+        >
+          <Icon name={item.key} size={20} />
+        </a>
+        <span class="dock-tip" aria-hidden="true">
+          {label(lang, `nav.${item.key}`)}
+        </span>
+      </li>
+    ))}
+    <li class="dock-sep" aria-hidden="true"></li>
+    <li class="dock-item" data-mag>
+      <a
+        href={alternates[other]}
+        class="dock-btn dock-lang"
+        hreflang={other === 'zh' ? 'zh-CN' : 'en'}
+        data-dock-lang
+        data-set-lang={other}
+        aria-label={t('lang.other')}
+        data-label-zh={label('zh', 'lang.other')}
+        data-label-en={label('en', 'lang.other')}
+      >
+        <span class="glyph" data-glyph>
+          {other === 'en' ? 'EN' : '中'}
+        </span>
+      </a>
+      <span class="dock-tip" aria-hidden="true">
+        {t('lang.other')}
+      </span>
+    </li>
+    <li class="dock-item" data-mag>
+      <button
+        type="button"
+        class="dock-btn"
+        data-theme-toggle
+        aria-label={t('toggle.theme')}
+        data-label-zh={label('zh', 'toggle.theme')}
+        data-label-en={label('en', 'toggle.theme')}
+      >
+        <Icon name="sun-line" size={20} class="i-sun" />
+        <Icon name="moon-line" size={20} class="i-moon" />
+      </button>
+      <span class="dock-tip" aria-hidden="true">
+        {t('toggle.theme')}
+      </span>
+    </li>
+  </ul>
+</nav>
+
+<script>
+  import '../scripts/dock';
+</script>

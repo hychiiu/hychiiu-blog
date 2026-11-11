@@ -5,7 +5,7 @@ import '../styles/fonts.css';
 import '../styles/global.css';
 import { site, type Lang } from '../site.config';
 import { htmlLang, localizePath, stripLang, toLang } from '../i18n';
-import Header from '../components/Header.astro';
+import Dock from '../components/Dock.astro';
 import Footer from '../components/Footer.astro';
 import { ClientRouter } from 'astro:transitions';
 import { pageFade } from '../utils/transitions';
@@ -43,7 +43,7 @@ const rss = localizePath(lang, '/rss.xml');
 >
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
@@ -103,7 +103,7 @@ const rss = localizePath(lang, '/rss.xml');
     <ClientRouter />
   </head>
   <body>
-    <Header lang={lang} alternates={alternates} />
+    <Dock lang={lang} alternates={alternates} />
     <main transition:animate={pageFade}>
       <slot />
     </main>

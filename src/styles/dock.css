@@ -1,0 +1,283 @@
+/*
+ * 侧边 / 底部 Dock（docs/DESIGN.md §10）。
+ * ≥1024px：左侧竖向胶囊，悬停放大（JS 写入 --ty / --s / --dx，只动 transform）；
+ * <1024px：底部居中横向胶囊，不放大，按压轻微缩小。
+ * 颜色、圆角、阴影、时长全部来自 tokens.css。
+ */
+.dock {
+  --slot: 44px;
+  --plate: 36px;
+  --dot: 4px;
+  position: fixed;
+  z-index: 55;
+  isolation: isolate;
+}
+.dock-bg {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border: 1px solid var(--hair);
+  border-radius: var(--r-pill);
+  background: rgb(var(--paper-rgb) / 0.72);
+  -webkit-backdrop-filter: blur(16px) saturate(1.4);
+  backdrop-filter: blur(16px) saturate(1.4);
+  box-shadow: var(--shadow-dock);
+  transform: scale(var(--grow-sx, 1), var(--grow-sy, 1));
+  will-change: transform;
+}
+.dock-list {
+  display: flex;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.dock-item {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: var(--slot);
+  height: var(--slot);
+  transform: translate3d(0, var(--ty, 0px), 0);
+}
+.dock-btn {
+  display: grid;
+  place-items: center;
+  width: var(--plate);
+  height: var(--plate);
+  padding: 0;
+  border: 0;
+  border-radius: var(--r-round);
+  background: transparent;
+  color: var(--ink-muted);
+  cursor: pointer;
+  transform: scale(var(--s, 1));
+  transition:
+    color var(--dur-2) var(--ease),
+    background-color var(--dur-2) var(--ease);
+  -webkit-tap-highlight-color: transparent;
+}
+.dock-btn svg {
+  display: block;
+}
+.dock-btn:hover {
+  color: var(--ink-strong);
+  background: var(--surface-2);
+}
+.dock-btn[aria-current='page'] {
+  color: var(--accent);
+}
+.dock-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: var(--r-round);
+}
+.dock-lang .glyph {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  line-height: 1;
+}
+.dock-btn .i-moon,
+:root[data-theme='dark'] .dock-btn .i-sun {
+  display: none;
+}
+:root[data-theme='dark'] .dock-btn .i-moon {
+  display: block;
+}
+.dock-avatar {
+  display: block;
+  border-radius: var(--r-round);
+}
+.dock-avatar img {
+  display: block;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--r-round);
+  object-fit: cover;
+  box-shadow: 0 0 0 1px var(--hair);
+  transition: opacity var(--dur-2) var(--ease);
+}
+.dock-avatar:hover img {
+  opacity: 0.88;
+}
+.dock-avatar:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.dock-sep {
+  flex: none;
+  background: var(--hair);
+  transform: translate3d(0, var(--ty, 0px), 0);
+}
+.dock-dot {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--dot);
+  height: var(--dot);
+  border-radius: var(--r-round);
+  background: var(--accent);
+  opacity: 0;
+  pointer-events: none;
+  transform: translate3d(var(--dot-x, 0px), var(--dot-y, 0px), 0);
+  transition: opacity var(--dur-2) var(--ease);
+}
+.dock-dot.on {
+  opacity: 1;
+}
+.dock-tip {
+  position: absolute;
+  z-index: 1;
+  padding: 3px 10px 4px;
+  border: 1px solid var(--hair);
+  border-radius: var(--r-pill);
+  background: rgb(var(--paper-rgb) / 0.92);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  box-shadow: var(--shadow-pop);
+  color: var(--ink);
+  font-family: var(--font-serif);
+  font-size: 13px;
+  line-height: 1.4;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition:
+    opacity 120ms var(--ease),
+    transform 120ms var(--ease);
+}
+
+/* ---------- 竖向（≥1024px） ---------- */
+@media (min-width: 1024px) {
+  .dock {
+    --slot: 44px;
+    top: 50%;
+    left: var(--dock-inset);
+    width: var(--dock-w);
+    padding: var(--sp-3) 0;
+    transform: translateY(-50%);
+  }
+  .dock-bg {
+    transform-origin: center;
+  }
+  .dock-list {
+    flex-direction: column;
+  }
+  .dock-item {
+    width: var(--dock-w);
+  }
+  .dock-item.is-avatar {
+    height: 46px;
+  }
+  .dock-sep {
+    width: 22px;
+    height: 1px;
+    margin: 7px 0;
+  }
+  .dock-tip {
+    top: 50%;
+    left: calc(50% + var(--plate) / 2 + var(--sp-3) + var(--dx, 0px));
+    transform: translate(-4px, -50%);
+  }
+  .dock-item:hover .dock-tip,
+  .dock-item:focus-within .dock-tip {
+    opacity: 1;
+    transform: translate(0, -50%);
+  }
+}
+
+/* ---------- 横向底部（<1024px） ---------- */
+@media (max-width: 1023.98px) {
+  .dock {
+    --slot: 42px;
+    bottom: calc(var(--sp-3) + env(safe-area-inset-bottom, 0px));
+    left: 50%;
+    padding: 0 var(--sp-2);
+    transform: translateX(-50%);
+  }
+  .dock-bg {
+    transform: none;
+  }
+  .dock-list {
+    height: 52px;
+  }
+  .dock-item {
+    width: var(--slot);
+    height: 52px;
+    transform: none;
+  }
+  .dock-item.is-avatar {
+    width: 46px;
+  }
+  .dock-avatar img {
+    width: 30px;
+    height: 30px;
+  }
+  .dock-sep {
+    width: 1px;
+    height: 20px;
+    margin: 0 5px;
+    transform: none;
+  }
+  .dock-btn {
+    transform: none;
+    transition:
+      color var(--dur-2) var(--ease),
+      background-color var(--dur-2) var(--ease),
+      transform var(--dur-1) var(--ease);
+  }
+  .dock-btn:active {
+    transform: scale(0.92);
+  }
+  .dock-tip {
+    display: none;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .dock-tip {
+      display: block;
+      bottom: calc(100% + var(--sp-1));
+      left: 50%;
+      transform: translate(-50%, 4px);
+    }
+    .dock-item:hover .dock-tip,
+    .dock-item:focus-within .dock-tip {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+  }
+}
+@media (max-width: 380px) {
+  .dock {
+    --slot: 38px;
+    padding: 0 var(--sp-1);
+  }
+  .dock-item.is-avatar {
+    width: 40px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dock-tip,
+  .dock-btn {
+    transition:
+      color var(--dur-2) var(--ease),
+      background-color var(--dur-2) var(--ease),
+      opacity var(--dur-2) linear;
+  }
+  .dock-btn:active {
+    transform: none;
+  }
+}
+
+/* 页面避让：顶部保留原头部高度的留白；底部 Dock 时内容底部留出空间 */
+body {
+  padding-top: 60px;
+}
+@media (max-width: 1023.98px) {
+  body {
+    padding-top: var(--sp-5);
+    padding-bottom: calc(52px + var(--sp-3) * 2 + env(safe-area-inset-bottom, 0px));
+  }
+}

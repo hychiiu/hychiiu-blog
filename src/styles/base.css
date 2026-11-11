@@ -73,6 +73,12 @@ h4 {
   margin: 0 auto;
   padding: 0 var(--shell-pad);
 }
+/* ≥1024px：左侧给 Dock 留出安全距离（§10 版心避让），宽屏时自然居中不受影响 */
+@media (min-width: 1024px) {
+  .shell {
+    padding-left: max(var(--shell-pad), calc(var(--dock-safe) - max(0px, (100vw - var(--shell)) / 2)));
+  }
+}
 @media (max-width: 720px) {
   :root {
     --shell-pad: 24px;
