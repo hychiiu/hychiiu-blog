@@ -39,12 +39,14 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
           BRANCH="${GITHUB_REF_NAME:-main}"
+          # 数据文件路径与站点共用 src/config/content.ts
+          DATA_FILE=$(node -e "import('./src/config/content.ts').then((m) => console.log(m.content.dataFile))")
           # 数据完全由 Issues 重新生成，所以冲突时直接基于最新 main 重跑，而不是合并
           for i in 1 2 3 4 5; do
             git fetch -q origin "$BRANCH" && git reset -q --hard "origin/$BRANCH"
             node scripts/sync-issues.mjs "$GITHUB_REPOSITORY"
-            if git diff --quiet -- src/data/issues.json; then echo "no changes"; exit 0; fi
-            git add src/data/issues.json
+            if git diff --quiet -- "$DATA_FILE"; then echo "no changes"; exit 0; fi
+            git add "$DATA_FILE"
             git commit -q -m "$MSG"
             if git push -q origin "HEAD:$BRANCH"; then exit 0; fi
             echo "push rejected, retrying ($i)"; sleep $((i * 3))

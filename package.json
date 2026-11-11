@@ -4,14 +4,15 @@
   "description": "hychiiu 的个人主页与博客（Astro 静态站）",
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build && node scripts/postbuild.mjs",
+    "build": "astro build && node --env-file-if-exists=.env scripts/postbuild.mjs",
     "preview": "astro preview",
     "avatar": "node scripts/avatar.mjs",
-    "deploy": "npm run build && npx wrangler pages deploy dist --project-name hychiiu-blog",
+    "deploy": "npm run build && node --env-file-if-exists=.env scripts/deploy.mjs",
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "check": "astro check && tsc --noEmit"
+    "check": "astro check && tsc --noEmit",
+    "sync": "node --env-file-if-exists=.env scripts/sync-issues.mjs"
   },
   "type": "module",
   "dependencies": {
