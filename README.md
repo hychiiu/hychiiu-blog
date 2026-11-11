@@ -208,5 +208,5 @@ npx wrangler pages deploy dist --project-name hychiiu-blog
 ## 其他
 
 - RSS：`/rss.xml`　站点地图：`/sitemap-index.xml`
-- 深浅色：默认跟随系统，Dock 最下方的按钮可手动切换（会记住选择）
+- 深浅色：默认跟随系统，右上角可手动切换（会记住选择）
 - 动效：遵循系统「减少动态效果」设置

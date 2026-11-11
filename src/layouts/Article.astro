@@ -313,7 +313,7 @@ const foreign = contentLang !== lang;
   .pager a:hover .pg {
     color: var(--accent);
   }
-  /* 回到顶部：小号圆形幽灵按钮，滚动后淡入；窄屏位于底部 Dock 之上 */
+  /* 回到顶部：小号圆形幽灵按钮，滚动后淡入 */
   .to-top {
     position: fixed;
     right: var(--sp-5);
@@ -348,10 +348,10 @@ const foreign = contentLang !== lang;
   .to-top:hover {
     color: var(--accent);
   }
-  @media (max-width: 1023px) {
+  @media (max-width: 640px) {
     .to-top {
       right: var(--sp-4);
-      bottom: calc(76px + env(safe-area-inset-bottom, 0px));
+      bottom: calc(var(--sp-4) + env(safe-area-inset-bottom, 0px));
     }
   }
   @media (max-width: 640px) {

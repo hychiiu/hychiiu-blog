@@ -1,0 +1,165 @@
+---
+/**
+ * 顶部导航：左侧小头像 + 名字，中间 首页 / 文章 / 手记 / 关于（当前页为浅底胶囊），
+ * 右侧（宽屏浮在右上角）中 | EN | 主题 工具条。
+ * transition:persist：ClientRouter 跳转时保留同一个 DOM（头像不重新加载、不闪烁），
+ * 激活项、链接语言与工具条状态由 scripts/header.ts 在每次跳转后同步。
+ */
+import { site, type Lang } from '../site.config';
+import { ui, localizePath, stripLang } from '../i18n';
+import { getPosts, getNotes } from '../utils/content';
+import Toolbar from './Toolbar.astro';
+interface Props {
+  lang: Lang;
+  alternates: Record<Lang, string>;
+}
+const { lang, alternates } = Astro.props;
+const path = stripLang(Astro.url.pathname);
+// 有归档内容时才在导航里显示「归档」
+const hasArchive = [...(await getPosts()), ...(await getNotes())].some((e) => e.data.archived);
+const items = [
+  { key: 'home', path: '/' },
+  { key: 'posts', path: '/posts/' },
+  { key: 'notes', path: '/notes/' },
+  { key: 'about', path: '/about/' },
+  ...(hasArchive ? [{ key: 'archive', path: '/archive/' }] : []),
+];
+const label = (l: Lang, k: string) => (ui[l] as Record<string, unknown>)[`nav.${k}`] as string;
+const isActive = (p: string) => (p === '/' ? path === '/' : path.startsWith(p.replace(/\/$/, '')));
+---
+
+<header class="topnav" data-header transition:persist="header" transition:name="topnav" transition:animate="none">
+  <div class="shell bar">
+    <a
+      href={localizePath(lang, '/')}
+      class="brand"
+      aria-label={site.name}
+      data-href-zh={localizePath('zh', '/')}
+      data-href-en={localizePath('en', '/')}
+    >
+      <img src={site.avatar} alt="" width="26" height="26" />
+      <span class="name">{site.name}</span>
+      {site.nameCJK && <span class="cn">{site.nameCJK}</span>}
+    </a>
+    <nav class="links" aria-label="Main">
+      {items.map((item) => (
+        <a
+          href={localizePath(lang, item.path)}
+          class:list={{ active: isActive(item.path) }}
+          aria-current={isActive(item.path) ? 'page' : undefined}
+          data-nav={item.key}
+          data-path={item.path}
+          data-href-zh={localizePath('zh', item.path)}
+          data-href-en={localizePath('en', item.path)}
+          data-label-zh={label('zh', item.key)}
+          data-label-en={label('en', item.key)}
+        >
+          {label(lang, item.key)}
+        </a>
+      ))}
+    </nav>
+    <div class="tools">
+      <Toolbar lang={lang} alternates={alternates} />
+    </div>
+  </div>
+</header>
+
+<style>
+  .topnav {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    border-bottom: 1px solid transparent;
+    transition:
+      background var(--dur-3) var(--ease),
+      border-color var(--dur-3) var(--ease);
+  }
+  .topnav:global(.scrolled) {
+    background: rgb(var(--paper-rgb) / 0.8);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    border-bottom-color: var(--hair);
+  }
+  .bar {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    height: 60px;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--font-serif);
+  }
+  .brand img {
+    width: 26px;
+    height: 26px;
+    border-radius: var(--r-round);
+    object-fit: cover;
+    border: 1px solid var(--border);
+  }
+  .name {
+    font-size: var(--fs-lg);
+    font-weight: 500;
+    color: var(--ink-strong);
+  }
+  .cn {
+    font-size: var(--fs-ui);
+    color: var(--accent);
+  }
+  .links {
+    display: flex;
+    gap: 2px;
+  }
+  .links a {
+    padding: 4px 10px;
+    border-radius: var(--r-xs);
+    font-size: 13px;
+    color: var(--ink-muted);
+    transition:
+      color 0.15s ease,
+      background 0.15s ease;
+  }
+  .links a:hover {
+    color: var(--ink-strong);
+    background: color-mix(in srgb, var(--n-10) 4%, transparent);
+  }
+  .links a:global(.active) {
+    color: var(--ink-strong);
+    background: var(--n-2);
+  }
+  .tools {
+    margin-left: auto;
+  }
+  /* 宽屏：浮在右上角 */
+  @media (min-width: 1360px) {
+    .tools {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      z-index: 60;
+    }
+  }
+  @media (max-width: 640px) {
+    .bar {
+      flex-wrap: wrap;
+      height: auto;
+      gap: 6px 12px;
+      padding-top: 10px;
+      padding-bottom: 8px;
+    }
+    .cn {
+      display: none;
+    }
+    .links {
+      order: 3;
+      width: 100%;
+      margin-left: -10px;
+    }
+  }
+</style>
+
+<script>
+  import '../scripts/header';
+</script>

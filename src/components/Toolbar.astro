@@ -1,0 +1,122 @@
+---
+/** 语言 / 主题工具条（中 | EN | ☀︎/☾）。点击处理与跳转后的状态同步见 scripts/header.ts */
+import type { Lang } from '../site.config';
+import { useT } from '../i18n';
+import Icon from './Icon.astro';
+interface Props {
+  lang: Lang;
+  alternates: Record<Lang, string>;
+}
+const { lang, alternates } = Astro.props;
+const t = useT(lang);
+---
+
+<div class="toolbar" role="group" aria-label={t('toggle.lang')}>
+  <a
+    href={alternates.zh}
+    hreflang="zh-CN"
+    lang="zh-CN"
+    data-set-lang="zh"
+    data-lang-link="zh"
+    data-active={lang === 'zh'}
+    aria-current={lang === 'zh' ? 'true' : undefined}
+  >
+    中
+  </a>
+  <a
+    href={alternates.en}
+    hreflang="en"
+    lang="en"
+    data-set-lang="en"
+    data-lang-link="en"
+    data-active={lang === 'en'}
+    aria-current={lang === 'en' ? 'true' : undefined}
+  >
+    EN
+  </a>
+  <span class="sep" aria-hidden="true"></span>
+  <button type="button" data-theme-toggle aria-label={t('toggle.theme')}>
+    <Icon name="sun" size={14} class="i-sun" />
+    <Icon name="moon" size={14} class="i-moon" />
+  </button>
+</div>
+
+<style>
+  .toolbar {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px;
+    background: color-mix(in srgb, var(--paper) 80%, transparent);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--border);
+    border-radius: var(--r-sm);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    line-height: 1;
+  }
+  a,
+  button {
+    display: inline-grid;
+    place-items: center;
+    min-width: 30px;
+    height: 24px;
+    padding: 0 8px;
+    border: 0;
+    border-radius: var(--r-xs);
+    background: none;
+    color: var(--n-7);
+    font: inherit;
+    cursor: pointer;
+    transition:
+      color 0.15s ease,
+      background 0.15s ease;
+  }
+  a:hover,
+  button:hover,
+  a[data-active='true'] {
+    color: var(--n-10);
+    background: var(--n-2);
+  }
+  a[lang='zh-CN'] {
+    font-family: var(--font-sans);
+    font-weight: 500;
+  }
+  .sep {
+    width: 1px;
+    height: 14px;
+    background: var(--border);
+  }
+  button :global(svg) {
+    grid-area: 1 / 1;
+    transition:
+      opacity var(--dur-3) var(--ease),
+      transform var(--dur-4) var(--ease);
+  }
+  button :global(.i-moon) {
+    opacity: 0;
+    transform: rotate(-45deg) scale(0.7);
+  }
+  :global(:root[data-theme='dark']) button :global(.i-sun) {
+    opacity: 0;
+    transform: rotate(45deg) scale(0.7);
+  }
+  :global(:root[data-theme='dark']) button :global(.i-moon) {
+    opacity: 1;
+    transform: none;
+  }
+  @media (max-width: 720px) {
+    .toolbar {
+      padding: 3px;
+      gap: 2px;
+      font-size: 11px;
+    }
+    a,
+    button {
+      min-width: 26px;
+      height: 22px;
+      padding: 0 7px;
+    }
+  }
+</style>
