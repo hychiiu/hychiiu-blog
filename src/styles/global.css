@@ -476,3 +476,59 @@ h4 {
     line-height: 1.85;
   }
 }
+
+/* ---------- page transitions (Astro ClientRouter) ---------- */
+@keyframes yh-page-out {
+  to {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+@keyframes yh-page-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+::view-transition-group(*) {
+  animation-duration: 0.3s;
+  animation-timing-function: var(--ease);
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+/* shared title: list item → article title */
+.vt-title {
+  width: fit-content;
+  view-transition-class: yh-title;
+}
+@keyframes yh-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+@keyframes yh-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+::view-transition-group(*.yh-title) {
+  animation-duration: 0.32s;
+}
+::view-transition-old(*.yh-title),
+::view-transition-new(*.yh-title) {
+  height: 100%;
+  width: auto;
+  object-fit: contain;
+  object-position: left top;
+}
+::view-transition-old(*.yh-title) {
+  animation: 0.12s ease-out both yh-fade-out;
+}
+::view-transition-new(*.yh-title) {
+  animation: 0.28s var(--ease) both yh-fade-in;
+}

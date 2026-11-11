@@ -1,6 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
 import EmptyState from '../components/EmptyState.astro';
+import { titleTransition } from '../utils/transitions';
 import type { Lang } from '../site.config';
 import { useT, localizePath } from '../i18n';
 import { getNotesFor, dotDate } from '../utils/content';
@@ -29,7 +30,7 @@ const excerpt = (s = '') => s.replace(/^>.*$/gm, '').replace(/[#*`>\[\]_]/g, '')
               <span class="meta">{n.data.date.getFullYear()}·{String(n.data.date.getMonth() + 1).padStart(2, '0')}</span>
             </div>
             <div>
-              <h2>{n.data.title}</h2>
+              <h2 class="vt-title" transition:name={titleTransition(localizePath(lang, `/notes/${n.id}/`))}>{n.data.title}</h2>
               <p>{excerpt(n.body)}…</p>
               <div class="meta info">
                 <span>{dotDate(n.data.date)}</span>

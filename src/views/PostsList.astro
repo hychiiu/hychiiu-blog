@@ -1,6 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
 import EmptyState from '../components/EmptyState.astro';
+import { titleTransition } from '../utils/transitions';
 import type { Lang } from '../site.config';
 import { useT, localizePath } from '../i18n';
 import { getPostsFor, dotDate, readingMinutes } from '../utils/content';
@@ -38,7 +39,7 @@ let idx = 3;
             <li class="reveal" style={`--i:${idx++}`}>
               <a href={localizePath(lang, `/posts/${p.id}/`)}>
                 <time class="meta" datetime={p.data.date.toISOString()}>{dotDate(p.data.date)}</time>
-                <span class="t">{p.data.title}</span>
+                <span class="t vt-title" transition:name={titleTransition(localizePath(lang, `/posts/${p.id}/`))}>{p.data.title}</span>
                 <span class="meta right">
                   {mark(p.data.lang) && <span class="marker">{mark(p.data.lang)}</span>}
                   {p.data.tags.slice(0, 2).map((tag) => <span class="tg">#{tag}</span>)}

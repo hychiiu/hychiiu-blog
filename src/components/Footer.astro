@@ -7,7 +7,7 @@ const t = useT(lang);
 const year = new Date().getFullYear();
 const startYear = new Date(site.startDate).getFullYear();
 ---
-<footer class="footer">
+<footer class="footer" transition:name="footer" transition:animate="none">
   <div class="shell">
     <div class="inner">
       <span>© {startYear === year ? year : `${startYear}–${year}`} {site.name}{site.nameCJK && <span class="cn"> · {site.nameCJK}</span>}</span>

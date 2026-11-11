@@ -2,6 +2,7 @@
 import { dotDate, readingMinutes } from '../utils/content';
 import type { Lang } from '../site.config';
 import { useT } from '../i18n';
+import { titleTransition } from '../utils/transitions';
 
 export interface Item {
   href: string;
@@ -29,7 +30,7 @@ const t = useT(lang);
       <a href={it.href} class="row">
         <time class="date meta" datetime={it.date.toISOString()}>{dotDate(it.date)}</time>
         <div class="main">
-          <h3>{it.title}</h3>
+          <h3 class="vt-title" transition:name={titleTransition(it.href)}>{it.title}</h3>
           {it.description && <p class="desc">{it.description}</p>}
           <div class="info meta">
             {showKind && <span class="kind">{it.kind === 'note' ? t('kind.note') : t('kind.post')}</span>}

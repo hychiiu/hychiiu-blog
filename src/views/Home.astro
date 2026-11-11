@@ -273,9 +273,11 @@ const socials = site.socials.map((s) => (s.icon === 'rss' ? { ...s, href: locali
 </style>
 
 <script>
-  const el = document.querySelector<HTMLElement>('[data-days]');
-  if (el?.dataset.start) {
-    const d = Math.floor((Date.now() - new Date(el.dataset.start).getTime()) / 86400000) + 1;
-    if (d > 0) el.textContent = String(d);
-  }
+  document.addEventListener('astro:page-load', () => {
+    const el = document.querySelector<HTMLElement>('[data-days]');
+    if (el?.dataset.start) {
+      const d = Math.floor((Date.now() - new Date(el.dataset.start).getTime()) / 86400000) + 1;
+      if (d > 0) el.textContent = String(d);
+    }
+  });
 </script>

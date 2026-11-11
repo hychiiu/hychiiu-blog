@@ -34,9 +34,15 @@ const g = site.giscus;
 </style>
 
 <script>
+  const theme = () => (document.documentElement.dataset.theme === 'dark' ? 'dark_dimmed' : 'light');
+  window.addEventListener('themechange', () => {
+    const frame = document.querySelector<HTMLIFrameElement>('iframe.giscus-frame');
+    frame?.contentWindow?.postMessage({ giscus: { setConfig: { theme: theme() } } }, 'https://giscus.app');
+  });
+  // 每次进入页面（含 ClientRouter 站内跳转）重新挂载评论
+  document.addEventListener('astro:page-load', () => {
   const slot = document.querySelector<HTMLElement>('[data-giscus]');
-  if (slot) {
-    const theme = () => (document.documentElement.dataset.theme === 'dark' ? 'dark_dimmed' : 'light');
+  if (slot && !slot.querySelector('script, iframe')) {
     const d = slot.dataset;
     const s = document.createElement('script');
     s.src = 'https://giscus.app/client.js';
@@ -58,9 +64,6 @@ const g = site.giscus;
     };
     Object.entries(attrs).forEach(([k, v]) => s.setAttribute(k, v));
     slot.appendChild(s);
-    window.addEventListener('themechange', () => {
-      const frame = document.querySelector<HTMLIFrameElement>('iframe.giscus-frame');
-      frame?.contentWindow?.postMessage({ giscus: { setConfig: { theme: theme() } } }, 'https://giscus.app');
-    });
   }
+  });
 </script>

@@ -14,7 +14,7 @@ const isActive = (href: string) => {
   return h === '/' ? path === '/' : path.startsWith(h.replace(/\/$/, ''));
 };
 ---
-<header class="topnav" data-header>
+<header class="topnav" data-header transition:name="topnav" transition:animate="none">
   <div class="shell bar">
     <a href={localizePath(lang, '/')} class="brand" aria-label={site.name}>
       <img src={site.avatar} alt="" width="26" height="26" />
@@ -125,8 +125,7 @@ const isActive = (href: string) => {
 </style>
 
 <script>
-  const header = document.querySelector('[data-header]');
-  const onScroll = () => header?.classList.toggle('scrolled', window.scrollY > 8);
-  onScroll();
+  const onScroll = () => document.querySelector('[data-header]')?.classList.toggle('scrolled', window.scrollY > 8);
   window.addEventListener('scroll', onScroll, { passive: true });
+  document.addEventListener('astro:page-load', onScroll);
 </script>

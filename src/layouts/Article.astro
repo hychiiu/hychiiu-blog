@@ -7,6 +7,7 @@ import '../styles/markdown.css';
 import { site, type Lang } from '../site.config';
 import { useT, htmlLang } from '../i18n';
 import { dotDate, readingMinutes, countWords } from '../utils/content';
+import { titleTransition } from '../utils/transitions';
 
 interface Props {
   title: string;
@@ -40,7 +41,7 @@ const foreign = contentLang !== lang;
         <span>{t('post.words')(countWords(body))}</span>
         {foreign && <span class="marker">{contentLang === 'zh' ? t('marker.zh') : t('marker.en')}</span>}
       </div>
-      <h1 class="post-title reveal" style="--i:1" lang={htmlLang[contentLang]}>{title}</h1>
+      <h1 class="post-title vt-title" style="--i:1" lang={htmlLang[contentLang]} transition:name={titleTransition(Astro.url.pathname)}>{title}</h1>
       {description && <p class="post-subtitle reveal" style="--i:2" lang={htmlLang[contentLang]}>{description}</p>}
       {foreign && lang === 'en' && <p class="notice meta reveal" style="--i:2">{t('post.fallback')}</p>}
 

@@ -7,6 +7,8 @@ import { site, type Lang } from '../site.config';
 import { htmlLang, localizePath, stripLang, toLang } from '../i18n';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import { ClientRouter } from 'astro:transitions';
+import { pageFade } from '../utils/transitions';
 
 interface Props {
   title?: string;
@@ -61,6 +63,9 @@ const rss = localizePath(lang, '/rss.xml');
     <meta name="generator" content={Astro.generator} />
     <script is:inline>
       (() => {
+        // 只在首次整页加载时执行；之后的站内跳转由 ClientRouter 接管
+        if (window.__yhBoot) return;
+        window.__yhBoot = true;
         const root = document.documentElement;
         // 语言记忆：从站外进入时，若记住的语言与当前页不同，跳到对应语言的等价页面
         try {
@@ -82,12 +87,17 @@ const rss = localizePath(lang, '/rss.xml');
             window.dispatchEvent(new CustomEvent('themechange'));
           }
         });
+        // 站内跳转：新页面替换前先带上当前主题，避免闪烁
+        document.addEventListener('astro:before-swap', (e) => {
+          e.newDocument.documentElement.dataset.theme = root.dataset.theme;
+        });
       })();
     </script>
+    <ClientRouter />
   </head>
   <body>
     <Header lang={lang} alternates={alternates} />
-    <main>
+    <main transition:animate={pageFade}>
       <slot />
     </main>
     <Footer lang={lang} />
