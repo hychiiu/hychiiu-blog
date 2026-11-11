@@ -172,7 +172,7 @@ function frame(now: number) {
   else S.last = 0;
 }
 
-export const kick = () => {
+const kick = () => {
   if (!S.raf) S.raf = requestAnimationFrame(frame);
 };
 
