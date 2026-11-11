@@ -73,7 +73,6 @@ export default defineConfig({
     mdx(),
     sitemap({
       filter: (page) => !/\/404\/?$/.test(page),
-      xslURL: '/sitemap.xsl',
       i18n: { defaultLocale: 'zh', locales: { zh: 'zh-CN', en: 'en' } },
     }),
   ],
