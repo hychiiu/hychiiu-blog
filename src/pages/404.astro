@@ -2,44 +2,38 @@
 import Base from '../layouts/Base.astro';
 ---
 <Base title="404" description="页面不存在">
-  <div class="container nf">
-    <p class="code serif reveal" style="--i:0">404</p>
-    <h1 class="reveal" style="--i:1">这里只剩余白</h1>
-    <p class="muted reveal" style="--i:2">你要找的页面不存在，或者已经被移走了。</p>
-    <a href="/" class="home reveal" style="--i:3">回到首页</a>
+  <div class="shell">
+    <header class="nf">
+      <p class="eyebrow reveal" style="--i:0"><span class="dot"></span><span>Error · 404 · Not found</span></p>
+      <h1 class="reveal" style="--i:1">404<span class="cn-accent">迷途</span></h1>
+      <p class="lede reveal" style="--i:2">你要找的页面不存在，或者已经被移走了。这里只剩留白。</p>
+      <a href="/" class="btn btn--primary reveal" style="--i:3">← 回到首页</a>
+    </header>
   </div>
 </Base>
 
 <style>
   .nf {
-    text-align: center;
-    padding-top: 9rem;
-  }
-  .code {
-    margin: 0;
-    font-size: 96px;
-    line-height: 1;
-    color: var(--n-3);
-    letter-spacing: 0.06em;
+    padding: 120px 0 40px;
   }
   h1 {
-    margin-top: 1.5rem;
-    font-size: 24px;
+    margin: 24px 0 18px;
+    font-size: clamp(72px, 12vw, 128px);
+    line-height: 1.02;
+    letter-spacing: -0.02em;
   }
-  .muted {
-    margin: 0.75rem 0 2rem;
+  h1 .cn-accent {
+    margin-left: 18px;
   }
-  .home {
-    display: inline-block;
-    padding: 0.6rem 1.4rem;
-    border-radius: 999px;
-    background: var(--accent);
-    color: #fff;
-    font-size: 13.5px;
-    transition: opacity 0.2s, transform 0.3s var(--ease-out);
+  .lede {
+    margin: 0 0 32px;
+    max-width: 40ch;
+    font-family: var(--font-serif);
+    font-size: 19px;
+    line-height: 1.55;
+    color: var(--n-7);
   }
-  .home:hover {
-    opacity: 0.9;
-    transform: translateY(-1px);
+  @media (max-width: 640px) {
+    .nf { padding-top: 64px; }
   }
 </style>

@@ -130,6 +130,12 @@ npx wrangler pages deploy dist --project-name hychiiu-blog
 3. 打开 <https://giscus.app/zh-CN>，填仓库名，选一个分类（推荐 Announcements），页面下方会生成 `data-repo`、`data-repo-id`、`data-category`、`data-category-id`。
 4. 把这四个值填进 `src/site.config.ts` 的 `giscus` 里，重新部署，文章页底部就会出现评论区（会跟随深浅色切换）。
 
+## 字体与设计
+
+- 标题与正文：Noto Serif SC（SIL OFL），按 unicode-range 分片自托管，浏览器只下载用到的字符分片（`src/styles/fonts.css`，由 `node scripts/gen-fonts.mjs` 生成）
+- 元信息 / 标签：JetBrains Mono（OFL），界面文字：Inter（OFL），均通过 Fontsource 自托管，不依赖 Google Fonts
+- 颜色：Yohaku 开源令牌——梅色强调 `#c56473`、暖色中性 n-1…10、亮色纸面 `#faf9f5`、暗色 `#18181a`
+
 ## 其他
 
 - RSS：`/rss.xml`　站点地图：`/sitemap-index.xml`

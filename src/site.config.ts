@@ -15,15 +15,19 @@ export const site = {
   url: 'https://hychiiu.pages.dev',
 
   name: 'hychiiu',
+  /** 名字旁边的强调色中文（Yohaku 风格的「余白」位置）。留空字符串则不显示 */
+  nameCJK: '怀秋',
+  /** 首页顶部 mono 小标签：● {eyebrow} · since {startDate} */
+  eyebrow: 'Personal Site',
   /** 浏览器标签页标题 */
   title: 'hychiiu',
   /** SEO 描述 */
   description: 'hychiiu 的个人主页与随笔。',
   lang: 'zh-CN',
 
-  /** 首页大标题：Hi, I'm {name} 👋 */
+  /** 首页大标题：Hi, I'm {name} */
   greeting: "Hi, I'm",
-  wave: '👋',
+  wave: '👋', // 显示在一句话介绍末尾，留空则不显示
 
   /** 首页一句话介绍（TODO：之后改成你自己的） */
   intro: '一句话介绍占位，之后可改。',
@@ -32,6 +36,8 @@ export const site = {
 
   /** 首页引言（会自动加上「」） */
   quote: '把日子过成诗，把代码写成散文。',
+  /** 首页「最近在写」区块的小标题说明 */
+  recentLede: '写得不多，但每一篇都认真。下面是最近留下的文字。',
   quoteAuthor: '', // 可选，例如 '— 某本书'
 
   /** 头像：放在 public/ 下。替换方法见 README（npm run avatar -- 你的图片.png） */
@@ -44,7 +50,7 @@ export const site = {
   /** 唯一强调色（Yohaku 梅色）。亮色 / 暗色分别设置 */
   accent: {
     light: '#c56473',
-    dark: '#e095a4',
+    dark: '#c56473', // 与 yohaku.innei.dev 暗色一致；想更亮可用 '#e095a4'
   },
 
   /** 社交链接：取消注释即可启用 */

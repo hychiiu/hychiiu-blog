@@ -3,46 +3,61 @@ import { site } from '../site.config';
 const year = new Date().getFullYear();
 const startYear = new Date(site.startDate).getFullYear();
 ---
-<footer class="site-footer">
-  <div class="container container-wide inner">
-    <p>
-      © {startYear === year ? year : `${startYear}–${year}`} {site.name}
-      <span class="dot">·</span>
-      <a href="/rss.xml">RSS</a>
-      <span class="dot">·</span>
-      <a href="/sitemap-index.xml">Sitemap</a>
-    </p>
-    <p class="subtle">在余白处，慢慢写。</p>
+<footer class="footer">
+  <div class="shell inner">
+    <span>© {startYear === year ? year : `${startYear}–${year}`} {site.name}{site.nameCJK && <span class="cn"> · {site.nameCJK}</span>}</span>
+    <span class="links">
+      <a href="/rss.xml">rss</a>
+      <span aria-hidden="true">·</span>
+      <a href="/sitemap-index.xml">sitemap</a>
+      <span aria-hidden="true">·</span>
+      <span>built with astro</span>
+    </span>
   </div>
 </footer>
 
 <style>
-  .site-footer {
-    position: relative;
-    z-index: 1;
-    margin-top: 6rem;
-    padding: 2rem 0 2.5rem;
-    border-top: 1px solid var(--border);
-    font-size: 12.5px;
-    color: var(--n-7);
+  .footer {
+    margin-top: 96px;
   }
   .inner {
     display: flex;
     justify-content: space-between;
     flex-wrap: wrap;
-    gap: 0.5rem 1.5rem;
+    gap: 8px 24px;
+    padding-top: 20px;
+    padding-bottom: 40px;
+    border-top: 1px solid var(--hair);
+    background-clip: content-box;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--n-7);
+    letter-spacing: 0.02em;
   }
-  p {
-    margin: 0;
+  .shell.inner {
+    border-top: 0;
+    position: relative;
+  }
+  .shell.inner::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: var(--shell-pad);
+    right: var(--shell-pad);
+    height: 1px;
+    background: var(--hair);
+  }
+  .cn {
+    color: var(--accent);
+  }
+  .links {
+    display: flex;
+    gap: 8px;
   }
   a {
-    transition: color 0.2s;
+    transition: color 0.15s ease;
   }
   a:hover {
     color: var(--accent);
-  }
-  .dot {
-    margin: 0 0.4rem;
-    color: var(--n-5);
   }
 </style>

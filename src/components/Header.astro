@@ -4,155 +4,133 @@ import Icon from './Icon.astro';
 const path = Astro.url.pathname;
 const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWith(href.replace(/\/$/, '')));
 ---
-<header class="site-header" data-header>
-  <div class="bar">
+<header class="topnav" data-header>
+  <div class="shell bar">
     <a href="/" class="brand" aria-label={`${site.name} 首页`}>
-      <img src={site.avatar} alt="" width="32" height="32" />
-      <span class="brand-name serif">{site.name}</span>
+      <span class="name">{site.name}</span>
+      {site.nameCJK && <span class="cn">{site.nameCJK}</span>}
     </a>
-
-    <nav class="nav" aria-label="主导航">
-      {site.nav.map((item) => (
-        <a href={item.href} class:list={['nav-item', { active: isActive(item.href) }]} aria-current={isActive(item.href) ? 'page' : undefined}>
-          {item.label}
-        </a>
-      ))}
-    </nav>
-
-    <button class="theme-toggle" type="button" data-theme-toggle aria-label="切换深浅色">
-      <Icon name="sun" size={17} class="i-sun" />
-      <Icon name="moon" size={17} class="i-moon" />
-    </button>
+    <div class="right">
+      <nav class="links" aria-label="主导航">
+        {site.nav.map((item) => (
+          <a href={item.href} class:list={{ active: isActive(item.href) }} aria-current={isActive(item.href) ? 'page' : undefined}>{item.label}</a>
+        ))}
+      </nav>
+      <span class="sep" aria-hidden="true"></span>
+      <button class="toggle" type="button" data-theme-toggle aria-label="切换深浅色">
+        <Icon name="sun" size={15} class="i-sun" />
+        <Icon name="moon" size={15} class="i-moon" />
+      </button>
+    </div>
   </div>
 </header>
 
 <style>
-  .site-header {
+  .topnav {
     position: sticky;
     top: 0;
     z-index: 50;
-    padding: 0.9rem 0;
-    transition: background 0.3s var(--ease-out), box-shadow 0.3s var(--ease-out);
+    border-bottom: 1px solid transparent;
+    transition: background 0.3s var(--ease), border-color 0.3s var(--ease);
   }
-  .site-header.scrolled {
-    background: rgb(var(--paper-rgb) / 0.72);
-    backdrop-filter: blur(8px) saturate(1.4);
-    -webkit-backdrop-filter: blur(8px) saturate(1.4);
-    box-shadow: 0 1px 0 var(--border);
+  .topnav.scrolled {
+    background: rgb(var(--paper-rgb) / 0.8);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    border-bottom-color: var(--hair);
   }
   .bar {
-    max-width: var(--container-wide);
-    margin: 0 auto;
-    display: grid;
-    grid-template-columns: 1fr auto 1fr;
+    display: flex;
     align-items: center;
-    gap: 1rem;
-    padding: 0 1.75rem;
+    justify-content: space-between;
+    height: 60px;
   }
   .brand {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.6rem;
-    justify-self: start;
-  }
-  .brand img {
-    width: 32px;
-    height: 32px;
-    border-radius: 999px;
-    object-fit: cover;
-    box-shadow: 0 0 0 1px var(--border-strong);
-  }
-  .brand-name {
-    font-size: 16px;
-    color: var(--n-10);
-    letter-spacing: 0.02em;
-  }
-  .nav {
     display: flex;
-    gap: 0.15rem;
-    padding: 0.25rem;
-    border-radius: 999px;
-    background: rgb(var(--paper-rgb) / 0.6);
-    box-shadow: var(--shadow-whisper), 0 0 0 1px var(--border);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    align-items: baseline;
+    gap: 10px;
+    font-family: var(--font-serif);
   }
-  .nav-item {
-    position: relative;
-    padding: 0.4rem 0.95rem;
-    border-radius: 999px;
-    font-size: 13.5px;
-    color: var(--n-7);
-    transition: color 0.2s, background 0.2s;
-  }
-  .nav-item:hover {
+  .name {
+    font-size: 18px;
+    font-weight: 500;
     color: var(--n-10);
   }
-  .nav-item.active {
+  .cn {
+    font-size: 15px;
     color: var(--accent);
   }
-  .nav-item.active::after {
-    content: '';
-    position: absolute;
-    left: 50%;
-    bottom: 2px;
-    width: 14px;
-    height: 2px;
-    margin-left: -7px;
-    border-radius: 2px;
-    background: var(--accent);
-    opacity: 0.7;
+  .right {
+    display: flex;
+    align-items: center;
+    gap: 6px;
   }
-  .theme-toggle {
-    justify-self: end;
-    display: grid;
-    place-items: center;
-    width: 36px;
-    height: 36px;
-    border: 0;
-    border-radius: 999px;
-    background: transparent;
+  .links {
+    display: flex;
+    gap: 2px;
+  }
+  .links a {
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 13px;
     color: var(--n-7);
-    cursor: pointer;
-    transition: color 0.2s, background 0.2s, transform 0.4s var(--ease-out);
+    transition: color 0.15s ease, background 0.15s ease;
   }
-  .theme-toggle:hover {
+  .links a:hover {
+    color: var(--n-10);
+    background: color-mix(in srgb, var(--n-10) 4%, transparent);
+  }
+  .links a.active {
     color: var(--n-10);
     background: var(--n-2);
   }
-  .theme-toggle:active {
-    transform: rotate(-30deg) scale(0.92);
+  .sep {
+    width: 1px;
+    height: 16px;
+    margin: 0 4px;
+    background: var(--border);
   }
-  .theme-toggle :global(svg) {
+  .toggle {
+    display: grid;
+    place-items: center;
+    width: 30px;
+    height: 28px;
+    border: 0;
+    border-radius: 4px;
+    background: none;
+    color: var(--n-7);
+    cursor: pointer;
+    transition: color 0.15s ease, background 0.15s ease;
+  }
+  .toggle:hover {
+    color: var(--n-10);
+    background: var(--n-2);
+  }
+  .toggle :global(svg) {
     grid-area: 1 / 1;
-    transition: opacity 0.3s, transform 0.5s var(--ease-out);
+    transition: opacity 0.25s var(--ease), transform 0.4s var(--ease);
   }
-  .theme-toggle :global(.i-moon) {
+  .toggle :global(.i-moon) {
     opacity: 0;
-    transform: rotate(-60deg) scale(0.6);
+    transform: rotate(-45deg) scale(0.7);
   }
-  :global(:root[data-theme='dark']) .theme-toggle :global(.i-sun) {
+  :global(:root[data-theme='dark']) .toggle :global(.i-sun) {
     opacity: 0;
-    transform: rotate(60deg) scale(0.6);
+    transform: rotate(45deg) scale(0.7);
   }
-  :global(:root[data-theme='dark']) .theme-toggle :global(.i-moon) {
+  :global(:root[data-theme='dark']) .toggle :global(.i-moon) {
     opacity: 1;
     transform: none;
   }
-
-  @media (max-width: 640px) {
-    .site-header {
-      padding: 0.7rem 0;
-    }
+  @media (max-width: 560px) {
     .bar {
-      padding: 0 1rem;
+      height: 54px;
     }
-    .brand-name {
+    .links a {
+      padding: 4px 7px;
+    }
+    .cn {
       display: none;
-    }
-    .nav-item {
-      padding: 0.38rem 0.75rem;
-      font-size: 13px;
     }
   }
 </style>
@@ -162,13 +140,11 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWit
   const onScroll = () => header?.classList.toggle('scrolled', window.scrollY > 8);
   onScroll();
   window.addEventListener('scroll', onScroll, { passive: true });
-
   document.querySelector('[data-theme-toggle]')?.addEventListener('click', () => {
     const root = document.documentElement;
     const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
     const sys = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
     root.dataset.theme = next;
-    // 与系统一致时清除记忆，继续跟随系统
     if (next === sys) localStorage.removeItem('theme');
     else localStorage.setItem('theme', next);
     window.dispatchEvent(new CustomEvent('themechange', { detail: next }));

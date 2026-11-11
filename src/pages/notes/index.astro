@@ -1,29 +1,33 @@
 ---
 import Base from '../../layouts/Base.astro';
-import { getNotes, formatDate } from '../../utils/content';
+import { getNotes, dotDate } from '../../utils/content';
 const notes = await getNotes();
-const excerpt = (s = '') => s.replace(/^>.*$/gm, '').replace(/[#*`>\[\]_]/g, '').replace(/\(.*?\)/g, '').replace(/\s+/g, ' ').trim().slice(0, 120);
+const excerpt = (s = '') => s.replace(/^>.*$/gm, '').replace(/[#*`>\[\]_]/g, '').replace(/\(.*?\)/g, '').replace(/\s+/g, ' ').trim().slice(0, 110);
 ---
 <Base title="手记" description="生活碎片与随手记录">
-  <div class="container">
-    <header class="page-head">
-      <p class="eyebrow reveal" style="--i:0">Notes</p>
-      <h1 class="reveal" style="--i:1">手记</h1>
-      <p class="reveal" style="--i:2">不成文的碎片，记下当下的心情。</p>
+  <div class="shell">
+    <header class="page-hero">
+      <p class="eyebrow reveal" style="--i:0"><span class="dot"></span><span>Notes · {notes.length} 篇</span></p>
+      <h1 class="reveal" style="--i:1">Notes<span class="cn-accent">手记</span></h1>
+      <p class="lede reveal" style="--i:2">不成文的碎片，记下当下的心情。</p>
     </header>
-    {notes.length === 0 && <p class="muted">还没有手记。</p>}
+    {notes.length === 0 && <p class="lede">还没有手记。</p>}
     <ol class="notes">
       {notes.map((n, i) => (
         <li class="reveal" style={`--i:${i + 3}`}>
           <a href={`/notes/${n.id}/`} class="note">
-            <div class="date tabular">
-              <span class="d serif">{String(n.data.date.getDate()).padStart(2, '0')}</span>
-              <span class="ym">{n.data.date.getFullYear()}.{String(n.data.date.getMonth() + 1).padStart(2, '0')}</span>
+            <div class="day">
+              <span class="d">{String(n.data.date.getDate()).padStart(2, '0')}</span>
+              <span class="meta">{n.data.date.getFullYear()}·{String(n.data.date.getMonth() + 1).padStart(2, '0')}</span>
             </div>
-            <div class="body">
+            <div>
               <h2>{n.data.title}</h2>
               <p>{excerpt(n.body)}…</p>
-              <span class="meta">{formatDate(n.data.date)}{n.data.mood && ` · ${n.data.mood}`}{n.data.weather && ` · ${n.data.weather}`}</span>
+              <div class="meta info">
+                <span>{dotDate(n.data.date)}</span>
+                {n.data.mood && <span>心情 {n.data.mood}</span>}
+                {n.data.weather && <span>天气 {n.data.weather}</span>}
+              </div>
             </div>
           </a>
         </li>
@@ -37,69 +41,66 @@ const excerpt = (s = '') => s.replace(/^>.*$/gm, '').replace(/[#*`>\[\]_]/g, '')
     list-style: none;
     margin: 0;
     padding: 0;
-    display: grid;
-    gap: 1rem;
+    max-width: 880px;
+  }
+  .notes li:first-child .note {
+    padding-top: 0;
+  }
+  .notes li {
+    border-bottom: 1px solid var(--hair);
   }
   .note {
     display: grid;
-    grid-template-columns: 4.5rem 1fr;
-    gap: 1.25rem;
-    padding: 1.4rem 1.4rem;
-    border-radius: 14px;
-    background: var(--n-1);
-    box-shadow: 0 0 0 1px var(--border);
-    transition: box-shadow 0.3s var(--ease-out), transform 0.3s var(--ease-out);
+    grid-template-columns: 132px minmax(0, 1fr);
+    gap: 24px;
+    padding: 28px 0;
   }
-  :global(:root[data-theme='dark']) .note {
-    background: var(--n-2);
-  }
-  .note:hover {
-    box-shadow: 0 0 0 1px var(--border-strong), var(--shadow-whisper);
-    transform: translateY(-2px);
-  }
-  .date {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding-right: 1.25rem;
-    border-right: 1px solid var(--border);
+  .day {
+    display: grid;
+    align-content: start;
+    gap: 4px;
   }
   .d {
-    font-size: 30px;
-    line-height: 1.1;
-    color: var(--n-10);
-  }
-  .ym {
-    margin-top: 0.25rem;
-    font-size: 11.5px;
-    color: var(--n-6);
+    font-family: var(--font-serif);
+    font-weight: 500;
+    font-size: 44px;
+    line-height: 1;
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
   }
   h2 {
-    font-size: 17px;
-    line-height: 1.5;
-    transition: color 0.2s;
+    font-size: 20px;
+    line-height: 1.4;
+    transition: color 0.2s var(--ease);
   }
   .note:hover h2 {
     color: var(--accent);
   }
-  .body p {
-    margin: 0.4rem 0 0;
-    font-size: 13.5px;
-    line-height: 1.75;
+  p {
+    margin: 8px 0 0;
+    max-width: 60ch;
+    font-family: var(--font-serif);
+    font-size: 15px;
+    line-height: 1.8;
     color: var(--n-7);
   }
-  .meta {
-    display: block;
-    margin-top: 0.6rem;
-    font-size: 12px;
-    color: var(--n-6);
+  .info {
+    display: flex;
+    gap: 14px;
+    margin-top: 12px;
+    font-size: 11.5px;
   }
-  @media (max-width: 560px) {
+  @media (max-width: 640px) {
     .note {
-      grid-template-columns: 3.4rem 1fr;
-      gap: 1rem;
-      padding: 1.1rem;
+      grid-template-columns: 64px minmax(0, 1fr);
+      gap: 16px;
+      padding: 22px 0;
     }
-    .date { padding-right: 1rem; }
+    .d {
+      font-size: 32px;
+    }
+    .day .meta {
+      font-size: 10.5px;
+    }
   }
 </style>
