@@ -1,0 +1,87 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getPosts, formatDate } from '../../utils/content';
+
+const posts = await getPosts();
+const byYear = new Map<number, typeof posts>();
+for (const p of posts) {
+  const y = p.data.date.getFullYear();
+  byYear.set(y, [...(byYear.get(y) ?? []), p]);
+}
+let idx = 2;
+---
+<Base title="文章" description="所有文章">
+  <div class="container">
+    <header class="page-head">
+      <p class="eyebrow reveal" style="--i:0">Posts</p>
+      <h1 class="reveal" style="--i:1">文章</h1>
+      <p class="reveal" style="--i:2">写得不多，但每一篇都认真。共 {posts.length} 篇。</p>
+    </header>
+
+    {posts.length === 0 && <p class="muted">还没有文章。</p>}
+
+    {[...byYear.entries()].map(([year, list]) => (
+      <section class="year-block">
+        <h2 class="year reveal" style={`--i:${idx++}`}>{year}</h2>
+        <ul class="timeline">
+          {list.map((p) => (
+            <li class="reveal" style={`--i:${idx++}`}>
+              <a href={`/posts/${p.id}/`}>
+                <time class="tabular" datetime={p.data.date.toISOString()}>{formatDate(p.data.date, 'short')}</time>
+                <span class="t">{p.data.title}</span>
+                {p.data.tags.length > 0 && <span class="tags">{p.data.tags.slice(0, 2).join(' / ')}</span>}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    ))}
+  </div>
+</Base>
+
+<style>
+  .year-block + .year-block {
+    margin-top: 2.5rem;
+  }
+  .year {
+    font-size: 30px;
+    color: var(--n-4);
+    font-variant-numeric: tabular-nums;
+    margin-bottom: 0.6rem;
+  }
+  .timeline {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .timeline a {
+    display: flex;
+    align-items: baseline;
+    gap: 1.25rem;
+    padding: 0.7rem 0;
+    border-bottom: 1px dashed var(--border);
+  }
+  .timeline time {
+    flex: none;
+    width: 3.2rem;
+    font-size: 13px;
+    color: var(--n-6);
+  }
+  .t {
+    flex: 1;
+    font-size: 16px;
+    color: var(--n-9);
+    transition: color 0.2s, transform 0.3s var(--ease-out);
+  }
+  .timeline a:hover .t {
+    color: var(--accent);
+    transform: translateX(3px);
+  }
+  .tags {
+    font-size: 12px;
+    color: var(--n-6);
+  }
+  @media (max-width: 560px) {
+    .tags { display: none; }
+  }
+</style>

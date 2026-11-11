@@ -1,0 +1,27 @@
+---
+interface Props {
+  name: string;
+  size?: number;
+  class?: string;
+}
+const { name, size = 18, class: cls } = Astro.props;
+const icons: Record<string, string> = {
+  github:
+    '<path fill="currentColor" d="M12 2C6.48 2 2 6.58 2 12.23c0 4.52 2.87 8.35 6.84 9.7.5.1.68-.22.68-.49l-.01-1.7c-2.78.62-3.37-1.21-3.37-1.21-.46-1.18-1.11-1.5-1.11-1.5-.91-.64.07-.62.07-.62 1 .07 1.53 1.06 1.53 1.06.9 1.56 2.35 1.11 2.92.85.09-.66.35-1.11.63-1.37-2.22-.26-4.56-1.14-4.56-5.07 0-1.12.39-2.04 1.03-2.76-.1-.26-.45-1.3.1-2.71 0 0 .84-.28 2.75 1.05a9.4 9.4 0 0 1 5 0c1.91-1.33 2.75-1.05 2.75-1.05.55 1.41.2 2.45.1 2.71.64.72 1.03 1.64 1.03 2.76 0 3.94-2.34 4.81-4.57 5.06.36.32.68.94.68 1.9l-.01 2.81c0 .27.18.6.69.49A10.1 10.1 0 0 0 22 12.23C22 6.58 17.52 2 12 2Z"/>',
+  x: '<path fill="currentColor" d="M17.75 3h3.07l-6.71 7.67L22 21h-6.18l-4.84-6.33L5.44 21H2.37l7.18-8.2L2 3h6.34l4.37 5.78L17.75 3Zm-1.08 16.18h1.7L7.4 4.73H5.58l11.09 14.45Z"/>',
+  mail: '<path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M4 6h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1Zm-1 1 9 6.5L21 7"/>',
+  telegram:
+    '<path fill="currentColor" d="M20.67 4.22 2.95 11.06c-1.21.49-1.2 1.16-.22 1.46l4.55 1.42 1.74 5.35c.21.58.11.81.72.81.47 0 .68-.21.94-.47l2.27-2.2 4.71 3.48c.87.48 1.49.23 1.71-.8l3.1-14.6c.32-1.27-.48-1.85-1.8-1.29ZM8.6 13.6l9.7-6.12c.48-.29.93-.13.56.2l-8.3 7.5-.32 3.43-1.64-5.01Z"/>',
+  bilibili:
+    '<path fill="currentColor" d="M17.8 4.6h-1.6l1.9-1.9a.9.9 0 1 0-1.3-1.3L13.5 4.6h-3L7.2 1.4a.9.9 0 1 0-1.3 1.3l1.9 1.9H6.2A4.2 4.2 0 0 0 2 8.8v7.6a4.2 4.2 0 0 0 4.2 4.2h11.6a4.2 4.2 0 0 0 4.2-4.2V8.8a4.2 4.2 0 0 0-4.2-4.2Zm2.3 11.8a2.4 2.4 0 0 1-2.3 2.4H6.2a2.4 2.4 0 0 1-2.3-2.4V8.8a2.4 2.4 0 0 1 2.3-2.4h11.6a2.4 2.4 0 0 1 2.3 2.4v7.6ZM8.4 10.2a1.1 1.1 0 0 0-1.1 1.1v1.4a1.1 1.1 0 1 0 2.2 0v-1.4a1.1 1.1 0 0 0-1.1-1.1Zm7.2 0a1.1 1.1 0 0 0-1.1 1.1v1.4a1.1 1.1 0 1 0 2.2 0v-1.4a1.1 1.1 0 0 0-1.1-1.1Z"/>',
+  rss: '<path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" d="M5 11a8 8 0 0 1 8 8M5 5a14 14 0 0 1 14 14"/><circle cx="6" cy="18" r="1.4" fill="currentColor"/>',
+  link: '<path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" d="M10 14a4 4 0 0 0 5.66 0l3-3a4 4 0 0 0-5.66-5.66l-1 1M14 10a4 4 0 0 0-5.66 0l-3 3a4 4 0 0 0 5.66 5.66l1-1"/>',
+  sun: '<g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M4.6 4.6l1.4 1.4M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4 6 18M18 6l1.4-1.4"/></g>',
+  moon: '<path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/>',
+  arrow: '<path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M5 12h14m-5-5 5 5-5 5"/>',
+  back: '<path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M19 12H5m5 5-5-5 5-5"/>',
+  menu: '<path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" d="M4 7h16M4 12h16M4 17h16"/>',
+};
+const body = icons[name] ?? icons.link;
+---
+<svg class={cls} width={size} height={size} viewBox="0 0 24 24" aria-hidden="true" set:html={body} />

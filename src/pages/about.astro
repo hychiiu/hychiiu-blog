@@ -1,0 +1,84 @@
+---
+import Base from '../layouts/Base.astro';
+import Icon from '../components/Icon.astro';
+import { site } from '../site.config';
+---
+<Base title="关于" description={`关于 ${site.name}`}>
+  <div class="container about">
+    <header class="page-head">
+      <p class="eyebrow reveal" style="--i:0">About</p>
+      <h1 class="reveal" style="--i:1">关于我</h1>
+    </header>
+
+    <div class="card reveal" style="--i:2">
+      <img src={site.avatarLarge} alt={site.name} width="88" height="88" />
+      <div>
+        <h2 class="serif">{site.name}</h2>
+        <p class="muted">{site.intro}</p>
+        <ul class="links">
+          {site.socials.map((s) => (
+            <li><a href={s.href} target={s.href.startsWith('http') ? '_blank' : undefined} rel="noopener noreferrer"><Icon name={s.icon} size={15} /> {s.label}</a></li>
+          ))}
+        </ul>
+      </div>
+    </div>
+
+    <!-- TODO：在这里写下你的自我介绍。直接编辑 src/pages/about.astro 即可。 -->
+    <div class="prose reveal" style="--i:3">
+      <p>你好，我是 {site.name}。这里是关于页面的占位文字，之后可以改成你自己的故事。</p>
+      <p>可以写写你在做什么、喜欢什么、相信什么；也可以只留一句话，让余白替你说完剩下的。</p>
+      <h2>现在</h2>
+      <ul>
+        <li>正在做的事情：占位</li>
+        <li>最近在读 / 在听：占位</li>
+        <li>常用工具：占位</li>
+      </ul>
+      <h2>关于本站</h2>
+      <p>本站使用 <a href="https://astro.build" target="_blank" rel="noopener">Astro</a> 构建，纯静态托管于 Cloudflare Pages；视觉语言参考了开源的 Yohaku 设计系统（MIT）。</p>
+    </div>
+  </div>
+</Base>
+
+<style>
+  .card {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+    padding: 1.5rem;
+    margin-bottom: 3rem;
+    border-radius: 16px;
+    background: var(--n-1);
+    box-shadow: 0 0 0 1px var(--border);
+  }
+  :global(:root[data-theme='dark']) .card { background: var(--n-2); }
+  .card img {
+    width: 88px;
+    height: 88px;
+    border-radius: 999px;
+    object-fit: cover;
+    flex: none;
+    box-shadow: 0 0 0 1px var(--border-strong);
+  }
+  .card h2 { font-size: 22px; }
+  .card p { margin: 0.3rem 0 0; font-size: 14px; }
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 1rem;
+    list-style: none;
+    padding: 0;
+    margin: 0.8rem 0 0;
+  }
+  .links a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 13px;
+    color: var(--n-7);
+    transition: color 0.2s;
+  }
+  .links a:hover { color: var(--accent); }
+  @media (max-width: 520px) {
+    .card { flex-direction: column; align-items: flex-start; }
+  }
+</style>

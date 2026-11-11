@@ -1,0 +1,136 @@
+---
+import Base from './Base.astro';
+import Giscus from '../components/Giscus.astro';
+import Icon from '../components/Icon.astro';
+import { formatDate, readingMinutes, countWords } from '../utils/content';
+
+interface Props {
+  title: string;
+  date: Date;
+  description?: string;
+  tags?: string[];
+  body?: string;
+  kind: 'post' | 'note';
+  backHref: string;
+  backLabel: string;
+  extra?: string[];
+  prev?: { href: string; title: string };
+  next?: { href: string; title: string };
+}
+const { title, date, description, tags = [], body = '', kind, backHref, backLabel, extra = [], prev, next } = Astro.props;
+---
+<Base title={title} description={description || title} type="article">
+  <article class="container article">
+    <header class="a-head">
+      <a href={backHref} class="back reveal" style="--i:0"><Icon name="back" size={14} /> {backLabel}</a>
+      <h1 class="reveal" style="--i:1">{title}</h1>
+      <div class="a-meta reveal tabular" style="--i:2">
+        <time datetime={date.toISOString()}>{formatDate(date)}</time>
+        <span>·</span>
+        <span>{countWords(body)} 字</span>
+        {kind === 'post' && (<><span>·</span><span>约 {readingMinutes(body)} 分钟</span></>)}
+        {extra.map((e) => (<><span>·</span><span>{e}</span></>))}
+      </div>
+      {description && kind === 'post' && <p class="a-desc reveal" style="--i:3">{description}</p>}
+    </header>
+
+    <div class="prose reveal" style="--i:4">
+      <slot />
+    </div>
+
+    {tags.length > 0 && (
+      <div class="a-tags">
+        {tags.map((t) => <span class="chip"># {t}</span>)}
+      </div>
+    )}
+
+    {(prev || next) && (
+      <nav class="pager" aria-label="上一篇 / 下一篇">
+        {prev ? <a href={prev.href} class="pg"><span class="eyebrow">上一篇</span><span class="pg-t">{prev.title}</span></a> : <span />}
+        {next ? <a href={next.href} class="pg right"><span class="eyebrow">下一篇</span><span class="pg-t">{next.title}</span></a> : <span />}
+      </nav>
+    )}
+
+    <Giscus />
+  </article>
+</Base>
+
+<style>
+  .article {
+    padding-top: 4rem;
+    max-width: 44rem;
+  }
+  .a-head {
+    margin-bottom: 3rem;
+  }
+  .back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 13px;
+    color: var(--n-6);
+    margin-bottom: 1.75rem;
+    transition: color 0.2s, gap 0.3s var(--ease-out);
+  }
+  .back:hover {
+    color: var(--accent);
+    gap: 0.55rem;
+  }
+  h1 {
+    font-size: 32px;
+    line-height: 1.35;
+  }
+  .a-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    margin-top: 1rem;
+    font-size: 12.5px;
+    color: var(--n-6);
+  }
+  .a-desc {
+    margin: 1.5rem 0 0;
+    padding-left: 1rem;
+    border-left: 2px solid var(--n-3);
+    font-size: 14.5px;
+    color: var(--n-7);
+    line-height: 1.8;
+  }
+  .a-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 3rem;
+  }
+  .pager {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-top: 3rem;
+  }
+  .pg {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    padding: 1rem 1.15rem;
+    border-radius: 12px;
+    box-shadow: 0 0 0 1px var(--border);
+    transition: background 0.25s, box-shadow 0.25s;
+  }
+  .pg:hover {
+    background: var(--n-2);
+  }
+  .pg.right {
+    text-align: right;
+  }
+  .pg-t {
+    font-family: var(--font-serif);
+    color: var(--n-9);
+    font-size: 15px;
+  }
+  @media (max-width: 640px) {
+    .article { padding-top: 2.5rem; }
+    h1 { font-size: 26px; }
+    .pager { grid-template-columns: 1fr; }
+  }
+</style>

@@ -1,0 +1,48 @@
+---
+import { site } from '../site.config';
+const year = new Date().getFullYear();
+const startYear = new Date(site.startDate).getFullYear();
+---
+<footer class="site-footer">
+  <div class="container container-wide inner">
+    <p>
+      © {startYear === year ? year : `${startYear}–${year}`} {site.name}
+      <span class="dot">·</span>
+      <a href="/rss.xml">RSS</a>
+      <span class="dot">·</span>
+      <a href="/sitemap-index.xml">Sitemap</a>
+    </p>
+    <p class="subtle">在余白处，慢慢写。</p>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    position: relative;
+    z-index: 1;
+    margin-top: 6rem;
+    padding: 2rem 0 2.5rem;
+    border-top: 1px solid var(--border);
+    font-size: 12.5px;
+    color: var(--n-7);
+  }
+  .inner {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.5rem;
+  }
+  p {
+    margin: 0;
+  }
+  a {
+    transition: color 0.2s;
+  }
+  a:hover {
+    color: var(--accent);
+  }
+  .dot {
+    margin: 0 0.4rem;
+    color: var(--n-5);
+  }
+</style>

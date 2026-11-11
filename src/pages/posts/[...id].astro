@@ -1,0 +1,33 @@
+---
+import { render } from 'astro:content';
+import Article from '../../layouts/Article.astro';
+import { getPosts } from '../../utils/content';
+
+export async function getStaticPaths() {
+  const posts = await getPosts();
+  return posts.map((post, i) => ({
+    params: { id: post.id },
+    props: {
+      post,
+      newer: posts[i - 1] ? { href: `/posts/${posts[i - 1].id}/`, title: posts[i - 1].data.title } : undefined,
+      older: posts[i + 1] ? { href: `/posts/${posts[i + 1].id}/`, title: posts[i + 1].data.title } : undefined,
+    },
+  }));
+}
+const { post, newer, older } = Astro.props;
+const { Content } = await render(post);
+---
+<Article
+  kind="post"
+  title={post.data.title}
+  date={post.data.date}
+  description={post.data.description}
+  tags={post.data.tags}
+  body={post.body}
+  backHref="/posts/"
+  backLabel="文章"
+  prev={older}
+  next={newer}
+>
+  <Content />
+</Article>

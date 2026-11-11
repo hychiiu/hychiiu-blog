@@ -1,0 +1,45 @@
+---
+import Base from '../layouts/Base.astro';
+---
+<Base title="404" description="页面不存在">
+  <div class="container nf">
+    <p class="code serif reveal" style="--i:0">404</p>
+    <h1 class="reveal" style="--i:1">这里只剩余白</h1>
+    <p class="muted reveal" style="--i:2">你要找的页面不存在，或者已经被移走了。</p>
+    <a href="/" class="home reveal" style="--i:3">回到首页</a>
+  </div>
+</Base>
+
+<style>
+  .nf {
+    text-align: center;
+    padding-top: 9rem;
+  }
+  .code {
+    margin: 0;
+    font-size: 96px;
+    line-height: 1;
+    color: var(--n-3);
+    letter-spacing: 0.06em;
+  }
+  h1 {
+    margin-top: 1.5rem;
+    font-size: 24px;
+  }
+  .muted {
+    margin: 0.75rem 0 2rem;
+  }
+  .home {
+    display: inline-block;
+    padding: 0.6rem 1.4rem;
+    border-radius: 999px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 13.5px;
+    transition: opacity 0.2s, transform 0.3s var(--ease-out);
+  }
+  .home:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+  }
+</style>

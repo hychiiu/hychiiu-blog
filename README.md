@@ -1,0 +1,137 @@
+# hychiiu 的个人主页 · 博客
+
+一个以「个人主页」为主、偶尔写写文章的纯静态站点。
+
+- 框架：[Astro](https://astro.build)（纯静态输出，无后端）
+- 视觉：参考开源的 [Yohaku 设计系统](https://github.com/Innei/Yohaku/tree/main/design-system)（MIT）的设计令牌——暖白纸面、衬线标题、单一强调色、大量留白。代码为原创实现，未使用 Innei 的品牌、文案或闭源代码。
+- 托管：Cloudflare Pages（免费）
+- 评论：Giscus（基于 GitHub Discussions，默认关闭，配置后自动启用）
+
+## 目录结构
+
+```
+src/
+├── site.config.ts        ← 唯一配置文件：名字、介绍、链接、引言、强调色、评论
+├── content/
+│   ├── posts/            ← 文章（Markdown）
+│   └── notes/            ← 手记（Markdown）
+├── pages/                ← 首页 / 文章 / 手记 / 关于 / 404 / RSS
+├── components/ layouts/  ← 组件与布局
+└── styles/global.css     ← 设计令牌与排版
+public/                   ← 头像、favicon 等静态文件
+scripts/avatar.mjs        ← 一键生成头像 webp / favicon
+```
+
+## 本地开发
+
+需要 Node.js 22.23+（推荐 24，见 `.nvmrc`）。
+
+```bash
+npm install        # 或 pnpm install
+npm run dev        # 本地预览：http://localhost:4321
+npm run build      # 构建到 dist/
+npm run preview    # 预览构建结果
+```
+
+## 修改个人信息
+
+全部在 `src/site.config.ts` 里：
+
+- `name` / `intro` / `subIntro`：首页名字和介绍
+- `quote`：首页引言
+- `socials`：社交链接，取消注释就能启用（X、邮箱、Telegram、B 站……）
+- `accent`：强调色（默认 Yohaku 的梅色 `#c56473`）
+- `startDate`：建站日期，首页显示「已运行 N 天」
+- `url`：绑定域名后改成你的正式域名（影响 RSS / sitemap）
+- `giscus`：评论配置（见下文）
+
+关于页的正文在 `src/pages/about.astro`，直接改文字即可。
+
+### 更换头像
+
+```bash
+npm run avatar -- ./你的头像.png
+```
+
+会自动生成 `public/avatar.webp`（256px）、`avatar@2x.webp`（512px）、`favicon.png`、`apple-touch-icon.png`。
+
+## 写一篇文章
+
+在 `src/content/posts/` 下新建一个 `.md` 文件，文件名就是网址，例如 `my-first-post.md` → `/posts/my-first-post/`：
+
+```md
+---
+title: 文章标题
+date: 2026-11-11
+description: 一句话摘要（显示在列表和 SEO 里）
+tags: [随笔, 技术]
+draft: false        # true 时只在本地 dev 可见，不会发布
+---
+
+正文用 Markdown 写。
+```
+
+写手记同理，放在 `src/content/notes/`，frontmatter 为：
+
+```md
+---
+title: 手记标题
+date: 2026-11-11
+mood: 平静       # 可选
+weather: 晴      # 可选
+---
+```
+
+仓库里的 `hello-world.md` 和 `first-note.md` 是示例，删掉即可。
+
+写完后：
+
+```bash
+git add . && git commit -m "new post" && git push
+```
+
+Cloudflare Pages 会自动构建发布。
+
+## 部署到 Cloudflare Pages
+
+### 方式一：连接 Git（推荐，push 即发布）
+
+1. 把项目推到 GitHub（公开或私有都行）。
+2. 打开 Cloudflare 控制台 → **Workers & Pages** → **创建** → **Pages** → **连接到 Git**，选择仓库。
+3. 构建设置：
+   - 框架预设：`Astro`
+   - 构建命令：`npm run build`
+   - 构建输出目录：`dist`
+   - 环境变量：`NODE_VERSION` = `24`（Astro 需要 Node 22.23+）
+4. 保存并部署，几十秒后会得到一个 `xxx.pages.dev` 地址。
+
+### 方式二：命令行直接上传
+
+```bash
+npm run build
+npx wrangler login                 # 第一次需要登录 Cloudflare
+npx wrangler pages deploy dist --project-name hychiiu-blog
+```
+
+（也可以直接 `npm run deploy`，它会先构建再上传。）
+
+## 绑定自定义域名
+
+1. Cloudflare 控制台 → Workers & Pages → 你的项目 → **自定义域** → **设置自定义域**。
+2. 输入域名，例如 `blog.example.com` 或 `example.com`。
+   - 域名已托管在 Cloudflare：会自动添加 DNS 记录，等几分钟证书签发即可。
+   - 域名在别处：按提示添加一条 `CNAME` 指向 `你的项目.pages.dev`（根域名建议把 DNS 迁到 Cloudflare）。
+3. 回到 `src/site.config.ts`，把 `url` 改成 `https://你的域名`，提交并推送。
+
+## 开启评论（Giscus）
+
+1. 准备一个**公开**的 GitHub 仓库，在仓库 Settings 里开启 **Discussions**。
+2. 安装 [giscus App](https://github.com/apps/giscus) 并授权这个仓库。
+3. 打开 <https://giscus.app/zh-CN>，填仓库名，选一个分类（推荐 Announcements），页面下方会生成 `data-repo`、`data-repo-id`、`data-category`、`data-category-id`。
+4. 把这四个值填进 `src/site.config.ts` 的 `giscus` 里，重新部署，文章页底部就会出现评论区（会跟随深浅色切换）。
+
+## 其他
+
+- RSS：`/rss.xml`　站点地图：`/sitemap-index.xml`
+- 深浅色：默认跟随系统，右上角可手动切换（会记住选择）
+- 动效：遵循系统「减少动态效果」设置
