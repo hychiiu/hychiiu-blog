@@ -49,7 +49,7 @@ const socials = site.socials.map((s) => (s.icon === 'rss' ? { ...s, href: locali
 
       <figure class="avatar reveal" style="--i:2">
         <img src={site.avatarLarge} alt={t('avatar.alt')(site.name)} width="168" height="168" loading="eager" />
-        <figcaption class="meta">{site.name}{site.nameCJK && <span class="cn-accent"> · {site.nameCJK}</span>}</figcaption>
+        <figcaption class="meta">@{site.name}{site.nameCJK && <span class="cn-accent"> · {site.nameCJK}</span>}</figcaption>
       </figure>
     </header>
 
