@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://hychiiu-blog.pages.dev/sitemap-index.xml
+Sitemap: https://inbluemoon.com/sitemap-index.xml
