@@ -1,32 +1,4 @@
 {
   "repo": "hychiiu/hychiiu-blog",
-  "issues": [
-    {
-      "number": 1,
-      "kind": "post",
-      "title": "Issue 渲染测试",
-      "body": "<!--\nslug: issue-test\ndescription: 端到端测试：来自 GitHub Issue 的文章\n-->\n\n\n这是一段普通段落，包含 **粗体**、*强调*、~~删除线~~、`行内代码`、<kbd>Ctrl</kbd> + <kbd>C</kbd>、H<sub>2</sub>O、E = mc<sup>2</sup>、<mark>高亮</mark>，以及一个[内部链接](/posts/)和一个[外部链接](https://astro.build)。自动链接：https://github.com/hychiiu 。Emoji 短代码：:tada: :rocket: :coffee:。脚注引用[^1]，再来一个[^note]。\n\n## 标题与锚点\n\n### 三级标题\n\n#### 四级标题\n\n##### 五级标题\n\n## 列表\n\n- 无序列表第一项\n- 第二项\n  - 嵌套第一项\n  - 嵌套第二项\n    - 更深一层\n- 第三项\n\n1. 有序列表\n2. 第二步\n   1. 嵌套有序\n   2. 嵌套有序二\n3. 第三步\n\n- [x] 已完成的任务\n- [ ] 未完成的任务\n- [ ] 另一个待办\n\n## 引用与提示块\n\n> 这是一段引用。好的文字像留白一样，让读者自己补完。\n>\n> > 嵌套引用\n\n> [!NOTE]\n> 这是 NOTE 提示块，适合补充说明。\n\n> [!TIP]\n> 这是 TIP，给出一点小建议。\n\n> [!IMPORTANT]\n> 这是 IMPORTANT，关键信息。\n\n> [!WARNING]\n> 这是 WARNING，需要注意的风险。\n\n> [!CAUTION]\n> 这是 CAUTION，可能造成严重后果。\n\n## 表格\n\n| 语法 | 示例 | 对齐 |\n| :--- | :---: | ---: |\n| 粗体 | `**bold**` | 左 |\n| 删除线 | `~~del~~` | 中 |\n| 行内公式 | `$a^2$` | 右 |\n\n## 代码\n\n```ts title=\"src/hello.ts\" {2} ins={4} del={5}\nexport function hello(name: string) {\n  const greeting = `Hello, ${name}`; // 高亮行\n  console.log(greeting);\n  return greeting.toUpperCase(); // 新增\n  return greeting; // 删除\n}\n```\n\n```diff lang=\"js\"\n  const a = 1;\n- const b = 2;\n+ const b = 3;\n```\n\n```bash\nnpm create astro@latest\nnpm run build\n```\n\n```python showLineNumbers\ndef fib(n):\n    a, b = 0, 1\n    for _ in range(n):\n        a, b = b, a + b\n    return a\n```\n\n## 数学公式\n\n行内公式：$E = mc^2$，以及 $\\sum_{i=1}^{n} i = \\frac{n(n+1)}{2}$。\n\n$$\n\\int_{-\\infty}^{\\infty} e^{-x^2}\\,dx = \\sqrt{\\pi}\n$$\n\n## Mermaid 图\n\n```mermaid\ngraph LR\n  A[写作] --> B{发布?}\n  B -- 是 --> C[推送到 GitHub]\n  B -- 否 --> D[草稿]\n  C --> E[Cloudflare Pages 自动构建]\n```\n\n## 图片\n\n![头像](/avatar@2x.webp \"图片标题会显示为说明文字\")\n\n## 折叠内容\n\n<details>\n<summary>点击展开</summary>\n\n这里是折叠起来的内容，可以包含 **Markdown**。\n\n</details>\n\n---\n\n最后一段。\n\n[^1]: 这是第一个脚注。\n[^note]: 这是一个带名字的脚注，可以写得长一点。\n",
-      "state": "open",
-      "locked": false,
-      "lang": "zh",
-      "tags": [],
-      "url": "https://github.com/hychiiu/hychiiu-blog/issues/1",
-      "createdAt": "2026-11-11T10:31:40Z",
-      "updatedAt": "2026-11-11T10:31:55Z",
-      "closedAt": null,
-      "comments": [
-        {
-          "id": 6793466251,
-          "author": "hychiiu",
-          "avatar": "https://avatars.githubusercontent.com/u/27754907?v=4",
-          "authorUrl": "https://github.com/hychiiu",
-          "association": "OWNER",
-          "body": "测试评论：支持 **Markdown**、`code` 和公式 $x^2$。",
-          "url": "https://github.com/hychiiu/hychiiu-blog/issues/1#issuecomment-6793466251",
-          "createdAt": "2026-11-11T10:31:54Z",
-          "updatedAt": "2026-11-11T10:31:54Z"
-        }
-      ]
-    }
-  ]
+  "issues": []
 }
