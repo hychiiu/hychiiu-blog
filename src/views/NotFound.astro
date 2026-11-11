@@ -2,17 +2,29 @@
 import Base from '../layouts/Base.astro';
 import type { Lang } from '../site.config';
 import { useT, localizePath } from '../i18n';
-interface Props { lang: Lang }
+interface Props {
+  lang: Lang;
+}
 const { lang } = Astro.props;
 const t = useT(lang);
 ---
+
 <Base title="404" description={t('nf.lede')}>
   <div class="shell">
     <header class="nf">
-      <p class="eyebrow reveal" style="--i:0"><span class="dot"></span><span>{t('nf.eyebrow')}</span></p>
-      <h1 class="reveal" style="--i:1">404<span class="cn-accent">{t('nf.cn')}</span></h1>
-      <p class="lede reveal" style="--i:2">{t('nf.lede')}</p>
-      <a href={localizePath(lang, '/')} class="btn btn--primary reveal" style="--i:3">{t('nf.home')}</a>
+      <p class="eyebrow reveal" style="--i:0">
+        <span class="dot"></span>
+        <span>{t('nf.eyebrow')}</span>
+      </p>
+      <h1 class="reveal" style="--i:1">
+        404<span class="cn-accent">{t('nf.cn')}</span>
+      </h1>
+      <p class="lede reveal" style="--i:2">
+        {t('nf.lede')}
+      </p>
+      <a href={localizePath(lang, '/')} class="btn btn--primary reveal" style="--i:3">
+        {t('nf.home')}
+      </a>
     </header>
   </div>
 </Base>
@@ -39,6 +51,8 @@ const t = useT(lang);
     color: var(--n-7);
   }
   @media (max-width: 640px) {
-    .nf { padding-top: 64px; }
+    .nf {
+      padding-top: 64px;
+    }
   }
 </style>

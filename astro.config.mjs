@@ -1,7 +1,6 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
-import mdx from '@astrojs/mdx';
 import expressiveCode from 'astro-expressive-code';
 import { pluginLineNumbers } from '@expressive-code/plugin-line-numbers';
 import { pluginCollapsibleSections } from '@expressive-code/plugin-collapsible-sections';
@@ -96,7 +95,6 @@ export default defineConfig({
         },
       },
     }),
-    mdx(),
     sitemap({
       filter: (page) => !/\/404\/?$/.test(page),
       i18n: { defaultLocale: 'zh', locales: { zh: 'zh-CN', en: 'en' } },

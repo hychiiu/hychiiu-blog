@@ -16,11 +16,13 @@ src/
 ├── data/issues.json      ← 由 GitHub Action 从 Issues 自动同步，不要手改
 ├── pages/                ← 首页 / 文章 / 手记 / 关于 / 404 / RSS
 ├── components/ layouts/  ← 组件与布局
+├── scripts/              ← 浏览器端小模块（如 Mermaid 缩放平移）
 └── styles/global.css     ← 设计令牌与排版
+docs/DESIGN.md            ← 前端视觉设计规范（改界面前先看）
 public/                   ← 头像、favicon 等静态文件
 scripts/avatar.mjs        ← 一键生成头像 webp / favicon
 scripts/sync-issues.mjs   ← 把 Issues 同步成 src/data/issues.json
-.github/workflows/        ← issue 有变动时自动同步
+.github/workflows/        ← issue 有变动时自动同步；CI 检查
 ```
 
 ## 本地开发
@@ -32,7 +34,14 @@ npm install        # 或 pnpm install
 npm run dev        # 本地预览：http://localhost:4321
 npm run build      # 构建到 dist/
 npm run preview    # 预览构建结果
+npm run lint       # ESLint（JS / TS / Astro）
+npm run format     # Prettier 格式化（format:check 只检查）
+npm run check      # astro check + tsc 类型检查
 ```
+
+提交前请保证 `npm run lint && npm run check && npm run build` 通过（CI 会在 push / PR 时跑同样的检查）。提交信息使用 [Conventional Commits](https://www.conventionalcommits.org/)（`feat:` / `fix:` / `style:` / `refactor:` / `docs:` …）。
+
+没有真实文章时，可以用一份测试数据预览：`YH_ISSUES_FILE=/绝对路径/issues.json npm run dev`（格式同 `src/data/issues.json`，不要提交）。
 
 ## 修改个人信息
 
@@ -85,13 +94,13 @@ weather: 晴                 # 手记专用
 
 或者用 `---` 包起来的同样内容。用 HTML 注释写的话，在 GitHub 上看 issue 时不会显示出来。
 
-| 操作 | 做法 |
-| --- | --- |
-| 修改 | 直接编辑 issue，保存后自动同步 |
-| 归档 | **关闭（Close）** issue：文章仍然可以访问（链接不变），但不再出现在首页和列表里，会移到「归档」页（`/archive/`），文章页显示「已归档」，RSS 不再包含 |
-| 恢复 | 重新打开（Reopen）issue |
-| 取消发布 | 加上 `draft` 标签，或者直接删除 issue |
-| 草稿 | 先加 `draft` 标签写，写完去掉标签即发布 |
+| 操作     | 做法                                                                                                                                                 |
+| -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 修改     | 直接编辑 issue，保存后自动同步                                                                                                                       |
+| 归档     | **关闭（Close）** issue：文章仍然可以访问（链接不变），但不再出现在首页和列表里，会移到「归档」页（`/archive/`），文章页显示「已归档」，RSS 不再包含 |
+| 恢复     | 重新打开（Reopen）issue                                                                                                                              |
+| 取消发布 | 加上 `draft` 标签，或者直接删除 issue                                                                                                                |
+| 草稿     | 先加 `draft` 标签写，写完去掉标签即发布                                                                                                              |
 
 ### 评论
 
@@ -112,27 +121,27 @@ npm run dev
 
 issue 正文和评论都用同一套管线在构建时渲染，没有后端。
 
-| 功能 | 写法 | 实现 |
-| --- | --- | --- |
-| 基础语法 + GFM | 标题、列表、引用、表格、`- [ ]` 任务清单、`~~删除线~~`、`[^1]` 脚注、自动链接 | Astro 自带（remark-gfm） |
-| 图片说明 | `![替代文字](/img.png "这句会显示为图片说明")` | 自定义插件，生成 `<figure>` |
-| 数学公式 | 行内 `$E=mc^2$`，块级 `$$ … $$` | remark-math + rehype-katex（KaTeX 样式和字体打包在站内，不走 CDN） |
-| Mermaid 图 | ` ```mermaid ` 代码块 | mermaid，只在有图的页面按需加载，跟随深浅色切换 |
-| 提示块 | `> [!NOTE]` / `[!TIP]` / `[!IMPORTANT]` / `[!WARNING]` / `[!CAUTION]` | remark-github-blockquote-alert |
-| 代码块 | 语法高亮、文件名、行高亮、diff、行号、复制按钮 | Expressive Code（Shiki 双主题） |
-| 标题锚点 | 自动生成，鼠标悬停标题时出现 `#` | rehype-slug + rehype-autolink-headings |
-| 外链 | 站外链接自动新标签页打开，并带 ↗ 标记 | rehype-external-links |
-| Emoji | `:tada:` `:rocket:` | remark-emoji |
-| HTML | `<kbd>`、`<sup>`、`<sub>`、`<mark>`、`<details><summary>` | 原生支持，已配好样式 |
+| 功能           | 写法                                                                          | 实现                                                               |
+| -------------- | ----------------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| 基础语法 + GFM | 标题、列表、引用、表格、`- [ ]` 任务清单、`~~删除线~~`、`[^1]` 脚注、自动链接 | Astro 自带（remark-gfm）                                           |
+| 图片说明       | `![替代文字](/img.png "这句会显示为图片说明")`                                | 自定义插件，生成 `<figure>`                                        |
+| 数学公式       | 行内 `$E=mc^2$`，块级 `$$ … $$`                                               | remark-math + rehype-katex（KaTeX 样式和字体打包在站内，不走 CDN） |
+| Mermaid 图     | ` ```mermaid ` 代码块                                                         | mermaid，只在有图的页面按需加载，跟随深浅色切换                    |
+| 提示块         | `> [!NOTE]` / `[!TIP]` / `[!IMPORTANT]` / `[!WARNING]` / `[!CAUTION]`         | remark-github-blockquote-alert                                     |
+| 代码块         | 语法高亮、文件名、行高亮、diff、行号、复制按钮                                | Expressive Code（Shiki 双主题）                                    |
+| 标题锚点       | 自动生成，鼠标悬停标题时出现 `#`                                              | rehype-slug + rehype-autolink-headings                             |
+| 外链           | 站外链接自动新标签页打开，并带 ↗ 标记                                         | rehype-external-links                                              |
+| Emoji          | `:tada:` `:rocket:`                                                           | remark-emoji                                                       |
+| HTML           | `<kbd>`、`<sup>`、`<sub>`、`<mark>`、`<details><summary>`                     | 原生支持，已配好样式                                               |
 
 代码块写法：
 
-~~~md
+````md
 ```ts title="src/hello.ts" {2} ins={3} del={4}
 const a = 1;
-const b = 2;          // {2} 高亮第 2 行
-const c = 3;          // ins 标记为新增
-const d = 4;          // del 标记为删除
+const b = 2; // {2} 高亮第 2 行
+const c = 3; // ins 标记为新增
+const d = 4; // del 标记为删除
 ```
 
 ```diff
@@ -143,7 +152,7 @@ const d = 4;          // del 标记为删除
 ```python showLineNumbers
 print("显示行号")
 ```
-~~~
+````
 
 > 改过 `astro.config.mjs` 之后，如果本地构建出来的代码块样式不对，删掉 `.astro/` 目录再构建一次（这是 Astro 的内容缓存）。
 
@@ -190,6 +199,8 @@ npx wrangler pages deploy dist --project-name hychiiu-blog
 
 ## 字体与设计
 
+完整的视觉规范（颜色、字号、间距、圆角、动效、组件规则）见 [`docs/DESIGN.md`](docs/DESIGN.md)，组件只引用其中定义的 CSS 变量。
+
 - 标题与正文：Noto Serif SC（SIL OFL），按 unicode-range 分片自托管，浏览器只下载用到的字符分片（`src/styles/fonts.css`，由 `node scripts/gen-fonts.mjs` 生成）
 - 元信息 / 标签 / 代码：JetBrains Mono（OFL，全站唯一等宽字体），界面文字：Inter（OFL），均通过 Fontsource 自托管，不依赖 Google Fonts
 - 颜色：Yohaku 开源令牌——梅色强调 `#c56473`、暖色中性 n-1…10、亮色纸面 `#faf9f5`、暗色 `#18181a`
@@ -197,5 +208,5 @@ npx wrangler pages deploy dist --project-name hychiiu-blog
 ## 其他
 
 - RSS：`/rss.xml`　站点地图：`/sitemap-index.xml`
-- 深浅色：默认跟随系统，右上角可手动切换（会记住选择）
+- 深浅色：默认跟随系统，Dock 最下方的按钮可手动切换（会记住选择）
 - 动效：遵循系统「减少动态效果」设置

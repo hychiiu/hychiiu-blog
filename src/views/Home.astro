@@ -7,15 +7,39 @@ import { site, type Lang } from '../site.config';
 import { useT, localizePath, quoteMarks } from '../i18n';
 import { getPostsFor, getNotesFor, getPosts, getNotes } from '../utils/content';
 
-interface Props { lang: Lang }
+interface Props {
+  lang: Lang;
+}
 const { lang } = Astro.props;
 const t = useT(lang);
-const [posts, notes, allPosts, allNotes] = await Promise.all([getPostsFor(lang), getNotesFor(lang), getPosts(), getNotes()]);
+const [posts, notes, allPosts, allNotes] = await Promise.all([
+  getPostsFor(lang),
+  getNotesFor(lang),
+  getPosts(),
+  getNotes(),
+]);
 const hasArchive = [...allPosts, ...allNotes].some((e) => e.data.archived);
 const mark = (l: Lang) => (l !== lang ? (l === 'zh' ? t('marker.zh') : t('marker.en')) : undefined);
 const recent: Item[] = [
-  ...posts.map((p) => ({ href: localizePath(lang, `/posts/${p.id}/`), marker: mark(p.data.lang), title: p.data.title, date: p.data.date, description: p.data.description, kind: 'post' as const, body: p.body, tags: p.data.tags, cover: p.data.cover })),
-  ...notes.map((n) => ({ href: localizePath(lang, `/notes/${n.id}/`), marker: mark(n.data.lang), title: n.data.title, date: n.data.date, kind: 'note' as const, cover: n.data.cover })),
+  ...posts.map((p) => ({
+    href: localizePath(lang, `/posts/${p.id}/`),
+    marker: mark(p.data.lang),
+    title: p.data.title,
+    date: p.data.date,
+    description: p.data.description,
+    kind: 'post' as const,
+    body: p.body,
+    tags: p.data.tags,
+    cover: p.data.cover,
+  })),
+  ...notes.map((n) => ({
+    href: localizePath(lang, `/notes/${n.id}/`),
+    marker: mark(n.data.lang),
+    title: n.data.title,
+    date: n.data.date,
+    kind: 'note' as const,
+    cover: n.data.cover,
+  })),
 ]
   .sort((a, b) => b.date.valueOf() - a.date.valueOf())
   .slice(0, 6);
@@ -25,24 +49,53 @@ const hasQuote = Boolean(site.quote[lang]);
 const secNum = (i: number, label: string) => `${String(i).padStart(2, '0')} · ${label}`;
 const socials = site.social.map((s) => (s.icon === 'rss' ? { ...s, href: localizePath(lang, '/rss.xml') } : s));
 ---
+
 <Base>
   <div class="shell">
     <header class="hero">
       <div class="hero-main">
-        <p class="eyebrow reveal" style="--i:0"><span class="dot"></span><span>{site.eyebrow[lang]} · {t('home.since')} {since}</span></p>
+        <p class="eyebrow reveal" style="--i:0">
+          <span class="dot"></span>
+          <span>
+            {site.eyebrow[lang]} · {t('home.since')} {since}
+          </span>
+        </p>
         <h1 class="title reveal" style="--i:1">
           <span class="greet">{site.greeting[lang]}</span>
-          <span class="nm">{site.name}{site.nameCJK && <span class="cn-accent cn">{site.nameCJK}</span>}</span>
+          <span class="nm">
+            {site.name}
+            {site.nameCJK && <span class="cn-accent cn">{site.nameCJK}</span>}
+          </span>
         </h1>
-        {site.intro[lang] && <p class="tagline reveal" style="--i:2">{site.intro[lang]}{site.wave && <span class="wave" aria-hidden="true"> {site.wave}</span>}</p>}
-        {site.subIntro[lang] && <p class="tagline sub reveal" style="--i:3">{site.subIntro[lang]}</p>}
+        {site.intro[lang] && (
+          <p class="tagline reveal" style="--i:2">
+            {site.intro[lang]}
+            {site.wave && (
+              <span class="wave" aria-hidden="true">
+                {' '}
+                {site.wave}
+              </span>
+            )}
+          </p>
+        )}
+        {site.subIntro[lang] && (
+          <p class="tagline sub reveal" style="--i:3">
+            {site.subIntro[lang]}
+          </p>
+        )}
 
         <ul class="social reveal" style="--i:4" aria-label={t('sec.elsewhereTitle')}>
           {socials.map((s) => {
             const ext = /^https?:/.test(s.href);
             return (
               <li>
-                <a href={s.href} aria-label={s.label} data-tip={s.label} target={ext ? '_blank' : undefined} rel={ext ? 'noopener noreferrer me' : undefined}>
+                <a
+                  href={s.href}
+                  aria-label={s.label}
+                  data-tip={s.label}
+                  target={ext ? '_blank' : undefined}
+                  rel={ext ? 'noopener noreferrer me' : undefined}
+                >
                   <Icon name={s.icon} size={18} />
                 </a>
               </li>
@@ -53,7 +106,10 @@ const socials = site.social.map((s) => (s.icon === 'rss' ? { ...s, href: localiz
 
       <figure class="avatar reveal" style="--i:2">
         <img src={site.avatarLarge} alt={t('avatar.alt')(site.name)} width="168" height="168" loading="eager" />
-        <figcaption class="meta">@{site.name}{site.nameCJK && <span class="cn-accent"> · {site.nameCJK}</span>}</figcaption>
+        <figcaption class="meta">
+          @{site.name}
+          {site.nameCJK && <span class="cn-accent"> · {site.nameCJK}</span>}
+        </figcaption>
       </figure>
     </header>
 
@@ -67,8 +123,14 @@ const socials = site.social.map((s) => (s.icon === 'rss' ? { ...s, href: localiz
         <>
           <EntryList items={recent} showKind startIndex={6} lang={lang} />
           <div class="more reveal" style={`--i:${6 + recent.length}`}>
-            <a href={localizePath(lang, '/posts/')} class="btn btn--primary">{t('btn.allPosts')} <Icon name="arrow" size={14} /></a>
-            {hasArchive && <a href={localizePath(lang, '/archive/')} class="archive-link">{t('archive.link')} →</a>}
+            <a href={localizePath(lang, '/posts/')} class="btn btn--primary">
+              {t('btn.allPosts')} <Icon name="arrow" size={14} />
+            </a>
+            {hasArchive && (
+              <a href={localizePath(lang, '/archive/')} class="archive-link">
+                {t('archive.link')} →
+              </a>
+            )}
           </div>
         </>
       ) : (
@@ -80,11 +142,13 @@ const socials = site.social.map((s) => (s.icon === 'rss' ? { ...s, href: localiz
       <section class="section">
         <div class="section-head reveal" style={`--i:${7 + recent.length}`}>
           <p class="section-num">{secNum(1, t('sec.quote'))}</p>
-          <blockquote class="quote">{quoteMarks(lang, site.quote[lang])}{site.quoteAuthor[lang] && <cite>{site.quoteAuthor[lang]}</cite>}</blockquote>
+          <blockquote class="quote">
+            {quoteMarks(lang, site.quote[lang])}
+            {site.quoteAuthor[lang] && <cite>{site.quoteAuthor[lang]}</cite>}
+          </blockquote>
         </div>
       </section>
     )}
-
   </div>
 </Base>
 
@@ -105,7 +169,10 @@ const socials = site.social.map((s) => (s.icon === 'rss' ? { ...s, href: localiz
     height: 36px;
     border-radius: var(--r-round);
     color: var(--n-6);
-    transition: color var(--dur-2) var(--ease), background-color var(--dur-2) var(--ease), transform var(--dur-2) var(--ease);
+    transition:
+      color var(--dur-2) var(--ease),
+      background-color var(--dur-2) var(--ease),
+      transform var(--dur-2) var(--ease);
   }
   .social a:hover,
   .social a:focus-visible {
@@ -133,7 +200,9 @@ const socials = site.social.map((s) => (s.icon === 'rss' ? { ...s, href: localiz
     opacity: 0;
     pointer-events: none;
     transform: translate(-50%, -4px);
-    transition: opacity var(--dur-2) var(--ease), transform var(--dur-3) var(--ease);
+    transition:
+      opacity var(--dur-2) var(--ease),
+      transform var(--dur-3) var(--ease);
   }
   .social a:hover::after,
   .social a:focus-visible::after {
@@ -286,4 +355,3 @@ const socials = site.social.map((s) => (s.icon === 'rss' ? { ...s, href: localiz
     }
   }
 </style>
-

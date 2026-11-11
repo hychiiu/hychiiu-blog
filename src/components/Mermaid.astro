@@ -5,6 +5,7 @@
  * Ctrl/⌘ + 滚轮或触控板捏合缩放，拖拽平移，双击复位；全屏灯箱内滚轮直接缩放。见 docs/DESIGN.md §7 Mermaid。
  */
 ---
+
 <script>
   import { panZoom, type PanZoom } from '../scripts/pan-zoom';
 
@@ -17,8 +18,22 @@
   } as const;
   type Act = keyof typeof ICONS;
   const T = {
-    zh: { in: '放大', out: '缩小', reset: '复位', full: '全屏查看', close: '关闭', hint: '⌘/Ctrl + 滚轮缩放 · 拖拽平移 · 双击复位' },
-    en: { in: 'Zoom in', out: 'Zoom out', reset: 'Reset', full: 'Fullscreen', close: 'Close', hint: '⌘/Ctrl + scroll to zoom · drag to pan · double-click to reset' },
+    zh: {
+      in: '放大',
+      out: '缩小',
+      reset: '复位',
+      full: '全屏查看',
+      close: '关闭',
+      hint: '⌘/Ctrl + 滚轮缩放 · 拖拽平移 · 双击复位',
+    },
+    en: {
+      in: 'Zoom in',
+      out: 'Zoom out',
+      reset: 'Reset',
+      full: 'Fullscreen',
+      close: 'Close',
+      hint: '⌘/Ctrl + scroll to zoom · drag to pan · double-click to reset',
+    },
   };
   const tr = () => T[document.documentElement.lang.startsWith('zh') ? 'zh' : 'en'];
 
@@ -26,7 +41,10 @@
     const bar = document.createElement('div');
     bar.className = 'mmd-ctrl';
     bar.innerHTML = acts
-      .map((a) => `<button type="button" data-act="${a}" aria-label="${tr()[a]}" title="${tr()[a]}"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[a]}</svg></button>`)
+      .map(
+        (a) =>
+          `<button type="button" data-act="${a}" aria-label="${tr()[a]}" title="${tr()[a]}"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[a]}</svg></button>`,
+      )
       .join('');
     return bar;
   }
@@ -84,8 +102,40 @@
   const palette = (dark: boolean) => {
     const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#c56473';
     return dark
-      ? { background: '#18181a', primaryColor: '#24231f', primaryTextColor: '#f0efeb', primaryBorderColor: '#5c5a55', secondaryColor: '#2a2926', tertiaryColor: '#1f1e1c', lineColor: '#a8a69f', textColor: '#e3e1db', noteBkgColor: '#2a2926', noteTextColor: '#e3e1db', noteBorderColor: '#5c5a55', edgeLabelBackground: '#18181a', clusterBkg: '#1f1e1c', clusterBorder: '#403f3a', accent }
-      : { background: '#faf9f5', primaryColor: '#f0efeb', primaryTextColor: '#24231f', primaryBorderColor: '#a8a69f', secondaryColor: '#f6f4ee', tertiaryColor: '#f9f8f5', lineColor: '#787670', textColor: '#24231f', noteBkgColor: '#f6f0ea', noteTextColor: '#24231f', noteBorderColor: '#d0cec6', edgeLabelBackground: '#faf9f5', clusterBkg: '#f6f4ee', clusterBorder: '#d0cec6', accent };
+      ? {
+          background: '#18181a',
+          primaryColor: '#24231f',
+          primaryTextColor: '#f0efeb',
+          primaryBorderColor: '#5c5a55',
+          secondaryColor: '#2a2926',
+          tertiaryColor: '#1f1e1c',
+          lineColor: '#a8a69f',
+          textColor: '#e3e1db',
+          noteBkgColor: '#2a2926',
+          noteTextColor: '#e3e1db',
+          noteBorderColor: '#5c5a55',
+          edgeLabelBackground: '#18181a',
+          clusterBkg: '#1f1e1c',
+          clusterBorder: '#403f3a',
+          accent,
+        }
+      : {
+          background: '#faf9f5',
+          primaryColor: '#f0efeb',
+          primaryTextColor: '#24231f',
+          primaryBorderColor: '#a8a69f',
+          secondaryColor: '#f6f4ee',
+          tertiaryColor: '#f9f8f5',
+          lineColor: '#787670',
+          textColor: '#24231f',
+          noteBkgColor: '#f6f0ea',
+          noteTextColor: '#24231f',
+          noteBorderColor: '#d0cec6',
+          edgeLabelBackground: '#faf9f5',
+          clusterBkg: '#f6f4ee',
+          clusterBorder: '#d0cec6',
+          accent,
+        };
   };
   let seq = 0;
   const render = async () => {
@@ -100,7 +150,14 @@
       securityLevel: 'strict',
       theme: 'base',
       fontFamily: "'Noto Serif SC', 'Noto Serif CJK SC', serif",
-      themeVariables: { ...vars, fontSize: '14px', darkMode: dark, actorBorder: vars.primaryBorderColor, signalColor: vars.lineColor, labelBoxBorderColor: accent },
+      themeVariables: {
+        ...vars,
+        fontSize: '14px',
+        darkMode: dark,
+        actorBorder: vars.primaryBorderColor,
+        signalColor: vars.lineColor,
+        labelBoxBorderColor: accent,
+      },
     });
     await Promise.all(
       blocks.map(async (el) => {
@@ -118,7 +175,8 @@
       }),
     );
   };
-  const idle = (fn: () => void) => ('requestIdleCallback' in window ? requestIdleCallback(fn, { timeout: 800 }) : setTimeout(fn, 50));
+  const idle = (fn: () => void) =>
+    'requestIdleCallback' in window ? requestIdleCallback(fn, { timeout: 800 }) : setTimeout(fn, 50);
   document.addEventListener('astro:page-load', () => idle(render));
   let lastTheme = document.documentElement.dataset.theme;
   new MutationObserver(() => {

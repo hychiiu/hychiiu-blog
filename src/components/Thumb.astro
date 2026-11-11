@@ -12,6 +12,7 @@ interface Props {
 const { src, width = 144, class: cls } = Astro.props;
 const height = Math.round((width * 10) / 16);
 ---
+
 <span class:list={['thumb', cls]} style={`--w:${width}px`} aria-hidden="true">
   <img src={src} alt="" width={width} height={height} loading="lazy" decoding="async" referrerpolicy="no-referrer" />
 </span>

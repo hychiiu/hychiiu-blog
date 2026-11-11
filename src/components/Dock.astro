@@ -21,14 +21,28 @@ const nav = [
 ] as const;
 const label = (l: Lang, k: string) => (ui[l] as Record<string, unknown>)[`nav.${k}`] as string;
 ---
+
 <nav class="dock" data-dock transition:persist="dock" aria-label="Dock">
   <div class="dock-bg" aria-hidden="true"></div>
   <ul class="dock-list" data-dock-list>
     <li class="dock-item" data-mag>
-      <a class="dock-btn avatar" href={localizePath(lang, '/')} data-home data-astro-prefetch="load" data-href-zh={localizePath('zh', '/')} data-href-en={localizePath('en', '/')} aria-label={site.name}>
-        <span class="ico"><img src={site.avatar} alt="" width="40" height="40" /></span>
+      <a
+        class="dock-btn avatar"
+        href={localizePath(lang, '/')}
+        data-home
+        data-astro-prefetch="load"
+        data-href-zh={localizePath('zh', '/')}
+        data-href-en={localizePath('en', '/')}
+        aria-label={site.name}
+      >
+        <span class="ico">
+          <img src={site.avatar} alt="" width="40" height="40" />
+        </span>
       </a>
-      <span class="tip" aria-hidden="true">{site.name}{site.nameCJK && <em> {site.nameCJK}</em>}</span>
+      <span class="tip" aria-hidden="true">
+        {site.name}
+        {site.nameCJK && <em> {site.nameCJK}</em>}
+      </span>
     </li>
     <li class="dock-sep" aria-hidden="true"></li>
     {nav.map((n) => (
@@ -44,26 +58,53 @@ const label = (l: Lang, k: string) => (ui[l] as Record<string, unknown>)[`nav.${
           data-label-en={label('en', n.key)}
           aria-label={label(lang, n.key)}
         >
-          <span class="ico"><Icon name={n.icon} size={18} /></span>
+          <span class="ico">
+            <Icon name={n.icon} size={18} />
+          </span>
         </a>
-        <span class="tip" aria-hidden="true" data-tip>{label(lang, n.key)}</span>
+        <span class="tip" aria-hidden="true" data-tip>
+          {label(lang, n.key)}
+        </span>
       </li>
     ))}
     <li class="dock-sep" aria-hidden="true"></li>
     <li class="dock-item" data-mag data-tone="lang">
-      <a class="dock-btn lang" data-astro-prefetch="load" href={alternates[other]} hreflang={other === 'zh' ? 'zh-CN' : 'en'} data-set-lang={other} data-lang-switch aria-label={ui[lang]['toggle.lang']}>
-        <span class="ico"><span class="lang-glyph" data-lang-glyph data-cjk={other === 'zh' ? '' : undefined}>{other === 'zh' ? '中' : 'EN'}</span></span>
+      <a
+        class="dock-btn lang"
+        data-astro-prefetch="load"
+        href={alternates[other]}
+        hreflang={other === 'zh' ? 'zh-CN' : 'en'}
+        data-set-lang={other}
+        data-lang-switch
+        aria-label={ui[lang]['toggle.lang']}
+      >
+        <span class="ico">
+          <span class="lang-glyph" data-lang-glyph data-cjk={other === 'zh' ? '' : undefined}>
+            {other === 'zh' ? '中' : 'EN'}
+          </span>
+        </span>
       </a>
-      <span class="tip" aria-hidden="true" data-lang-tip>{other === 'zh' ? '中文' : 'English'}</span>
+      <span class="tip" aria-hidden="true" data-lang-tip>
+        {other === 'zh' ? '中文' : 'English'}
+      </span>
     </li>
     <li class="dock-item" data-mag data-tone="theme">
-      <button type="button" class="dock-btn" data-theme-toggle aria-label={ui[lang]['toggle.theme']} data-label-zh={ui.zh['toggle.theme']} data-label-en={ui.en['toggle.theme']}>
+      <button
+        type="button"
+        class="dock-btn"
+        data-theme-toggle
+        aria-label={ui[lang]['toggle.theme']}
+        data-label-zh={ui.zh['toggle.theme']}
+        data-label-en={ui.en['toggle.theme']}
+      >
         <span class="ico theme-ico">
           <Icon name="sun" size={17} class="i-sun" />
           <Icon name="moon" size={17} class="i-moon" />
         </span>
       </button>
-      <span class="tip" aria-hidden="true" data-tip>{ui[lang]['toggle.theme']}</span>
+      <span class="tip" aria-hidden="true" data-tip>
+        {ui[lang]['toggle.theme']}
+      </span>
     </li>
   </ul>
   <span class="dock-dot" data-dock-dot aria-hidden="true"></span>
@@ -142,7 +183,9 @@ const label = (l: Lang, k: string) => (ui[l] as Record<string, unknown>)[`nav.${
     transform: scale(var(--s, 1));
     transform-origin: left center;
     will-change: transform;
-    transition: color var(--dur-2) var(--ease), background-color var(--dur-2) var(--ease);
+    transition:
+      color var(--dur-2) var(--ease),
+      background-color var(--dur-2) var(--ease);
   }
   .dock-btn .ico {
     display: grid;
@@ -184,18 +227,66 @@ const label = (l: Lang, k: string) => (ui[l] as Record<string, unknown>)[`nav.${
     --c2: #8f8c85;
     --glow: rgb(24 24 27 / 0.28);
   }
-  .dock-item[data-tone='home'] { --c1: #e29aa5; --c2: #c56473; --glow: rgb(197 100 115 / 0.45); }
-  .dock-item[data-tone='posts'] { --c1: #9fb1e0; --c2: #5f73b8; --glow: rgb(95 115 184 / 0.42); }
-  .dock-item[data-tone='notes'] { --c1: #eccb86; --c2: #c9973f; --glow: rgb(201 151 63 / 0.42); }
-  .dock-item[data-tone='about'] { --c1: #9fcbbb; --c2: #5d9483; --glow: rgb(93 148 131 / 0.42); }
-  .dock-item[data-tone='lang'] { --c1: #c2aee0; --c2: #8565b5; --glow: rgb(133 101 181 / 0.42); }
-  .dock-item[data-tone='theme'] { --c1: #a9b3c4; --c2: #5f6b80; --glow: rgb(95 107 128 / 0.42); }
-  :root[data-theme='dark'] .dock-item[data-tone='home'] { --c1: #c8717f; --c2: #8e4150; --glow: rgb(0 0 0 / 0.5); }
-  :root[data-theme='dark'] .dock-item[data-tone='posts'] { --c1: #7486c4; --c2: #3d4c86; --glow: rgb(0 0 0 / 0.5); }
-  :root[data-theme='dark'] .dock-item[data-tone='notes'] { --c1: #cfa152; --c2: #8c6526; --glow: rgb(0 0 0 / 0.5); }
-  :root[data-theme='dark'] .dock-item[data-tone='about'] { --c1: #6fa595; --c2: #3e6b5d; --glow: rgb(0 0 0 / 0.5); }
-  :root[data-theme='dark'] .dock-item[data-tone='lang'] { --c1: #9a7dc6; --c2: #5c4488; --glow: rgb(0 0 0 / 0.5); }
-  :root[data-theme='dark'] .dock-item[data-tone='theme'] { --c1: #5d6a82; --c2: #2c3340; --glow: rgb(0 0 0 / 0.5); }
+  .dock-item[data-tone='home'] {
+    --c1: #e29aa5;
+    --c2: #c56473;
+    --glow: rgb(197 100 115 / 0.45);
+  }
+  .dock-item[data-tone='posts'] {
+    --c1: #9fb1e0;
+    --c2: #5f73b8;
+    --glow: rgb(95 115 184 / 0.42);
+  }
+  .dock-item[data-tone='notes'] {
+    --c1: #eccb86;
+    --c2: #c9973f;
+    --glow: rgb(201 151 63 / 0.42);
+  }
+  .dock-item[data-tone='about'] {
+    --c1: #9fcbbb;
+    --c2: #5d9483;
+    --glow: rgb(93 148 131 / 0.42);
+  }
+  .dock-item[data-tone='lang'] {
+    --c1: #c2aee0;
+    --c2: #8565b5;
+    --glow: rgb(133 101 181 / 0.42);
+  }
+  .dock-item[data-tone='theme'] {
+    --c1: #a9b3c4;
+    --c2: #5f6b80;
+    --glow: rgb(95 107 128 / 0.42);
+  }
+  :root[data-theme='dark'] .dock-item[data-tone='home'] {
+    --c1: #c8717f;
+    --c2: #8e4150;
+    --glow: rgb(0 0 0 / 0.5);
+  }
+  :root[data-theme='dark'] .dock-item[data-tone='posts'] {
+    --c1: #7486c4;
+    --c2: #3d4c86;
+    --glow: rgb(0 0 0 / 0.5);
+  }
+  :root[data-theme='dark'] .dock-item[data-tone='notes'] {
+    --c1: #cfa152;
+    --c2: #8c6526;
+    --glow: rgb(0 0 0 / 0.5);
+  }
+  :root[data-theme='dark'] .dock-item[data-tone='about'] {
+    --c1: #6fa595;
+    --c2: #3e6b5d;
+    --glow: rgb(0 0 0 / 0.5);
+  }
+  :root[data-theme='dark'] .dock-item[data-tone='lang'] {
+    --c1: #9a7dc6;
+    --c2: #5c4488;
+    --glow: rgb(0 0 0 / 0.5);
+  }
+  :root[data-theme='dark'] .dock-item[data-tone='theme'] {
+    --c1: #5d6a82;
+    --c2: #2c3340;
+    --glow: rgb(0 0 0 / 0.5);
+  }
   .dock-item[data-tone] .dock-btn {
     border-radius: var(--r-round);
     color: #fff;
@@ -245,7 +336,9 @@ const label = (l: Lang, k: string) => (ui[l] as Record<string, unknown>)[`nav.${
     height: 100%;
     border-radius: var(--r-round);
     object-fit: cover;
-    box-shadow: 0 0 0 0.5px rgb(24 24 27 / 0.14), 0 2px 6px -2px rgb(24 24 27 / 0.25);
+    box-shadow:
+      0 0 0 0.5px rgb(24 24 27 / 0.14),
+      0 2px 6px -2px rgb(24 24 27 / 0.25);
   }
   .lang-glyph {
     font-family: var(--font-mono);
@@ -259,7 +352,9 @@ const label = (l: Lang, k: string) => (ui[l] as Record<string, unknown>)[`nav.${
   }
   .theme-ico svg {
     grid-area: 1 / 1;
-    transition: opacity var(--dur-3) var(--ease), transform var(--dur-4) var(--ease);
+    transition:
+      opacity var(--dur-3) var(--ease),
+      transform var(--dur-4) var(--ease);
   }
   .theme-ico .i-moon {
     opacity: 0;
@@ -295,7 +390,9 @@ const label = (l: Lang, k: string) => (ui[l] as Record<string, unknown>)[`nav.${
     box-shadow: 0 6px 18px -8px rgb(24 24 27 / 0.22);
     opacity: 0;
     transform: translate3d(calc(var(--dx, 0px) - 6px), -50%, 0);
-    transition: opacity var(--dur-2) var(--ease), transform var(--dur-3) var(--ease);
+    transition:
+      opacity var(--dur-2) var(--ease),
+      transform var(--dur-3) var(--ease);
   }
   .tip em {
     font-style: normal;
@@ -483,7 +580,17 @@ const label = (l: Lang, k: string) => (ui[l] as Record<string, unknown>)[`nav.${
     bound: boolean;
   };
   const w = window as unknown as { __dock?: EngineState };
-  const S: EngineState = (w.__dock ??= { nodes: [], pointer: null, rawPointer: null, raf: 0, last: 0, dot: null, navigating: false, leftDuringNav: false, bound: false });
+  const S: EngineState = (w.__dock ??= {
+    nodes: [],
+    pointer: null,
+    rawPointer: null,
+    raf: 0,
+    last: 0,
+    dot: null,
+    navigating: false,
+    leftDuringNav: false,
+    bound: false,
+  });
 
   const MAX = 1.5;
   const SIGMA = 52;
@@ -544,7 +651,10 @@ const label = (l: Lang, k: string) => (ui[l] as Record<string, unknown>)[`nav.${
 
     const a = 1 - Math.exp(-K_SCALE * dt);
     for (const n of S.nodes) {
-      n.t = n.mag && mag && S.pointer != null ? 1 + (MAX - 1) * Math.exp(-((S.pointer - n.base) ** 2) / (2 * SIGMA * SIGMA)) : 1;
+      n.t =
+        n.mag && mag && S.pointer != null
+          ? 1 + (MAX - 1) * Math.exp(-((S.pointer - n.base) ** 2) / (2 * SIGMA * SIGMA))
+          : 1;
       n.c += (n.t - n.c) * a;
       if (Math.abs(n.t - n.c) < EPS) n.c = n.t;
       else moving = true;

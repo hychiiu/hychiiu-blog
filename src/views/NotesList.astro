@@ -6,20 +6,38 @@ import type { Lang } from '../site.config';
 import { useT, localizePath } from '../i18n';
 import { getNotesFor, dotDate } from '../utils/content';
 
-interface Props { lang: Lang }
+interface Props {
+  lang: Lang;
+}
 const archivedCount = (await getNotesFor(Astro.props.lang, 'archived')).length;
 const { lang } = Astro.props;
 const t = useT(lang);
 const notes = await getNotesFor(lang);
 const mark = (l: Lang) => (l !== lang ? (l === 'zh' ? t('marker.zh') : t('marker.en')) : undefined);
-const excerpt = (s = '') => s.replace(/^>.*$/gm, '').replace(/[#*`>\[\]_]/g, '').replace(/\(.*?\)/g, '').replace(/\s+/g, ' ').trim().slice(0, 110);
+const excerpt = (s = '') =>
+  s
+    .replace(/^>.*$/gm, '')
+    .replace(/[#*`>[\]_]/g, '')
+    .replace(/\(.*?\)/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 110);
 ---
+
 <Base title={t('nav.notes')} description={t('notes.lede')}>
   <div class="shell">
     <header class="page-hero">
-      <p class="eyebrow reveal" style="--i:0"><span class="dot"></span><span>{t('notes.eyebrow')(notes.length)}</span></p>
-      <h1 class="reveal" style="--i:1">{t('notes.title')}<span class="cn-accent">{t('notes.cn')}</span></h1>
-      <p class="lede reveal" style="--i:2">{t('notes.lede')}</p>
+      <p class="eyebrow reveal" style="--i:0">
+        <span class="dot"></span>
+        <span>{t('notes.eyebrow')(notes.length)}</span>
+      </p>
+      <h1 class="reveal" style="--i:1">
+        {t('notes.title')}
+        <span class="cn-accent">{t('notes.cn')}</span>
+      </h1>
+      <p class="lede reveal" style="--i:2">
+        {t('notes.lede')}
+      </p>
     </header>
     {notes.length === 0 && <EmptyState text={t('notes.empty')} class="reveal" style="--i:3" />}
     <ol class="notes">
@@ -28,16 +46,28 @@ const excerpt = (s = '') => s.replace(/^>.*$/gm, '').replace(/[#*`>\[\]_]/g, '')
           <a href={localizePath(lang, `/notes/${n.id}/`)} class="note">
             <div class="day">
               <span class="d">{String(n.data.date.getDate()).padStart(2, '0')}</span>
-              <span class="meta">{n.data.date.getFullYear()}·{String(n.data.date.getMonth() + 1).padStart(2, '0')}</span>
+              <span class="meta">
+                {n.data.date.getFullYear()}·{String(n.data.date.getMonth() + 1).padStart(2, '0')}
+              </span>
             </div>
             <div>
-              <h2 class="vt-title" transition:name={titleTransition(localizePath(lang, `/notes/${n.id}/`))}>{n.data.title}</h2>
+              <h2 class="vt-title" transition:name={titleTransition(localizePath(lang, `/notes/${n.id}/`))}>
+                {n.data.title}
+              </h2>
               <p>{excerpt(n.body)}…</p>
               <div class="meta info">
                 <span>{dotDate(n.data.date)}</span>
                 {mark(n.data.lang) && <span class="marker">{mark(n.data.lang)}</span>}
-                {n.data.mood && <span>{t('notes.mood')} {n.data.mood}</span>}
-                {n.data.weather && <span>{t('notes.weather')} {n.data.weather}</span>}
+                {n.data.mood && (
+                  <span>
+                    {t('notes.mood')} {n.data.mood}
+                  </span>
+                )}
+                {n.data.weather && (
+                  <span>
+                    {t('notes.weather')} {n.data.weather}
+                  </span>
+                )}
               </div>
             </div>
           </a>
@@ -45,7 +75,11 @@ const excerpt = (s = '') => s.replace(/^>.*$/gm, '').replace(/[#*`>\[\]_]/g, '')
       ))}
     </ol>
     {archivedCount > 0 && (
-      <p class="to-archive meta"><a href={localizePath(lang, '/archive/')}>{t('archive.link')} · {archivedCount} →</a></p>
+      <p class="to-archive meta">
+        <a href={localizePath(lang, '/archive/')}>
+          {t('archive.link')} · {archivedCount} →
+        </a>
+      </p>
     )}
   </div>
 </Base>

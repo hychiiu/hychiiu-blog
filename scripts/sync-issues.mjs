@@ -93,5 +93,7 @@ if (prev === json) {
 } else {
   mkdirSync(dirname(out), { recursive: true });
   writeFileSync(out, json);
-  console.log(`issues.json 已更新：${result.length} 条（${result.filter((r) => r.state === 'open').length} 发布 / ${result.filter((r) => r.state === 'closed').length} 归档）`);
+  console.log(
+    `issues.json 已更新：${result.length} 条（${result.filter((r) => r.state === 'open').length} 发布 / ${result.filter((r) => r.state === 'closed').length} 归档）`,
+  );
 }

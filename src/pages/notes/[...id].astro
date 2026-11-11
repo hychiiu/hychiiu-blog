@@ -8,8 +8,12 @@ export const getStaticPaths = () => entryPaths('notes', 'zh');
 const { entry: note, lang, newer, older, alternates } = Astro.props;
 const t = useT(lang);
 const { Content } = await render(note);
-const extra = [note.data.mood && `${t('notes.mood')} ${note.data.mood}`, note.data.weather && `${t('notes.weather')} ${note.data.weather}`].filter(Boolean) as string[];
+const extra = [
+  note.data.mood && `${t('notes.mood')} ${note.data.mood}`,
+  note.data.weather && `${t('notes.weather')} ${note.data.weather}`,
+].filter(Boolean) as string[];
 ---
+
 <Article
   kind="note"
   lang={lang}

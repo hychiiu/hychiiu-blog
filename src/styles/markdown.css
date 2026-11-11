@@ -37,7 +37,9 @@
   color: var(--n-5);
   border: 0;
   opacity: 0;
-  transition: opacity var(--dur-2) var(--ease), color var(--dur-2) var(--ease);
+  transition:
+    opacity var(--dur-2) var(--ease),
+    color var(--dur-2) var(--ease);
 }
 .prose :is(h2, h3, h4, h5, h6):hover .heading-anchor,
 .prose .heading-anchor:focus-visible {

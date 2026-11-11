@@ -8,6 +8,7 @@ import { site, type Lang } from '../site.config';
 import { useT, htmlLang } from '../i18n';
 import { dotDate, readingMinutes, countWords } from '../utils/content';
 import { titleTransition } from '../utils/transitions';
+import type { ComponentProps } from 'astro/types';
 
 interface Props {
   title: string;
@@ -26,13 +27,39 @@ interface Props {
   contentLang: Lang;
   alternates?: Partial<Record<Lang, string>>;
   /** 来自 GitHub issue 的元数据（评论、归档状态等） */
-  issue?: { number: number; url: string; repo: string; archived: boolean; locked: boolean; updated: Date; cover?: string; comments: any[] };
+  issue?: {
+    number: number;
+    url: string;
+    repo: string;
+    archived: boolean;
+    locked: boolean;
+    updated: Date;
+    cover?: string;
+    comments: ComponentProps<typeof Comments>['comments'];
+  };
 }
-const { title, date, description, tags = [], body = '', kind, backHref, backLabel, extra = [], prev, next, lang, contentLang, alternates, issue } = Astro.props;
+const {
+  title,
+  date,
+  description,
+  tags = [],
+  body = '',
+  kind,
+  backHref,
+  backLabel,
+  extra = [],
+  prev,
+  next,
+  lang,
+  contentLang,
+  alternates,
+  issue,
+} = Astro.props;
 const t = useT(lang);
-const label = kind === 'note' ? t('kind.note') : tags[0] ?? t('kind.post');
+const label = kind === 'note' ? t('kind.note') : (tags[0] ?? t('kind.post'));
 const foreign = contentLang !== lang;
 ---
+
 <Base title={title} description={description || title} type="article" image={issue?.cover} alternates={alternates}>
   <div class="shell">
     <article class="post">
@@ -40,22 +67,42 @@ const foreign = contentLang !== lang;
         <span aria-hidden="true">←</span> {backLabel}
       </a>
       <div class="post-meta reveal" style="--i:0">
-        <a href={backHref} class="accent">{label}</a>
+        <a href={backHref} class="accent">
+          {label}
+        </a>
         <time datetime={date.toISOString()}>{dotDate(date)}</time>
         <span>{t('post.min')(readingMinutes(body))}</span>
         <span>{t('post.words')(countWords(body))}</span>
         {issue?.archived && <span class="marker archived">{t('archive.badge')}</span>}
         {foreign && <span class="marker">{contentLang === 'zh' ? t('marker.zh') : t('marker.en')}</span>}
       </div>
-      <h1 class="post-title vt-title" style="--i:1" lang={htmlLang[contentLang]} transition:name={titleTransition(Astro.url.pathname)}>{title}</h1>
-      {description && <p class="post-subtitle reveal" style="--i:2" lang={htmlLang[contentLang]}>{description}</p>}
-      {foreign && lang === 'en' && <p class="notice meta reveal" style="--i:2">{t('post.fallback')}</p>}
+      <h1
+        class="post-title vt-title"
+        style="--i:1"
+        lang={htmlLang[contentLang]}
+        transition:name={titleTransition(Astro.url.pathname)}
+      >
+        {title}
+      </h1>
+      {description && (
+        <p class="post-subtitle reveal" style="--i:2" lang={htmlLang[contentLang]}>
+          {description}
+        </p>
+      )}
+      {foreign && lang === 'en' && (
+        <p class="notice meta reveal" style="--i:2">
+          {t('post.fallback')}
+        </p>
+      )}
 
       <div class="post-author reveal" style="--i:3">
         <img src={site.avatar} alt="" width="36" height="36" />
         <div>
           <div class="author-name">{site.name}</div>
-          <div class="author-date">{dotDate(date)}{extra.map((e) => ` · ${e}`)}</div>
+          <div class="author-date">
+            {dotDate(date)}
+            {extra.map((e) => ` · ${e}`)}
+          </div>
         </div>
       </div>
 
@@ -65,24 +112,63 @@ const foreign = contentLang !== lang;
 
       <footer class="post-footer">
         <div class="tags">
-          {tags.map((tag) => <span class="tag">#{tag}</span>)}
+          {tags.map((tag) => (
+            <span class="tag">#{tag}</span>
+          ))}
         </div>
-        <span>{t('post.words')(countWords(body))} · {dotDate(date)}</span>
+        <span>
+          {t('post.words')(countWords(body))} · {dotDate(date)}
+        </span>
       </footer>
 
       {(prev || next) && (
         <nav class="pager" aria-label={`${t('post.prev')} / ${t('post.next')}`}>
-          {prev ? <a href={prev.href} rel="prev"><span class="pg-label">{t('post.prev')}</span><span class="pg">{prev.title}</span></a> : <span />}
-          {next ? <a href={next.href} rel="next" class="r"><span class="pg-label">{t('post.next')}</span><span class="pg">{next.title}</span></a> : <span />}
+          {prev ? (
+            <a href={prev.href} rel="prev">
+              <span class="pg-label">{t('post.prev')}</span>
+              <span class="pg">{prev.title}</span>
+            </a>
+          ) : (
+            <span />
+          )}
+          {next ? (
+            <a href={next.href} rel="next" class="r">
+              <span class="pg-label">{t('post.next')}</span>
+              <span class="pg">{next.title}</span>
+            </a>
+          ) : (
+            <span />
+          )}
         </nav>
       )}
 
-      {issue && <Comments lang={lang} repo={issue.repo} number={issue.number} url={issue.url} locked={issue.locked} comments={issue.comments} />}
+      {issue && (
+        <Comments
+          lang={lang}
+          repo={issue.repo}
+          number={issue.number}
+          url={issue.url}
+          locked={issue.locked}
+          comments={issue.comments}
+        />
+      )}
       <Mermaid />
     </article>
   </div>
   <button type="button" class="to-top" data-to-top aria-label={t('post.toTop')} title={t('post.toTop')}>
-    <svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 13V3.5M3.8 7.5 8 3.3l4.2 4.2" /></svg>
+    <svg
+      viewBox="0 0 16 16"
+      width="15"
+      height="15"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.5"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M8 13V3.5M3.8 7.5 8 3.3l4.2 4.2" />
+    </svg>
   </button>
 </Base>
 

@@ -8,8 +8,11 @@ interface Props {
 }
 const { text, hint, class: cls = '', style } = Astro.props;
 ---
+
 <div class={`empty ${cls}`} style={style}>
-  <span class="mark" aria-hidden="true">〇</span>
+  <span class="mark" aria-hidden="true">
+    〇
+  </span>
   <div>
     <p class="text">{text}</p>
     {hint && <p class="hint">{hint}</p>}

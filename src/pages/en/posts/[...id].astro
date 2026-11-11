@@ -9,6 +9,7 @@ const { entry: post, lang, newer, older, alternates } = Astro.props;
 const t = useT(lang);
 const { Content } = await render(post);
 ---
+
 <Article
   kind="post"
   lang={lang}

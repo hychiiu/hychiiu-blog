@@ -1,35 +1,51 @@
 ---
 import { site, type Lang } from '../site.config';
 import { localizePath, useT } from '../i18n';
-interface Props { lang: Lang }
+interface Props {
+  lang: Lang;
+}
 const { lang } = Astro.props;
 const t = useT(lang);
 const year = new Date().getFullYear();
 const startYear = new Date(site.startDate).getFullYear();
 const years = startYear === year ? `${year}` : `${startYear}–${year}`;
 ---
+
 <footer class="footer" transition:name="footer" transition:animate="none">
   <div class="shell">
     <div class="inner">
       <div class="col left">
         <p class="sign">
-          <span class="copy">©</span> {years}&nbsp;<span class="name">{site.name}</span>{site.nameCJK && <span class="cjk">{site.nameCJK}</span>}
+          <span class="copy">©</span> {years}&nbsp;<span class="name">{site.name}</span>
+          {site.nameCJK && <span class="cjk">{site.nameCJK}</span>}
         </p>
         <p class="meta-line">
-          {t('footer.builtWith')} <a href="https://astro.build" target="_blank" rel="noopener">Astro</a>
-          <span class="dot" aria-hidden="true">·</span>
-          {t('footer.hostedOn')} <a href="https://pages.cloudflare.com" target="_blank" rel="noopener">Cloudflare</a>
+          {t('footer.builtWith')}{' '}
+          <a href="https://astro.build" target="_blank" rel="noopener">
+            Astro
+          </a>
+          <span class="dot" aria-hidden="true">
+            ·
+          </span>
+          {t('footer.hostedOn')}{' '}
+          <a href="https://pages.cloudflare.com" target="_blank" rel="noopener">
+            Cloudflare
+          </a>
         </p>
       </div>
       <div class="col right">
         <nav class="meta-line links" aria-label="Feeds">
           <a href={localizePath(lang, '/rss.xml')}>RSS</a>
-          <span class="dot" aria-hidden="true">·</span>
+          <span class="dot" aria-hidden="true">
+            ·
+          </span>
           <a href="/sitemap-index.xml">{t('footer.sitemap')}</a>
         </nav>
         {site.icp.number && (
           <p class="meta-line icp" id="icp-filing" hidden data-hosts={site.icp.hosts.join(',')}>
-            <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener">{site.icp.number}</a>
+            <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener">
+              {site.icp.number}
+            </a>
           </p>
         )}
       </div>
@@ -37,21 +53,19 @@ const years = startYear === year ? `${year}` : `${startYear}–${year}`;
   </div>
 </footer>
 
-{site.icp.number && (
-  <script>
-    function revealIcp() {
-      const el = document.getElementById('icp-filing');
-      if (!el) return;
-      const hosts = (el.dataset.hosts || '')
-        .split(',')
-        .map((s) => s.trim())
-        .filter(Boolean);
-      el.hidden = !hosts.includes(location.hostname);
-    }
-    revealIcp();
-    document.addEventListener('astro:page-load', revealIcp);
-  </script>
-)}
+{site.icp.number && <script>
+  function revealIcp() {
+    const el = document.getElementById('icp-filing');
+    if (!el) return;
+    const hosts = (el.dataset.hosts || '')
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean);
+    el.hidden = !hosts.includes(location.hostname);
+  }
+  revealIcp();
+  document.addEventListener('astro:page-load', revealIcp);
+</script>}
 
 <style>
   .footer {
@@ -68,10 +82,20 @@ const years = startYear === year ? `${year}` : `${startYear}–${year}`;
   .col {
     display: contents;
   }
-  .left > :nth-child(1) { grid-area: 1 / 1; }
-  .left > :nth-child(2) { grid-area: 2 / 1; }
-  .right > :nth-child(1) { grid-area: 1 / 2; justify-self: end; }
-  .right > :nth-child(2) { grid-area: 2 / 2; justify-self: end; }
+  .left > :nth-child(1) {
+    grid-area: 1 / 1;
+  }
+  .left > :nth-child(2) {
+    grid-area: 2 / 1;
+  }
+  .right > :nth-child(1) {
+    grid-area: 1 / 2;
+    justify-self: end;
+  }
+  .right > :nth-child(2) {
+    grid-area: 2 / 2;
+    justify-self: end;
+  }
   p {
     margin: 0;
   }
@@ -108,7 +132,9 @@ const years = startYear === year ? `${year}` : `${startYear}–${year}`;
   a {
     color: inherit;
     border-bottom: 1px solid transparent;
-    transition: color var(--dur-2) var(--ease), border-color var(--dur-2) var(--ease);
+    transition:
+      color var(--dur-2) var(--ease),
+      border-color var(--dur-2) var(--ease);
   }
   .meta-line a {
     color: var(--n-7);
@@ -131,9 +157,20 @@ const years = startYear === year ? `${year}` : `${startYear}–${year}`;
       padding: 28px 0 40px;
       text-align: center;
     }
-    .left > :nth-child(1) { grid-area: 1 / 1; }
-    .left > :nth-child(2) { grid-area: 2 / 1; margin-bottom: 10px; }
-    .right > :nth-child(1) { grid-area: 3 / 1; justify-self: center; }
-    .right > :nth-child(2) { grid-area: 4 / 1; justify-self: center; }
+    .left > :nth-child(1) {
+      grid-area: 1 / 1;
+    }
+    .left > :nth-child(2) {
+      grid-area: 2 / 1;
+      margin-bottom: 10px;
+    }
+    .right > :nth-child(1) {
+      grid-area: 3 / 1;
+      justify-self: center;
+    }
+    .right > :nth-child(2) {
+      grid-area: 4 / 1;
+      justify-self: center;
+    }
   }
 </style>

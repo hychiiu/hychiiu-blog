@@ -32,10 +32,20 @@ interface Props {
 }
 const { lang, repo, number, url, locked = false, comments } = Astro.props;
 const t = useT(lang);
-const emoji: Record<string, string> = { '+1': '👍', '-1': '👎', laugh: '😄', hooray: '🎉', confused: '😕', heart: '❤️', rocket: '🚀', eyes: '👀' };
+const emoji: Record<string, string> = {
+  '+1': '👍',
+  '-1': '👎',
+  laugh: '😄',
+  hooray: '🎉',
+  confused: '😕',
+  heart: '❤️',
+  rocket: '🚀',
+  eyes: '👀',
+};
 const avatar = (u: string) => `${u}${u.includes('?') ? '&' : '?'}s=64`;
 const reactionsOf = (r?: Record<string, number>) => Object.entries(r ?? {}).filter(([, n]) => n > 0);
 ---
+
 <section class="comments" aria-label={t('post.comments')}>
   <h2 class="c-title">
     {t('post.comments')}
@@ -46,19 +56,42 @@ const reactionsOf = (r?: Record<string, number>) => Object.entries(r ?? {}).filt
     <ol class="c-list" data-static-comments>
       {comments.map((c) => (
         <li class="c" id={`comment-${c.id}`}>
-          <a class="c-avatar" href={c.authorUrl} target="_blank" rel="noopener noreferrer" aria-label={c.author} tabindex="-1">
-            <img src={avatar(c.avatar)} alt="" width="28" height="28" loading="lazy" decoding="async" referrerpolicy="no-referrer" />
+          <a
+            class="c-avatar"
+            href={c.authorUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={c.author}
+            tabindex="-1"
+          >
+            <img
+              src={avatar(c.avatar)}
+              alt=""
+              width="28"
+              height="28"
+              loading="lazy"
+              decoding="async"
+              referrerpolicy="no-referrer"
+            />
           </a>
           <div class="c-main">
             <div class="c-meta">
-              <a class="c-name" href={c.authorUrl} target="_blank" rel="noopener noreferrer">{c.author}</a>
+              <a class="c-name" href={c.authorUrl} target="_blank" rel="noopener noreferrer">
+                {c.author}
+              </a>
               {c.association === 'OWNER' && <span class="c-badge">{t('comments.author')}</span>}
-              <a class="c-date" href={c.url} target="_blank" rel="noopener noreferrer"><time datetime={c.createdAt.toISOString()}>{dotDate(c.createdAt)}</time></a>
+              <a class="c-date" href={c.url} target="_blank" rel="noopener noreferrer">
+                <time datetime={c.createdAt.toISOString()}>{dotDate(c.createdAt)}</time>
+              </a>
             </div>
             <div class="prose c-body" set:html={c.html} />
             {reactionsOf(c.reactions).length > 0 && (
               <div class="c-react">
-                {reactionsOf(c.reactions).map(([k, n]) => <span>{emoji[k] ?? k} {n}</span>)}
+                {reactionsOf(c.reactions).map(([k, n]) => (
+                  <span>
+                    {emoji[k] ?? k} {n}
+                  </span>
+                ))}
               </div>
             )}
           </div>
@@ -66,17 +99,23 @@ const reactionsOf = (r?: Record<string, number>) => Object.entries(r ?? {}).filt
       ))}
     </ol>
   ) : (
-    <p class="c-empty" data-static-comments>{locked ? t('comments.locked') : t('comments.empty')}</p>
+    <p class="c-empty" data-static-comments>
+      {locked ? t('comments.locked') : t('comments.empty')}
+    </p>
   )}
 
   {!locked && (
-    <div class="c-actions">
-      <a class="btn btn--ghost" href={url} target="_blank" rel="noopener noreferrer">
-        {t('comments.onGitHub')} <span aria-hidden="true">↗</span>
-      </a>
-      <button type="button" class="c-inline" data-utterances-load>{t('comments.inline')}</button>
-    </div>
-    <div class="utterances-slot" data-utterances data-repo={repo} data-issue={number} hidden></div>
+    <>
+      <div class="c-actions">
+        <a class="btn btn--ghost" href={url} target="_blank" rel="noopener noreferrer">
+          {t('comments.onGitHub')} <span aria-hidden="true">↗</span>
+        </a>
+        <button type="button" class="c-inline" data-utterances-load>
+          {t('comments.inline')}
+        </button>
+      </div>
+      <div class="utterances-slot" data-utterances data-repo={repo} data-issue={number} hidden></div>
+    </>
   )}
 </section>
 

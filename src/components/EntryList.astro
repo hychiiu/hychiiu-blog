@@ -27,22 +27,35 @@ interface Props {
 const { items, showKind = false, startIndex = 0, lang = 'zh' } = Astro.props;
 const t = useT(lang);
 ---
+
 <ul class="rows">
   {items.map((it, i) => (
     <li class="reveal" style={`--i:${startIndex + i}`}>
       <a href={it.href} class:list={['row', { 'has-thumb': it.cover }]}>
-        <time class="date meta" datetime={it.date.toISOString()}>{dotDate(it.date)}</time>
+        <time class="date meta" datetime={it.date.toISOString()}>
+          {dotDate(it.date)}
+        </time>
         <div class="main">
-          <h3 class="vt-title" transition:name={titleTransition(it.href)}>{it.title}</h3>
+          <h3 class="vt-title" transition:name={titleTransition(it.href)}>
+            {it.title}
+          </h3>
           {it.description && <p class="desc">{it.description}</p>}
           <div class="info meta">
             {showKind && <span class="kind">{it.kind === 'note' ? t('kind.note') : t('kind.post')}</span>}
             {it.marker && <span class="marker">{it.marker}</span>}
             {it.kind !== 'note' && it.body && <span>{t('post.min')(readingMinutes(it.body))}</span>}
-            {it.tags?.slice(0, 3).map((t) => <span>#{t}</span>)}
+            {it.tags?.slice(0, 3).map((t) => (
+              <span>#{t}</span>
+            ))}
           </div>
         </div>
-        {it.cover ? <Thumb src={it.cover} width={144} class="row-thumb" /> : <span class="arrow" aria-hidden="true">↗</span>}
+        {it.cover ? (
+          <Thumb src={it.cover} width={144} class="row-thumb" />
+        ) : (
+          <span class="arrow" aria-hidden="true">
+            ↗
+          </span>
+        )}
       </a>
     </li>
   ))}
@@ -118,7 +131,10 @@ const t = useT(lang);
     color: var(--n-5);
     opacity: 0;
     transform: translate(-4px, 4px);
-    transition: opacity var(--dur-2) var(--ease), transform var(--dur-3) var(--ease), color 0.2s;
+    transition:
+      opacity var(--dur-2) var(--ease),
+      transform var(--dur-3) var(--ease),
+      color 0.2s;
   }
   .row:hover .arrow {
     opacity: 1;

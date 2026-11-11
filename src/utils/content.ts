@@ -18,9 +18,12 @@ export function countWords(text = ''): number {
   const clean = text
     .replace(/```[\s\S]*?```/g, '')
     .replace(/<[^>]+>/g, '')
-    .replace(/[#>*_`~\-\[\]()!|]/g, ' ');
+    .replace(/[#>*_`~\-[\]()!|]/g, ' ');
   const cjk = clean.match(/[\u3400-\u9fff\uf900-\ufaff\u3040-\u30ff\uac00-\ud7af]/g)?.length ?? 0;
-  const latin = clean.replace(/[\u3400-\u9fff\uf900-\ufaff\u3040-\u30ff\uac00-\ud7af]/g, ' ').match(/[A-Za-z0-9]+(?:['’][A-Za-z]+)?/g)?.length ?? 0;
+  const latin =
+    clean
+      .replace(/[\u3400-\u9fff\uf900-\ufaff\u3040-\u30ff\uac00-\ud7af]/g, ' ')
+      .match(/[A-Za-z0-9]+(?:['’][A-Za-z]+)?/g)?.length ?? 0;
   return cjk + latin;
 }
 

@@ -4,9 +4,11 @@ import EmptyState from '../components/EmptyState.astro';
 import { titleTransition } from '../utils/transitions';
 import type { Lang } from '../site.config';
 import { useT, localizePath } from '../i18n';
-import { getPostsFor, getNotesFor, dotDate, readingMinutes } from '../utils/content';
+import { getPostsFor, getNotesFor, dotDate } from '../utils/content';
 
-interface Props { lang: Lang }
+interface Props {
+  lang: Lang;
+}
 const { lang } = Astro.props;
 const t = useT(lang);
 const [ap, an] = await Promise.all([getPostsFor(lang, 'archived'), getNotesFor(lang, 'archived')]);
@@ -22,12 +24,23 @@ for (const p of posts) {
 }
 let idx = 3;
 ---
+
 <Base title={t('nav.archive')} description={t('archive.lede')}>
   <div class="shell">
     <header class="page-hero">
-      <p class="eyebrow reveal" style="--i:0"><span class="dot"></span><span>{t('archive.title')} · {posts.length}</span></p>
-      <h1 class="reveal" style="--i:1">{t('archive.title')}<span class="cn-accent">{t('archive.cn')}</span></h1>
-      <p class="lede reveal" style="--i:2">{t('archive.lede')}</p>
+      <p class="eyebrow reveal" style="--i:0">
+        <span class="dot"></span>
+        <span>
+          {t('archive.title')} · {posts.length}
+        </span>
+      </p>
+      <h1 class="reveal" style="--i:1">
+        {t('archive.title')}
+        <span class="cn-accent">{t('archive.cn')}</span>
+      </h1>
+      <p class="lede reveal" style="--i:2">
+        {t('archive.lede')}
+      </p>
     </header>
 
     {posts.length === 0 && <EmptyState text={t('archive.empty')} class="reveal" style="--i:3" />}
@@ -35,19 +48,27 @@ let idx = 3;
     {[...byYear.entries()].map(([year, list], yi) => (
       <section class="section year-block">
         <div class="section-head reveal" style={`--i:${idx++}`}>
-          <p class="section-num">{String(yi).padStart(2, '0')} · {t('posts.entries')(list.length)}</p>
+          <p class="section-num">
+            {String(yi).padStart(2, '0')} · {t('posts.entries')(list.length)}
+          </p>
           <h2 class="section-title tabular">{year}</h2>
         </div>
         <ul class="list">
           {list.map((p) => (
             <li class="reveal" style={`--i:${idx++}`}>
               <a href={localizePath(lang, `/${p.kind}/${p.id}/`)}>
-                <time class="meta" datetime={p.data.date.toISOString()}>{dotDate(p.data.date)}</time>
-                <span class="t vt-title" transition:name={titleTransition(localizePath(lang, `/${p.kind}/${p.id}/`))}>{p.data.title}</span>
+                <time class="meta" datetime={p.data.date.toISOString()}>
+                  {dotDate(p.data.date)}
+                </time>
+                <span class="t vt-title" transition:name={titleTransition(localizePath(lang, `/${p.kind}/${p.id}/`))}>
+                  {p.data.title}
+                </span>
                 <span class="meta right">
                   {mark(p.data.lang) && <span class="marker">{mark(p.data.lang)}</span>}
                   <span class="tg">{p.kind === 'notes' ? t('kind.note') : t('kind.post')}</span>
-                  {p.data.tags.slice(0, 2).map((tag) => <span>#{tag}</span>)}
+                  {p.data.tags.slice(0, 2).map((tag) => (
+                    <span>#{tag}</span>
+                  ))}
                 </span>
               </a>
             </li>

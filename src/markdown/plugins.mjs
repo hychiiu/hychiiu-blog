@@ -43,7 +43,12 @@ export function rehypeFigure() {
         properties: {},
         children: [
           wrapper ?? img,
-          { type: 'element', tagName: 'figcaption', properties: {}, children: [{ type: 'text', value: String(caption) }] },
+          {
+            type: 'element',
+            tagName: 'figcaption',
+            properties: {},
+            children: [{ type: 'text', value: String(caption) }],
+          },
         ],
       };
       return SKIP;
@@ -66,7 +71,12 @@ export function rehypeTableWrap() {
     visit(tree, 'element', (node, index, parent) => {
       if (node.tagName !== 'table' || !parent || index == null) return;
       if (parent.type === 'element' && parent.properties?.className?.includes?.('table-wrap')) return;
-      parent.children[index] = { type: 'element', tagName: 'div', properties: { className: ['table-wrap'] }, children: [node] };
+      parent.children[index] = {
+        type: 'element',
+        tagName: 'div',
+        properties: { className: ['table-wrap'] },
+        children: [node],
+      };
       return SKIP;
     });
   };

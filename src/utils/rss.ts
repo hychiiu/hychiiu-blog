@@ -8,8 +8,18 @@ export async function feed(context: APIContext, lang: Lang) {
   const t = useT(lang);
   const [posts, notes] = await Promise.all([getPostsFor(lang), getNotesFor(lang)]);
   const items = [
-    ...posts.map((p) => ({ title: p.data.title, pubDate: p.data.date, description: p.data.description, link: localizePath(lang, `/posts/${p.id}/`), categories: p.data.tags })),
-    ...notes.map((n) => ({ title: `${t('kind.note')} · ${n.data.title}`, pubDate: n.data.date, link: localizePath(lang, `/notes/${n.id}/`) })),
+    ...posts.map((p) => ({
+      title: p.data.title,
+      pubDate: p.data.date,
+      description: p.data.description,
+      link: localizePath(lang, `/posts/${p.id}/`),
+      categories: p.data.tags,
+    })),
+    ...notes.map((n) => ({
+      title: `${t('kind.note')} · ${n.data.title}`,
+      pubDate: n.data.date,
+      link: localizePath(lang, `/notes/${n.id}/`),
+    })),
   ].sort((a, b) => b.pubDate.valueOf() - a.pubDate.valueOf());
 
   return rss({

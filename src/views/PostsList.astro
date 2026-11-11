@@ -7,7 +7,9 @@ import type { Lang } from '../site.config';
 import { useT, localizePath } from '../i18n';
 import { getPostsFor, dotDate, readingMinutes } from '../utils/content';
 
-interface Props { lang: Lang }
+interface Props {
+  lang: Lang;
+}
 const archivedCount = (await getPostsFor(Astro.props.lang, 'archived')).length;
 const { lang } = Astro.props;
 const t = useT(lang);
@@ -22,12 +24,21 @@ let idx = 3;
 // 有任意一篇带图时，整列都留出缩略图位，保证右侧 meta 对齐
 const withThumbs = posts.some((p) => p.data.cover);
 ---
+
 <Base title={t('nav.posts')} description={t('posts.lede')}>
   <div class="shell">
     <header class="page-hero">
-      <p class="eyebrow reveal" style="--i:0"><span class="dot"></span><span>{t('posts.eyebrow')(posts.length)}</span></p>
-      <h1 class="reveal" style="--i:1">{t('posts.title')}<span class="cn-accent">{t('posts.cn')}</span></h1>
-      <p class="lede reveal" style="--i:2">{t('posts.lede')}</p>
+      <p class="eyebrow reveal" style="--i:0">
+        <span class="dot"></span>
+        <span>{t('posts.eyebrow')(posts.length)}</span>
+      </p>
+      <h1 class="reveal" style="--i:1">
+        {t('posts.title')}
+        <span class="cn-accent">{t('posts.cn')}</span>
+      </h1>
+      <p class="lede reveal" style="--i:2">
+        {t('posts.lede')}
+      </p>
     </header>
 
     {posts.length === 0 && <EmptyState text={t('posts.empty')} class="reveal" style="--i:3" />}
@@ -35,21 +46,34 @@ const withThumbs = posts.some((p) => p.data.cover);
     {[...byYear.entries()].map(([year, list], yi) => (
       <section class="section year-block">
         <div class="section-head reveal" style={`--i:${idx++}`}>
-          <p class="section-num">{String(yi).padStart(2, '0')} · {t('posts.entries')(list.length)}</p>
+          <p class="section-num">
+            {String(yi).padStart(2, '0')} · {t('posts.entries')(list.length)}
+          </p>
           <h2 class="section-title tabular">{year}</h2>
         </div>
         <ul class:list={['list', { 'with-thumbs': withThumbs }]}>
           {list.map((p) => (
             <li class="reveal" style={`--i:${idx++}`}>
               <a href={localizePath(lang, `/posts/${p.id}/`)}>
-                <time class="meta" datetime={p.data.date.toISOString()}>{dotDate(p.data.date)}</time>
-                <span class="t vt-title" transition:name={titleTransition(localizePath(lang, `/posts/${p.id}/`))}>{p.data.title}</span>
+                <time class="meta" datetime={p.data.date.toISOString()}>
+                  {dotDate(p.data.date)}
+                </time>
+                <span class="t vt-title" transition:name={titleTransition(localizePath(lang, `/posts/${p.id}/`))}>
+                  {p.data.title}
+                </span>
                 <span class="meta right">
                   {mark(p.data.lang) && <span class="marker">{mark(p.data.lang)}</span>}
-                  {p.data.tags.slice(0, 2).map((tag) => <span class="tg">#{tag}</span>)}
+                  {p.data.tags.slice(0, 2).map((tag) => (
+                    <span class="tg">#{tag}</span>
+                  ))}
                   <span>{t('post.min')(readingMinutes(p.body))}</span>
                 </span>
-                {withThumbs && (p.data.cover ? <Thumb src={p.data.cover} width={120} class="list-thumb" /> : <span class="list-thumb" />)}
+                {withThumbs &&
+                  (p.data.cover ? (
+                    <Thumb src={p.data.cover} width={120} class="list-thumb" />
+                  ) : (
+                    <span class="list-thumb" />
+                  ))}
               </a>
             </li>
           ))}
@@ -57,7 +81,11 @@ const withThumbs = posts.some((p) => p.data.cover);
       </section>
     ))}
     {archivedCount > 0 && (
-      <p class="to-archive meta"><a href={localizePath(lang, '/archive/')}>{t('archive.link')} · {archivedCount} →</a></p>
+      <p class="to-archive meta">
+        <a href={localizePath(lang, '/archive/')}>
+          {t('archive.link')} · {archivedCount} →
+        </a>
+      </p>
     )}
   </div>
 </Base>

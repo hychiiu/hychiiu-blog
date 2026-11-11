@@ -32,6 +32,7 @@ const canonical = new URL(path, base).href;
 const ogImage = new URL(image ?? site.avatarLarge, base).href;
 const rss = localizePath(lang, '/rss.xml');
 ---
+
 <!doctype html>
 <html
   lang={htmlLang[lang]}
@@ -78,7 +79,7 @@ const rss = localizePath(lang, '/rss.xml');
             const alt = root.getAttribute('data-alt-' + want);
             if (alt && alt !== location.pathname) location.replace(alt + location.search + location.hash);
           }
-        } catch (e) {}
+        } catch {}
         const saved = localStorage.getItem('theme');
         const sys = window.matchMedia('(prefers-color-scheme: dark)');
         const apply = (t) => (root.dataset.theme = t);

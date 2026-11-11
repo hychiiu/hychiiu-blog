@@ -43,7 +43,9 @@ export function firstImage(md: string): string | undefined {
   return m ? (m[1] ?? m[2]) : undefined;
 }
 
-const FILE = process.env.YH_ISSUES_FILE ? new URL(`file://${process.env.YH_ISSUES_FILE}`) : new URL('../data/issues.json', import.meta.url);
+const FILE = process.env.YH_ISSUES_FILE
+  ? new URL(`file://${process.env.YH_ISSUES_FILE}`)
+  : new URL('../data/issues.json', import.meta.url);
 
 /**
  * 正文开头可选的元信息块，两种写法任选：
@@ -66,7 +68,12 @@ export function splitFront(body: string): { meta: Record<string, string | string
     if (!kv) continue;
     ok = true;
     let v: string | string[] = kv[2].replace(/^(['"])(.*)\1$/, '$2');
-    if (/^\[.*\]$/.test(v)) v = v.slice(1, -1).split(',').map((s) => s.trim().replace(/^(['"])(.*)\1$/, '$2')).filter(Boolean);
+    if (/^\[.*\]$/.test(v))
+      v = v
+        .slice(1, -1)
+        .split(',')
+        .map((s) => s.trim().replace(/^(['"])(.*)\1$/, '$2'))
+        .filter(Boolean);
     meta[kv[1].toLowerCase()] = v;
   }
   return ok ? { meta, content: src.slice(m[0].length) } : { meta: {}, content: src };

@@ -1,0 +1,7 @@
+dist
+.astro
+node_modules
+package-lock.json
+src/data/issues.json
+src/styles/fonts.css
+public
