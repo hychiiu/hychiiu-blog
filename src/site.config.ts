@@ -106,6 +106,14 @@ export const site = {
     categoryId: '', // 例如 'DIC_kwDOxxxxxx'
     mapping: 'pathname',
   },
+
+  /**
+   * 工信部 ICP 备案号。只在 hosts 列出的域名上显示；number 为空则不渲染。
+   */
+  icp: {
+    number: '苏ICP备2022019472号-1',
+    hosts: ['inbluemoon.com', 'www.inbluemoon.com'],
+  },
 };
 
 export const giscusEnabled = Boolean(

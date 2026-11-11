@@ -19,8 +19,29 @@ const startYear = new Date(site.startDate).getFullYear();
         <span>{t('footer.built')}</span>
       </span>
     </div>
+    {site.icp.number && (
+      <p class="icp" id="icp-filing" hidden data-hosts={site.icp.hosts.join(',')}>
+        <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener">{site.icp.number}</a>
+      </p>
+    )}
   </div>
 </footer>
+
+{site.icp.number && (
+  <script>
+    function revealIcp() {
+      const el = document.getElementById('icp-filing');
+      if (!el) return;
+      const hosts = (el.dataset.hosts || '')
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean);
+      el.hidden = !hosts.includes(location.hostname);
+    }
+    revealIcp();
+    document.addEventListener('astro:page-load', revealIcp);
+  </script>
+)}
 
 <style>
   .footer {
@@ -49,6 +70,20 @@ const startYear = new Date(site.startDate).getFullYear();
     transition: color 0.15s ease;
   }
   a:hover {
+    color: var(--accent);
+  }
+  .icp {
+    margin: -16px 0 0;
+    padding: 0 0 32px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--n-7);
+    letter-spacing: 0.02em;
+  }
+  .icp a {
+    transition: color 0.15s ease;
+  }
+  .icp a:hover {
     color: var(--accent);
   }
 </style>
