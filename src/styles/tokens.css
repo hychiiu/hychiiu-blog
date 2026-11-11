@@ -5,7 +5,7 @@
  */
 
 :root {
-  /* Neutral · light — warm parchment */
+  /* 中性色 · 浅色：暖调羊皮纸 */
   --n-1: #f9f8f5;
   --n-2: #f0efeb;
   --n-3: #e3e1db;
@@ -94,6 +94,26 @@
   --dur-4: 450ms;
   --dur-5: 700ms;
 
+  /* Dock 图标色板（§1）：每个图标一个 160° 柔和渐变，浅 → 深 */
+  --tone-home-1: #e29aa5;
+  --tone-home-2: #c56473;
+  --tone-home-glow: rgb(197 100 115 / 0.45);
+  --tone-posts-1: #9fb1e0;
+  --tone-posts-2: #5f73b8;
+  --tone-posts-glow: rgb(95 115 184 / 0.42);
+  --tone-notes-1: #eccb86;
+  --tone-notes-2: #c9973f;
+  --tone-notes-glow: rgb(201 151 63 / 0.42);
+  --tone-about-1: #9fcbbb;
+  --tone-about-2: #5d9483;
+  --tone-about-glow: rgb(93 148 131 / 0.42);
+  --tone-lang-1: #c2aee0;
+  --tone-lang-2: #8565b5;
+  --tone-lang-glow: rgb(133 101 181 / 0.42);
+  --tone-theme-1: #a9b3c4;
+  --tone-theme-2: #5f6b80;
+  --tone-theme-glow: rgb(95 107 128 / 0.42);
+
   --shell: 1120px;
   --shell-pad: 64px;
   --measure: 720px;
@@ -102,7 +122,7 @@
 }
 
 :root[data-theme='dark'] {
-  /* Neutral · dark — the same warm scale, inverted */
+  /* 中性色 · 深色：同一暖色阶反转 */
   --n-1: #141312;
   --n-2: #24231f;
   --n-3: #403f3a;
@@ -123,6 +143,26 @@
   --surface-2: rgb(255 255 255 / 0.06);
   --shadow-float: 0 1px 2px rgb(0 0 0 / 0.3), 0 10px 24px -8px rgb(0 0 0 / 0.45), 0 28px 56px -20px rgb(0 0 0 / 0.55);
   --shadow-pop: 0 4px 14px -4px rgb(0 0 0 / 0.5);
+
+  /* Dock 色板 · 深色：降低亮度，投影改为纯黑 */
+  --tone-home-1: #c8717f;
+  --tone-home-2: #8e4150;
+  --tone-home-glow: rgb(0 0 0 / 0.5);
+  --tone-posts-1: #7486c4;
+  --tone-posts-2: #3d4c86;
+  --tone-posts-glow: rgb(0 0 0 / 0.5);
+  --tone-notes-1: #cfa152;
+  --tone-notes-2: #8c6526;
+  --tone-notes-glow: rgb(0 0 0 / 0.5);
+  --tone-about-1: #6fa595;
+  --tone-about-2: #3e6b5d;
+  --tone-about-glow: rgb(0 0 0 / 0.5);
+  --tone-lang-1: #9a7dc6;
+  --tone-lang-2: #5c4488;
+  --tone-lang-glow: rgb(0 0 0 / 0.5);
+  --tone-theme-1: #5d6a82;
+  --tone-theme-2: #2c3340;
+  --tone-theme-glow: rgb(0 0 0 / 0.5);
 
   color-scheme: dark;
 }

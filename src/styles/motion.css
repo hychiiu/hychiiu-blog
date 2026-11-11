@@ -48,7 +48,7 @@
     animation: none !important;
   }
 }
-/* shared title: list item → article title */
+/* 共享标题：列表项 → 文章标题 */
 .vt-title {
   width: fit-content;
   view-transition-class: yh-title;

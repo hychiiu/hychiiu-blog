@@ -34,7 +34,7 @@
   letter-spacing: 0;
 }
 
-/* page hero (inner pages) */
+/* 内页页头 */
 .page-hero {
   padding: 88px 0 40px;
   border-bottom: 1px solid var(--border);
@@ -67,7 +67,7 @@
   }
 }
 
-/* numbered section */
+/* 编号分节 */
 .section {
   margin-bottom: 72px;
 }
@@ -104,7 +104,7 @@
   }
 }
 
-/* tag (accent tint) */
+/* 标签（强调色淡底） */
 .tag {
   display: inline-flex;
   align-items: center;
@@ -117,7 +117,7 @@
   opacity: 0.75;
 }
 
-/* button primary (translucent accent) */
+/* 主按钮：半透明强调色（§7 按钮） */
 .btn {
   display: inline-flex;
   align-items: center;
