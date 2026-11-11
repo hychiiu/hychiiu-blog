@@ -1,0 +1,11 @@
+# Cloudflare Pages 缓存策略
+# HTML 等：浏览器每次校验，发布后很快生效
+/*
+  Cache-Control: public, max-age=0, must-revalidate
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+
+# 带内容哈希的构建产物：永久缓存（先移除上面的通用规则，避免两个值被逗号拼接）
+/_astro/*
+  ! Cache-Control
+  Cache-Control: public, max-age=31536000, immutable

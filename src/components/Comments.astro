@@ -39,7 +39,7 @@ const avatar = (u: string) => `${u}${u.includes('?') ? '&' : '?'}s=80`;
   </header>
 
   {comments.length > 0 ? (
-    <ol class="c-list">
+    <ol class="c-list" data-static-comments>
       {comments.map((c) => (
         <li class="c" id={`comment-${c.id}`}>
           <a class="c-avatar" href={c.authorUrl} target="_blank" rel="noopener noreferrer" aria-label={c.author}>
@@ -87,12 +87,15 @@ const avatar = (u: string) => `${u}${u.includes('?') ? '&' : '?'}s=80`;
   }
   .gh {
     font-family: var(--font-mono);
-    font-size: 11.5px;
+    font-size: var(--fs-xs);
     color: var(--n-6);
-    transition: color 0.2s var(--ease);
+    transition: color var(--dur-2) var(--ease);
   }
   .gh:hover {
     color: var(--accent);
+  }
+  .c-list[hidden] {
+    display: none;
   }
   .c-list {
     list-style: none;
@@ -112,7 +115,7 @@ const avatar = (u: string) => `${u}${u.includes('?') ? '&' : '?'}s=80`;
   .c-avatar img {
     width: 36px;
     height: 36px;
-    border-radius: 50%;
+    border-radius: var(--r-round);
     object-fit: cover;
     box-shadow: 0 0 0 0.5px var(--border);
   }
@@ -126,7 +129,7 @@ const avatar = (u: string) => `${u}${u.includes('?') ? '&' : '?'}s=80`;
   .c-name {
     font-family: var(--font-serif);
     font-weight: 500;
-    font-size: 14px;
+    font-size: var(--fs-md);
     color: var(--n-10);
   }
   .c-name:hover {
@@ -135,19 +138,19 @@ const avatar = (u: string) => `${u}${u.includes('?') ? '&' : '?'}s=80`;
   .c-badge {
     padding: 0 6px;
     border: 1px solid var(--accent-30);
-    border-radius: 4px;
+    border-radius: var(--r-xs);
     font-family: var(--font-mono);
-    font-size: 10px;
+    font-size: var(--fs-2xs);
     line-height: 1.6;
     color: var(--accent);
   }
   .c-date {
     font-family: var(--font-mono);
-    font-size: 11px;
+    font-size: var(--fs-xs);
     color: var(--n-6);
   }
   .c-body {
-    font-size: 15px;
+    font-size: var(--fs-ui);
     line-height: 1.8;
   }
   .c-body :global(> :first-child) {
@@ -171,15 +174,15 @@ const avatar = (u: string) => `${u}${u.includes('?') ? '&' : '?'}s=80`;
   .c-react span {
     padding: 1px 8px;
     border: 1px solid var(--border);
-    border-radius: 999px;
+    border-radius: var(--r-pill);
     font-family: var(--font-mono);
-    font-size: 11px;
+    font-size: var(--fs-xs);
     color: var(--n-7);
   }
   .c-empty {
     margin: 0 0 8px;
     font-family: var(--font-serif);
-    font-size: 14.5px;
+    font-size: var(--fs-ui);
     color: var(--n-6);
   }
   .utterances-slot {
@@ -198,8 +201,14 @@ const avatar = (u: string) => `${u}${u.includes('?') ? '&' : '?'}s=80`;
     const frame = document.querySelector<HTMLIFrameElement>('iframe.utterances-frame');
     frame?.contentWindow?.postMessage({ type: 'set-theme', theme: theme() }, ORIGIN);
   });
-  // 每次进入页面（含 ClientRouter 站内跳转）挂载 utterances
-  document.addEventListener('astro:page-load', () => {
+  // utterances 加载成功后会自己列出全部评论，此时收起静态列表，避免重复（静态列表作为无 JS / 未安装 App 时的兜底）
+  window.addEventListener('message', (e) => {
+    if (e.origin !== ORIGIN || (e.data as { type?: string })?.type !== 'resize') return;
+    document.querySelector('[data-static-comments]')?.setAttribute('hidden', '');
+  });
+  const idle = (fn: () => void) => ('requestIdleCallback' in window ? requestIdleCallback(fn, { timeout: 1500 }) : setTimeout(fn, 200));
+  // 每次进入页面（含 ClientRouter 站内跳转）空闲时再挂载 utterances，不阻塞页面切换
+  document.addEventListener('astro:page-load', () => idle(() => {
     const slot = document.querySelector<HTMLElement>('[data-utterances]');
     if (!slot || slot.childElementCount) return;
     const s = document.createElement('script');
@@ -210,5 +219,5 @@ const avatar = (u: string) => `${u}${u.includes('?') ? '&' : '?'}s=80`;
     s.setAttribute('issue-number', slot.dataset.issue!);
     s.setAttribute('theme', theme());
     slot.appendChild(s);
-  });
+  }));
 </script>

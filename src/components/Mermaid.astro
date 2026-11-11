@@ -38,7 +38,8 @@
       }),
     );
   };
-  document.addEventListener('astro:page-load', render);
+  const idle = (fn: () => void) => ('requestIdleCallback' in window ? requestIdleCallback(fn, { timeout: 800 }) : setTimeout(fn, 50));
+  document.addEventListener('astro:page-load', () => idle(render));
   let lastTheme = document.documentElement.dataset.theme;
   new MutationObserver(() => {
     const t = document.documentElement.dataset.theme;

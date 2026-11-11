@@ -23,7 +23,7 @@ export default defineConfig({
   output: 'static',
   trailingSlash: 'ignore',
   // 鼠标悬停 / 手指按下时预取站内链接，配合 ClientRouter 做到秒开
-  prefetch: { prefetchAll: true, defaultStrategy: 'hover' },
+  prefetch: { prefetchAll: true, defaultStrategy: 'viewport' },
   i18n: {
     locales: ['zh', 'en'],
     defaultLocale: 'zh',

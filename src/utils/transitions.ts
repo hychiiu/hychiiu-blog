@@ -1,10 +1,10 @@
 import type { TransitionDirectionalAnimations } from 'astro';
 
-/** 页面切换：旧页轻微上移淡出，新页从下方淡入（约 250ms）。系统开启「减少动态效果」时 Astro 会自动关闭动画 */
+/** 页面切换（见 docs/DESIGN.md · 动效）：旧页 80ms 快速淡出，新页同时 200ms 淡入，几乎无等待。系统开启「减少动态效果」时 Astro 会自动关闭动画 */
 const ease = 'cubic-bezier(0.22, 1, 0.36, 1)';
 const anim = {
-  old: { name: 'yh-page-out', duration: '160ms', easing: 'ease-in', fillMode: 'both' },
-  new: { name: 'yh-page-in', duration: '260ms', easing: ease, fillMode: 'both' },
+  old: { name: 'yh-page-out', duration: '80ms', easing: 'linear', fillMode: 'both' },
+  new: { name: 'yh-page-in', duration: '200ms', easing: ease, fillMode: 'both' },
 };
 export const pageFade: TransitionDirectionalAnimations = { forwards: anim, backwards: anim };
 
