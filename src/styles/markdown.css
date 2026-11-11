@@ -431,11 +431,124 @@
 
 /* ---------- Mermaid ---------- */
 .prose .mermaid-wrap {
+  position: relative;
   margin: 1.6em 0;
-  padding: 20px 16px;
-  border: 1px solid var(--border);
-  border-radius: var(--r-sm);
-  overflow-x: auto;
+  padding: var(--sp-5) var(--sp-4);
+  border: 1px solid var(--hair);
+  border-radius: var(--r-md);
+  overflow: hidden;
+}
+.prose .mermaid-wrap[data-pz] {
+  cursor: grab;
+  user-select: none;
+}
+.prose .mermaid-wrap[data-dragging] {
+  cursor: grabbing;
+}
+.prose .mermaid-wrap[data-dragging] pre.mermaid {
+  transition: none !important;
+}
+/* 幽灵控制条：hover / 聚焦 / 已缩放时出现（§7 Mermaid） */
+.mmd-ctrl {
+  position: absolute;
+  top: var(--sp-2);
+  right: var(--sp-2);
+  z-index: 2;
+  display: flex;
+  gap: 2px;
+  padding: 3px;
+  border-radius: var(--r-pill);
+  background: rgb(var(--paper-rgb) / 0.82);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  border: 0.5px solid var(--border);
+  opacity: 0;
+  transition: opacity var(--dur-2) var(--ease);
+}
+.mermaid-wrap:is(:hover, :focus-within, [data-zoomed]) .mmd-ctrl,
+.mmd-lightbox .mmd-ctrl {
+  opacity: 1;
+}
+@media (hover: none) {
+  .mmd-ctrl {
+    opacity: 1;
+  }
+}
+.mmd-ctrl button {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--r-round);
+  background: transparent;
+  color: var(--ink-muted);
+  cursor: pointer;
+  transition:
+    color var(--dur-2) var(--ease),
+    background-color var(--dur-2) var(--ease);
+}
+.mmd-ctrl button:hover {
+  background: var(--surface-2);
+  color: var(--accent);
+}
+/* 全屏灯箱 */
+.mmd-lightbox {
+  width: min(96vw, 1400px);
+  height: min(92vh, 1000px);
+  max-width: none;
+  max-height: none;
+  padding: 0;
+  border: 0.5px solid var(--border);
+  border-radius: var(--r-md);
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: var(--shadow-float);
+  overflow: hidden;
+}
+.mmd-lightbox[open] {
+  animation: mmd-in var(--dur-2) var(--ease);
+}
+.mmd-lightbox::backdrop {
+  background: rgb(var(--paper-rgb) / 0.6);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}
+@keyframes mmd-in {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+}
+.mmd-lb-stage {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  cursor: grab;
+  user-select: none;
+}
+.mmd-lb-stage[data-dragging] {
+  cursor: grabbing;
+}
+.mmd-lb-content {
+  width: min(86vw, 1200px);
+}
+.mmd-lb-content svg {
+  display: block;
+  width: 100% !important;
+  max-width: none !important;
+  max-height: 82vh;
+  height: auto;
+}
+.mmd-lb-content svg :is(rect, polygon, circle, path) {
+  filter: none !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .mmd-lightbox[open] {
+    animation: none;
+  }
 }
 .prose pre.mermaid {
   margin: 0;
