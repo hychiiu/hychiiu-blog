@@ -1,0 +1,571 @@
+---
+/**
+ * 侧边 Dock（桌面端左侧竖排 / 窄屏底部横排）
+ * - transition:persist：ClientRouter 跳转时保留同一个 DOM，激活态 / 语言 / 链接由脚本在每次跳转后更新
+ * - 桌面端鼠标悬停时按距离做高斯放大（rAF + 弹簧插值，只改 transform）
+ */
+import { site, type Lang } from '../site.config';
+import { ui, localizePath } from '../i18n';
+import Icon from './Icon.astro';
+interface Props {
+  lang: Lang;
+  alternates: Record<Lang, string>;
+}
+const { lang, alternates } = Astro.props;
+const other: Lang = lang === 'zh' ? 'en' : 'zh';
+const nav = [
+  { key: 'home', icon: 'home', path: '/' },
+  { key: 'posts', icon: 'posts', path: '/posts/' },
+  { key: 'notes', icon: 'notes', path: '/notes/' },
+  { key: 'about', icon: 'about', path: '/about/' },
+] as const;
+const label = (l: Lang, k: string) => (ui[l] as Record<string, unknown>)[`nav.${k}`] as string;
+---
+<nav class="dock" data-dock transition:persist="dock" aria-label="Dock">
+  <div class="dock-bg" aria-hidden="true"></div>
+  <ul class="dock-list" data-dock-list>
+    <li class="dock-item" data-mag>
+      <a class="dock-btn avatar" href={localizePath(lang, '/')} data-home data-href-zh={localizePath('zh', '/')} data-href-en={localizePath('en', '/')} aria-label={site.name}>
+        <span class="ico"><img src={site.avatar} alt="" width="40" height="40" /></span>
+      </a>
+      <span class="tip" aria-hidden="true">{site.name}{site.nameCJK && <em> {site.nameCJK}</em>}</span>
+    </li>
+    <li class="dock-sep" aria-hidden="true"></li>
+    {nav.map((n) => (
+      <li class="dock-item" data-mag data-key={n.key}>
+        <a
+          class="dock-btn"
+          href={localizePath(lang, n.path)}
+          data-nav={n.key}
+          data-href-zh={localizePath('zh', n.path)}
+          data-href-en={localizePath('en', n.path)}
+          data-label-zh={label('zh', n.key)}
+          data-label-en={label('en', n.key)}
+          aria-label={label(lang, n.key)}
+        >
+          <span class="ico"><Icon name={n.icon} size={19} /></span>
+        </a>
+        <span class="tip" aria-hidden="true" data-tip>{label(lang, n.key)}</span>
+      </li>
+    ))}
+    <li class="dock-sep" aria-hidden="true"></li>
+    <li class="dock-item" data-mag>
+      <a class="dock-btn lang" href={alternates[other]} hreflang={other === 'zh' ? 'zh-CN' : 'en'} data-set-lang={other} data-lang-switch aria-label={ui[lang]['toggle.lang']}>
+        <span class="ico"><span class="lang-glyph" data-lang-glyph data-cjk={other === 'zh' ? '' : undefined}>{other === 'zh' ? '中' : 'EN'}</span></span>
+      </a>
+      <span class="tip" aria-hidden="true" data-lang-tip>{other === 'zh' ? '中文' : 'English'}</span>
+    </li>
+    <li class="dock-item" data-mag>
+      <button type="button" class="dock-btn" data-theme-toggle aria-label={ui[lang]['toggle.theme']} data-label-zh={ui.zh['toggle.theme']} data-label-en={ui.en['toggle.theme']}>
+        <span class="ico theme-ico">
+          <Icon name="sun" size={18} class="i-sun" />
+          <Icon name="moon" size={18} class="i-moon" />
+        </span>
+      </button>
+      <span class="tip" aria-hidden="true" data-tip>{ui[lang]['toggle.theme']}</span>
+    </li>
+  </ul>
+  <span class="dock-dot" data-dock-dot aria-hidden="true"></span>
+</nav>
+
+<style is:global>
+  :root {
+    --dock-size: 40px;
+    --dock-gap: 6px;
+    --dock-pad: 9px;
+  }
+  .dock {
+    position: fixed;
+    z-index: 70;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    -webkit-tap-highlight-color: transparent;
+  }
+  .dock-bg {
+    position: absolute;
+    inset: calc(-1 * var(--grow-y, 0px)) calc(-1 * var(--grow-x, 0px)) calc(-1 * var(--grow-y, 0px)) 0;
+    border-radius: 20px;
+    background: rgb(250 249 245 / 0.72);
+    -webkit-backdrop-filter: blur(20px) saturate(1.6);
+    backdrop-filter: blur(20px) saturate(1.6);
+    border: 0.5px solid rgb(24 24 27 / 0.1);
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.7),
+      0 1px 2px rgb(24 24 27 / 0.04),
+      0 6px 16px -6px rgb(24 24 27 / 0.1),
+      0 22px 44px -18px rgb(24 24 27 / 0.16);
+  }
+  :root[data-theme='dark'] .dock-bg {
+    background: rgb(28 28 30 / 0.7);
+    border-color: rgb(255 255 255 / 0.08);
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.05),
+      0 1px 2px rgb(0 0 0 / 0.3),
+      0 10px 24px -8px rgb(0 0 0 / 0.45),
+      0 28px 56px -20px rgb(0 0 0 / 0.55);
+  }
+  .dock-list {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--dock-gap);
+    margin: 0;
+    padding: var(--dock-pad);
+    list-style: none;
+  }
+  .dock-item {
+    position: relative;
+    width: var(--dock-size);
+    height: var(--dock-size);
+    transform: translate3d(0, var(--ty, 0px), 0);
+    will-change: transform;
+  }
+  .dock-sep {
+    width: 22px;
+    height: 0.5px;
+    margin: 2px 0;
+    background: color-mix(in srgb, var(--n-10) 16%, transparent);
+    transform: translate3d(0, var(--ty, 0px), 0);
+  }
+  .dock-btn {
+    display: grid;
+    place-items: center;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    border: 0;
+    border-radius: 12px;
+    background: transparent;
+    color: var(--n-7);
+    font: inherit;
+    cursor: pointer;
+    transform: scale(var(--s, 1));
+    transform-origin: left center;
+    will-change: transform;
+    transition: color 0.2s var(--ease), background-color 0.2s var(--ease);
+  }
+  .dock-btn .ico {
+    display: grid;
+    place-items: center;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.18s var(--ease);
+  }
+  .dock-btn:active .ico {
+    transform: scale(0.88);
+    transition-duration: 0.08s;
+  }
+  .dock-btn:hover,
+  .dock-btn[aria-current='page'] {
+    color: var(--n-10);
+  }
+  .dock-btn:hover {
+    background: color-mix(in srgb, var(--n-10) 5%, transparent);
+  }
+  .dock-btn:focus-visible {
+    outline: 1.5px solid var(--accent);
+    outline-offset: 2px;
+  }
+  .dock-btn.avatar {
+    border-radius: 50%;
+  }
+  /* 放大模式下不再叠加底色，像 Dock 一样只用尺寸表达悬停 */
+  .dock.is-mag .dock-btn:hover {
+    background: transparent;
+  }
+  .dock-btn.avatar:hover {
+    background: transparent;
+  }
+  .dock-btn.avatar img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    box-shadow: 0 0 0 0.5px rgb(24 24 27 / 0.14), 0 2px 6px -2px rgb(24 24 27 / 0.25);
+  }
+  .lang-glyph {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+  }
+  .lang-glyph[data-cjk] {
+    font-family: var(--font-serif);
+    font-size: 14.5px;
+  }
+  .theme-ico svg {
+    grid-area: 1 / 1;
+    transition: opacity 0.3s var(--ease), transform 0.45s var(--ease);
+  }
+  .theme-ico .i-moon {
+    opacity: 0;
+    transform: rotate(-60deg) scale(0.6);
+  }
+  :root[data-theme='dark'] .theme-ico .i-sun {
+    opacity: 0;
+    transform: rotate(60deg) scale(0.6);
+  }
+  :root[data-theme='dark'] .theme-ico .i-moon {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* tooltip chip */
+  .tip {
+    position: absolute;
+    left: 100%;
+    top: 50%;
+    margin-left: 14px;
+    padding: 4px 10px 5px;
+    border-radius: 8px;
+    white-space: nowrap;
+    pointer-events: none;
+    font-family: var(--font-serif);
+    font-size: 12.5px;
+    line-height: 1.3;
+    color: var(--n-9);
+    background: rgb(250 249 245 / 0.92);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    border: 0.5px solid rgb(24 24 27 / 0.1);
+    box-shadow: 0 6px 18px -8px rgb(24 24 27 / 0.22);
+    opacity: 0;
+    transform: translate3d(calc(var(--dx, 0px) - 6px), -50%, 0);
+    transition: opacity 0.18s var(--ease), transform 0.32s var(--ease);
+  }
+  .tip em {
+    font-style: normal;
+    color: var(--n-6);
+  }
+  :root[data-theme='dark'] .tip {
+    background: rgb(36 35 33 / 0.92);
+    border-color: rgb(255 255 255 / 0.08);
+    box-shadow: 0 8px 22px -8px rgb(0 0 0 / 0.6);
+  }
+  .dock-item:hover .tip,
+  .dock-item:has(:focus-visible) .tip {
+    opacity: 1;
+    transform: translate3d(var(--dx, 0px), -50%, 0);
+  }
+
+  /* running indicator */
+  .dock-dot {
+    position: absolute;
+    left: 5px;
+    top: 0;
+    width: 4px;
+    height: 4px;
+    margin: -2px 0 0 -2px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 16%, transparent);
+    opacity: 0;
+    transform: translate3d(var(--dot-x, 0px), var(--dot-y, 0px), 0);
+    transition: opacity 0.3s var(--ease);
+    pointer-events: none;
+  }
+  .dock-dot.on {
+    opacity: 1;
+  }
+
+  /* desktop: keep content clear of the dock */
+  @media (min-width: 1024px) and (max-width: 1359px) {
+    body {
+      padding-left: 84px;
+    }
+  }
+
+  /* narrow screens: floating bottom dock */
+  @media (max-width: 1023px) {
+    :root {
+      --dock-size: 38px;
+      --dock-gap: 4px;
+      --dock-pad: 6px;
+    }
+    .dock {
+      left: 50%;
+      top: auto;
+      bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+      transform: translateX(-50%);
+    }
+    .dock-list {
+      flex-direction: row;
+    }
+    .dock-bg {
+      inset: 0;
+      border-radius: 18px;
+    }
+    .dock-sep {
+      width: 0.5px;
+      height: 20px;
+      margin: 0 3px;
+    }
+    .tip {
+      display: none;
+    }
+    .dock-dot {
+      left: 0;
+      top: auto;
+      bottom: 3px;
+      margin: 0 0 0 -2px;
+    }
+    body {
+      padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+    }
+  }
+  @media (max-width: 360px) {
+    :root {
+      --dock-size: 34px;
+    }
+  }
+  @media (hover: none) {
+    .dock-btn:hover {
+      background: transparent;
+    }
+    .dock-btn:active {
+      background: color-mix(in srgb, var(--n-10) 6%, transparent);
+    }
+  }
+</style>
+
+<script>
+  type Lang = 'zh' | 'en';
+  const dock = () => document.querySelector<HTMLElement>('[data-dock]');
+
+  /* ---------- theme + language (delegated, bound once) ---------- */
+  document.addEventListener('click', (e) => {
+    const target = e.target as Element | null;
+    const langLink = target?.closest<HTMLAnchorElement>('[data-set-lang]');
+    if (langLink) {
+      try {
+        localStorage.setItem('lang', langLink.dataset.setLang!);
+      } catch {}
+      return;
+    }
+    if (!target?.closest('[data-theme-toggle]')) return;
+    const root = document.documentElement;
+    const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
+    const sys = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    root.dataset.theme = next;
+    try {
+      if (next === sys) localStorage.removeItem('theme');
+      else localStorage.setItem('theme', next);
+    } catch {}
+    window.dispatchEvent(new CustomEvent('themechange', { detail: next }));
+  });
+
+  /* ---------- sync persisted dock with the current page ---------- */
+  const stripLang = (p: string) => p.replace(/^\/en(?=\/|$)/, '') || '/';
+  function sync() {
+    const d = dock();
+    if (!d) return;
+    const root = document.documentElement;
+    const lang = (root.dataset.lang === 'en' ? 'en' : 'zh') as Lang;
+    const other: Lang = lang === 'zh' ? 'en' : 'zh';
+    const path = stripLang(location.pathname);
+    d.querySelectorAll<HTMLAnchorElement>('[data-href-zh]').forEach((a) => {
+      a.href = a.dataset[lang === 'zh' ? 'hrefZh' : 'hrefEn']!;
+    });
+    d.querySelectorAll<HTMLElement>('[data-nav]').forEach((a) => {
+      const key = a.dataset.nav!;
+      const active = key === 'home' ? path === '/' : path.startsWith(`/${key}`);
+      if (active) a.setAttribute('aria-current', 'page');
+      else a.removeAttribute('aria-current');
+      const l = a.dataset[lang === 'zh' ? 'labelZh' : 'labelEn'];
+      if (l) {
+        a.setAttribute('aria-label', l);
+        const tip = a.parentElement?.querySelector('[data-tip]');
+        if (tip) tip.textContent = l;
+      }
+    });
+    const theme = d.querySelector<HTMLElement>('[data-theme-toggle]');
+    if (theme) {
+      const l = theme.dataset[lang === 'zh' ? 'labelZh' : 'labelEn']!;
+      theme.setAttribute('aria-label', l);
+      const tip = theme.parentElement?.querySelector('[data-tip]');
+      if (tip) tip.textContent = l;
+    }
+    const sw = d.querySelector<HTMLAnchorElement>('[data-lang-switch]');
+    if (sw) {
+      sw.href = root.getAttribute(`data-alt-${other}`) || (other === 'en' ? '/en/' : '/');
+      sw.dataset.setLang = other;
+      sw.hreflang = other === 'zh' ? 'zh-CN' : 'en';
+      sw.setAttribute('aria-label', lang === 'zh' ? '切换语言' : 'Switch language');
+      const g = sw.querySelector<HTMLElement>('[data-lang-glyph]');
+      if (g) {
+        g.textContent = other === 'zh' ? '中' : 'EN';
+        g.toggleAttribute('data-cjk', other === 'zh');
+      }
+      const tip = d.querySelector('[data-lang-tip]');
+      if (tip) tip.textContent = other === 'zh' ? '中文' : 'English';
+    }
+    engine.retarget();
+  }
+
+  /* ---------- magnification engine ---------- */
+  const engine = (() => {
+    const MAX = 1.5;
+    const SIGMA = 52;
+    const K = 0.16; // spring stiffness
+    const D = 0.74; // damping (velocity retention)
+    type Node = { el: HTMLElement; btn: HTMLElement | null; c: number; v: number; t: number; base: number; size: number };
+    let nodes: Node[] = [];
+    let list: HTMLElement | null = null;
+    let pointer: number | null = null;
+    let raf = 0;
+    let dot = { c: 0, v: 0, t: 0, x: 0, init: false };
+    const mqDesk = window.matchMedia('(min-width: 1024px) and (hover: hover) and (pointer: fine)');
+    const mqMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const vertical = () => window.matchMedia('(min-width: 1024px)').matches;
+    const canMagnify = () => mqDesk.matches && !mqMotion.matches;
+
+    function measure() {
+      const d = dock();
+      list = d?.querySelector<HTMLElement>('[data-dock-list]') ?? null;
+      if (!list) return;
+      const v = vertical();
+      const old = new Map(nodes.map((n) => [n.el, n]));
+      nodes = [...list.children].map((el) => {
+        const h = el as HTMLElement;
+        const prev = old.get(h);
+        const base = v ? h.offsetTop + h.offsetHeight / 2 : h.offsetLeft + h.offsetWidth / 2;
+        const size = v ? h.offsetHeight : h.offsetWidth;
+        return { el: h, btn: h.hasAttribute('data-mag') ? h : null, c: prev?.c ?? 1, v: prev?.v ?? 0, t: 1, base, size };
+      });
+    }
+
+    function targets() {
+      for (const n of nodes) {
+        if (!n.btn || pointer == null || !canMagnify()) n.t = 1;
+        else {
+          const dist = pointer - n.base;
+          n.t = 1 + (MAX - 1) * Math.exp(-(dist * dist) / (2 * SIGMA * SIGMA));
+        }
+      }
+      const d = dock();
+      const active = d?.querySelector('[aria-current="page"]')?.closest('li') as HTMLElement | null;
+      const idx = active ? nodes.findIndex((n) => n.el === active) : -1;
+      d?.querySelector('[data-dock-dot]')?.classList.toggle('on', idx >= 0);
+      return idx;
+    }
+
+    function frame() {
+      raf = 0;
+      const d = dock();
+      if (!d || !list) return;
+      d.classList.toggle('is-mag', canMagnify());
+      const idx = targets();
+      let moving = false;
+      for (const n of nodes) {
+        const a = (n.t - n.c) * K;
+        n.v = (n.v + a) * D;
+        n.c += n.v;
+        if (Math.abs(n.v) > 0.0004 || Math.abs(n.t - n.c) > 0.0004) moving = true;
+        else {
+          n.c = n.t;
+          n.v = 0;
+        }
+      }
+      const v = vertical();
+      const extra = nodes.map((n) => (n.btn ? n.size * (n.c - 1) : 0));
+      const total = extra.reduce((s, e) => s + e, 0);
+      let acc = 0;
+      let maxE = 0;
+      const offs: number[] = [];
+      nodes.forEach((n, i) => {
+        const off = acc + extra[i] / 2 - total / 2;
+        acc += extra[i];
+        maxE = Math.max(maxE, extra[i]);
+        offs.push(off);
+        if (v) {
+          n.el.style.setProperty('--ty', `${off.toFixed(2)}px`);
+          n.el.style.setProperty('--dx', `${extra[i].toFixed(2)}px`);
+        } else {
+          n.el.style.removeProperty('--ty');
+          n.el.style.removeProperty('--dx');
+        }
+        const btn = n.btn?.querySelector<HTMLElement>('.dock-btn');
+        if (btn) btn.style.setProperty('--s', v ? n.c.toFixed(4) : '1');
+      });
+      const bg = d.querySelector<HTMLElement>('.dock-bg');
+      if (bg) {
+        if (v) {
+          bg.style.setProperty('--grow-y', `${(total / 2).toFixed(2)}px`);
+          bg.style.setProperty('--grow-x', `${(maxE * 0.92).toFixed(2)}px`);
+        } else {
+          bg.style.removeProperty('--grow-y');
+          bg.style.removeProperty('--grow-x');
+        }
+      }
+      // indicator dot follows the active item with its own spring
+      if (idx >= 0) {
+        const pad = parseFloat(getComputedStyle(list).paddingTop) || 0;
+        const target = nodes[idx].base + (v ? offs[idx] : 0);
+        if (!dot.init || mqMotion.matches) {
+          dot.c = target;
+          dot.v = 0;
+          dot.init = true;
+        } else {
+          dot.v = (dot.v + (target - dot.c) * 0.14) * 0.72;
+          dot.c += dot.v;
+          if (Math.abs(dot.v) > 0.02 || Math.abs(target - dot.c) > 0.05) moving = true;
+          else dot.c = target;
+        }
+        const el = d.querySelector<HTMLElement>('[data-dock-dot]')!;
+        if (v) {
+          el.style.setProperty('--dot-x', '0px');
+          el.style.setProperty('--dot-y', `${dot.c.toFixed(2)}px`);
+        } else {
+          el.style.setProperty('--dot-x', `${dot.c.toFixed(2)}px`);
+          el.style.setProperty('--dot-y', '0px');
+        }
+        void pad;
+      }
+      if (moving) raf = requestAnimationFrame(frame);
+    }
+    const kick = () => {
+      if (!raf) raf = requestAnimationFrame(frame);
+    };
+
+    function bind() {
+      const d = dock();
+      if (!d || d.dataset.bound) return;
+      d.dataset.bound = '1';
+      d.addEventListener('pointermove', (e) => {
+        if (e.pointerType !== 'mouse' || !list) return;
+        const r = list.getBoundingClientRect();
+        pointer = vertical() ? e.clientY - r.top : e.clientX - r.left;
+        kick();
+      });
+      d.addEventListener('pointerleave', () => {
+        pointer = null;
+        kick();
+      });
+      window.addEventListener('resize', () => {
+        measure();
+        kick();
+      });
+      mqMotion.addEventListener('change', kick);
+    }
+
+    return {
+      init() {
+        bind();
+        measure();
+        kick();
+      },
+      retarget() {
+        if (!nodes.length) measure();
+        kick();
+      },
+    };
+  })();
+
+  document.addEventListener('astro:page-load', () => {
+    engine.init();
+    sync();
+  });
+  document.addEventListener('astro:after-swap', sync);
+</script>
