@@ -6,6 +6,7 @@ import { titleTransition } from '../utils/transitions';
 import type { Lang } from '../site.config';
 import { useT, localizePath } from '../i18n';
 import { getPostsFor, dotDate, readingMinutes } from '../utils/content';
+import { groupByYear, langMarker, pad2 } from '../utils/view';
 
 interface Props {
   lang: Lang;
@@ -14,12 +15,8 @@ const archivedCount = (await getPostsFor(Astro.props.lang, 'archived')).length;
 const { lang } = Astro.props;
 const t = useT(lang);
 const posts = await getPostsFor(lang);
-const mark = (l: Lang) => (l !== lang ? (l === 'zh' ? t('marker.zh') : t('marker.en')) : undefined);
-const byYear = new Map<number, typeof posts>();
-for (const p of posts) {
-  const y = p.data.date.getFullYear();
-  byYear.set(y, [...(byYear.get(y) ?? []), p]);
-}
+const mark = langMarker(lang);
+const byYear = groupByYear(posts);
 let idx = 3;
 // 有任意一篇带图时，整列都留出缩略图位，保证右侧 meta 对齐
 const withThumbs = posts.some((p) => p.data.cover);
@@ -47,7 +44,7 @@ const withThumbs = posts.some((p) => p.data.cover);
       <section class="section year-block">
         <div class="section-head reveal" style={`--i:${idx++}`}>
           <p class="section-num">
-            {String(yi).padStart(2, '0')} · {t('posts.entries')(list.length)}
+            {pad2(yi)} · {t('posts.entries')(list.length)}
           </p>
           <h2 class="section-title tabular">{year}</h2>
         </div>

@@ -6,6 +6,7 @@ import EmptyState from '../components/EmptyState.astro';
 import { site, type Lang } from '../site.config';
 import { useT, localizePath, quoteMarks } from '../i18n';
 import { getPostsFor, getNotesFor, getPosts, getNotes } from '../utils/content';
+import { langMarker, pad2, socialLinks } from '../utils/view';
 
 interface Props {
   lang: Lang;
@@ -19,7 +20,7 @@ const [posts, notes, allPosts, allNotes] = await Promise.all([
   getNotes(),
 ]);
 const hasArchive = [...allPosts, ...allNotes].some((e) => e.data.archived);
-const mark = (l: Lang) => (l !== lang ? (l === 'zh' ? t('marker.zh') : t('marker.en')) : undefined);
+const mark = langMarker(lang);
 const recent: Item[] = [
   ...posts.map((p) => ({
     href: localizePath(lang, `/posts/${p.id}/`),
@@ -46,8 +47,8 @@ const recent: Item[] = [
 
 const since = site.startDate.replaceAll('-', '.').slice(0, 7);
 const hasQuote = Boolean(site.quote[lang]);
-const secNum = (i: number, label: string) => `${String(i).padStart(2, '0')} · ${label}`;
-const socials = site.social.map((s) => (s.icon === 'rss' ? { ...s, href: localizePath(lang, '/rss.xml') } : s));
+const secNum = (i: number, label: string) => `${pad2(i)} · ${label}`;
+const socials = socialLinks(lang);
 ---
 
 <Base>

@@ -2,7 +2,8 @@
 import Base from '../layouts/Base.astro';
 import Icon from '../components/Icon.astro';
 import { site, type Lang } from '../site.config';
-import { useT, localizePath } from '../i18n';
+import { useT } from '../i18n';
+import { socialLinks } from '../utils/view';
 
 interface Props {
   lang: Lang;
@@ -10,7 +11,7 @@ interface Props {
 const { lang } = Astro.props;
 const t = useT(lang);
 const about = site.about[lang];
-const socials = site.social.map((s) => (s.icon === 'rss' ? { ...s, href: localizePath(lang, '/rss.xml') } : s));
+const socials = socialLinks(lang);
 ---
 
 <Base title={t('nav.about')} description={site.intro[lang] || undefined}>

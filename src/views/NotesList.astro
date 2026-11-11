@@ -5,6 +5,7 @@ import { titleTransition } from '../utils/transitions';
 import type { Lang } from '../site.config';
 import { useT, localizePath } from '../i18n';
 import { getNotesFor, dotDate } from '../utils/content';
+import { langMarker } from '../utils/view';
 
 interface Props {
   lang: Lang;
@@ -13,7 +14,7 @@ const archivedCount = (await getNotesFor(Astro.props.lang, 'archived')).length;
 const { lang } = Astro.props;
 const t = useT(lang);
 const notes = await getNotesFor(lang);
-const mark = (l: Lang) => (l !== lang ? (l === 'zh' ? t('marker.zh') : t('marker.en')) : undefined);
+const mark = langMarker(lang);
 const excerpt = (s = '') =>
   s
     .replace(/^>.*$/gm, '')
