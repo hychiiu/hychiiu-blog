@@ -42,7 +42,7 @@ const t = useT(lang);
           {it.description && <p class="desc">{it.description}</p>}
           <div class="info meta">
             {showKind && <span class="kind">{it.kind === 'note' ? t('kind.note') : t('kind.post')}</span>}
-            {it.marker && <span class="marker">{it.marker}</span>}
+            {it.marker && <span class="badge">{it.marker}</span>}
             {it.kind !== 'note' && it.body && <span>{t('post.min')(readingMinutes(it.body))}</span>}
             {it.tags?.slice(0, 3).map((t) => (
               <span>#{t}</span>
@@ -118,7 +118,7 @@ const t = useT(lang);
   .kind {
     color: var(--accent);
   }
-  .marker {
+  .badge {
     line-height: 1.6;
     letter-spacing: 0.04em;
   }

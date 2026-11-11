@@ -61,7 +61,7 @@ const firstPostId = posts[0]?.id;
                   {p.data.title}
                 </span>
                 <span class="meta right">
-                  {mark(p.data.lang) && <span class="marker">{mark(p.data.lang)}</span>}
+                  {mark(p.data.lang) && <span class="badge">{mark(p.data.lang)}</span>}
                   {p.data.tags.slice(0, 2).map((tag) => (
                     <span class="tg">#{tag}</span>
                   ))}

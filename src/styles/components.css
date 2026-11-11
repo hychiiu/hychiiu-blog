@@ -34,8 +34,8 @@
   letter-spacing: 0;
 }
 
-/* 语言 / 状态小标记（列表与文章 meta 共用，组件内只写差异） */
-.marker {
+/* 语言 / 状态小徽标（列表与文章 meta 共用，组件内只写差异）。不用 .marker：会撞上 Mermaid SVG 的 <marker class="marker"> */
+.badge {
   padding: 0 6px;
   border: 1px solid var(--border);
   border-radius: var(--r-xs);

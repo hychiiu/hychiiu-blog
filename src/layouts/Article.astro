@@ -64,8 +64,8 @@ const foreign = contentLang !== lang;
         <time datetime={date.toISOString()}>{dotDate(date)}</time>
         <span>{t('post.min')(readingMinutes(body))}</span>
         <span>{t('post.words')(countWords(body))}</span>
-        {issue?.archived && <span class="marker archived">{t('archive.badge')}</span>}
-        {foreign && <span class="marker">{contentLang === 'zh' ? t('marker.zh') : t('marker.en')}</span>}
+        {issue?.archived && <span class="badge archived">{t('archive.badge')}</span>}
+        {foreign && <span class="badge">{contentLang === 'zh' ? t('marker.zh') : t('marker.en')}</span>}
       </div>
       <h1
         class="post-title vt-title"
@@ -202,10 +202,10 @@ const foreign = contentLang !== lang;
     letter-spacing: 0.04em;
     color: var(--n-7);
   }
-  .marker {
+  .badge {
     font-size: var(--fs-xs);
   }
-  .marker.archived {
+  .badge.archived {
     color: var(--n-6);
     border-style: dashed;
   }

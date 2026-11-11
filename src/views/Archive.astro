@@ -61,7 +61,7 @@ let idx = 3;
                   {p.data.title}
                 </span>
                 <span class="meta right">
-                  {mark(p.data.lang) && <span class="marker">{mark(p.data.lang)}</span>}
+                  {mark(p.data.lang) && <span class="badge">{mark(p.data.lang)}</span>}
                   <span class="tg">{p.kind === 'notes' ? t('kind.note') : t('kind.post')}</span>
                   {p.data.tags.slice(0, 2).map((tag) => (
                     <span>#{tag}</span>

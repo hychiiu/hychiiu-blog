@@ -58,7 +58,7 @@ const excerpt = (s = '') =>
               <p>{excerpt(n.body)}…</p>
               <div class="meta info">
                 <span>{dotDate(n.data.date)}</span>
-                {mark(n.data.lang) && <span class="marker">{mark(n.data.lang)}</span>}
+                {mark(n.data.lang) && <span class="badge">{mark(n.data.lang)}</span>}
                 {n.data.mood && (
                   <span>
                     {t('notes.mood')} {n.data.mood}
