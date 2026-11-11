@@ -51,6 +51,16 @@ export function rehypeFigure() {
   };
 }
 
+/** 正文图片统一懒加载、异步解码，并且不发送 Referer（GitHub 附件图片 / 外链图床需要） */
+export function rehypeImageDefaults() {
+  return (tree) => {
+    visit(tree, 'element', (node) => {
+      if (node.tagName !== 'img') return;
+      node.properties = { loading: 'lazy', decoding: 'async', referrerPolicy: 'no-referrer', ...node.properties };
+    });
+  };
+}
+
 export function rehypeTableWrap() {
   return (tree) => {
     visit(tree, 'element', (node, index, parent) => {

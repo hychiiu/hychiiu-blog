@@ -1,6 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
 import EmptyState from '../components/EmptyState.astro';
+import Thumb from '../components/Thumb.astro';
 import { titleTransition } from '../utils/transitions';
 import type { Lang } from '../site.config';
 import { useT, localizePath } from '../i18n';
@@ -18,6 +19,8 @@ for (const p of posts) {
   byYear.set(y, [...(byYear.get(y) ?? []), p]);
 }
 let idx = 3;
+// 有任意一篇带图时，整列都留出缩略图位，保证右侧 meta 对齐
+const withThumbs = posts.some((p) => p.data.cover);
 ---
 <Base title={t('nav.posts')} description={t('posts.lede')}>
   <div class="shell">
@@ -35,7 +38,7 @@ let idx = 3;
           <p class="section-num">{String(yi).padStart(2, '0')} · {t('posts.entries')(list.length)}</p>
           <h2 class="section-title tabular">{year}</h2>
         </div>
-        <ul class="list">
+        <ul class:list={['list', { 'with-thumbs': withThumbs }]}>
           {list.map((p) => (
             <li class="reveal" style={`--i:${idx++}`}>
               <a href={localizePath(lang, `/posts/${p.id}/`)}>
@@ -46,6 +49,7 @@ let idx = 3;
                   {p.data.tags.slice(0, 2).map((tag) => <span class="tg">#{tag}</span>)}
                   <span>{t('post.min')(readingMinutes(p.body))}</span>
                 </span>
+                {withThumbs && (p.data.cover ? <Thumb src={p.data.cover} width={120} class="list-thumb" /> : <span class="list-thumb" />)}
               </a>
             </li>
           ))}
@@ -81,6 +85,13 @@ let idx = 3;
     align-items: baseline;
     padding: 16px 0;
   }
+  .with-thumbs a {
+    grid-template-columns: 132px minmax(0, 1fr) auto 120px;
+    align-items: center;
+  }
+  .list :global(.list-thumb) {
+    width: 120px;
+  }
   .t {
     font-family: var(--font-serif);
     font-weight: 500;
@@ -110,6 +121,23 @@ let idx = 3;
     .list a {
       grid-template-columns: 1fr;
       gap: 4px;
+    }
+    /* 窄屏：缩略图放到右侧，日期 / 标题 / meta 在左侧堆叠 */
+    .with-thumbs a {
+      grid-template-columns: minmax(0, 1fr) 88px;
+      column-gap: var(--sp-4);
+      align-items: start;
+    }
+    .with-thumbs a > :not(.list-thumb) {
+      grid-column: 1;
+    }
+    .list :global(.list-thumb) {
+      grid-column: 2;
+      grid-row: 1 / span 3;
+      width: 88px;
+    }
+    .list :global(span.list-thumb:empty) {
+      display: none;
     }
   }
 </style>

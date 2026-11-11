@@ -26,14 +26,14 @@ interface Props {
   contentLang: Lang;
   alternates?: Partial<Record<Lang, string>>;
   /** 来自 GitHub issue 的元数据（评论、归档状态等） */
-  issue?: { number: number; url: string; repo: string; archived: boolean; locked: boolean; updated: Date; comments: any[] };
+  issue?: { number: number; url: string; repo: string; archived: boolean; locked: boolean; updated: Date; cover?: string; comments: any[] };
 }
 const { title, date, description, tags = [], body = '', kind, backHref, backLabel, extra = [], prev, next, lang, contentLang, alternates, issue } = Astro.props;
 const t = useT(lang);
 const label = kind === 'note' ? t('kind.note') : tags[0] ?? t('kind.post');
 const foreign = contentLang !== lang;
 ---
-<Base title={title} description={description || title} type="article" alternates={alternates}>
+<Base title={title} description={description || title} type="article" image={issue?.cover} alternates={alternates}>
   <div class="shell">
     <article class="post">
       <a class="back-link reveal" style="--i:0" href={backHref} data-back>

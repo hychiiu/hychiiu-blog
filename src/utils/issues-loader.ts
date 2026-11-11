@@ -35,7 +35,15 @@ interface IssueRecord {
   comments: IssueComment[];
 }
 
-const FILE = new URL('../data/issues.json', import.meta.url);
+/** 数据文件；本地预览可用 YH_ISSUES_FILE 指向一份测试数据（不提交到仓库） */
+/** 正文里第一张图片（Markdown 或 <img>，忽略代码块），用作列表缩略图 / og:image */
+export function firstImage(md: string): string | undefined {
+  const text = md.replace(/^(```|~~~)[\s\S]*?^\1/gm, '').replace(/`[^`\n]*`/g, '');
+  const m = /!\[[^\]]*\]\(\s*<?([^)\s>]+)|<img\b[^>]*?\bsrc=["']([^"']+)["']/i.exec(text);
+  return m ? (m[1] ?? m[2]) : undefined;
+}
+
+const FILE = process.env.YH_ISSUES_FILE ? new URL(`file://${process.env.YH_ISSUES_FILE}`) : new URL('../data/issues.json', import.meta.url);
 
 /**
  * 正文开头可选的元信息块，两种写法任选：
@@ -97,7 +105,7 @@ export function issuesLoader(kind: 'post' | 'note'): Loader {
             date: str(meta.date) ?? issue.createdAt,
             updated: issue.updatedAt,
             description: str(meta.description) ?? '',
-            cover: str(meta.cover),
+            cover: str(meta.cover) ?? firstImage(content),
             mood: str(meta.mood),
             weather: str(meta.weather),
             tags: [...new Set([...issue.tags, ...metaTags])],

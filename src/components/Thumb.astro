@@ -1,0 +1,55 @@
+---
+/**
+ * 列表缩略图（docs/DESIGN.md §7 图片）：16:10、r-md、发丝线描边、懒加载、object-fit: cover，
+ * 所在行 hover 时轻微放大 1.03。不发送 Referer，兼容 GitHub 附件图片与外链图床。
+ */
+interface Props {
+  src: string;
+  /** 宽度（px），高度按 16:10 计算 */
+  width?: number;
+  class?: string;
+}
+const { src, width = 144, class: cls } = Astro.props;
+const height = Math.round((width * 10) / 16);
+---
+<span class:list={['thumb', cls]} style={`--w:${width}px`} aria-hidden="true">
+  <img src={src} alt="" width={width} height={height} loading="lazy" decoding="async" referrerpolicy="no-referrer" />
+</span>
+
+<style>
+  .thumb {
+    position: relative;
+    display: block;
+    flex: none;
+    width: var(--w);
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+    border-radius: var(--r-md);
+    background: var(--surface-1);
+  }
+  /* 发丝线描边叠在图片上方，避免被图片覆盖 */
+  .thumb::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    box-shadow: inset 0 0 0 0.5px var(--border);
+    pointer-events: none;
+  }
+  .thumb img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform var(--dur-4) var(--ease);
+  }
+  :global(a:hover) > .thumb img,
+  :global(a:hover) .thumb img {
+    transform: scale(1.03);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .thumb img {
+      transition: none;
+    }
+  }
+</style>

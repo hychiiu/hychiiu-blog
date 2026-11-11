@@ -14,8 +14,8 @@ const [posts, notes, allPosts, allNotes] = await Promise.all([getPostsFor(lang),
 const hasArchive = [...allPosts, ...allNotes].some((e) => e.data.archived);
 const mark = (l: Lang) => (l !== lang ? (l === 'zh' ? t('marker.zh') : t('marker.en')) : undefined);
 const recent: Item[] = [
-  ...posts.map((p) => ({ href: localizePath(lang, `/posts/${p.id}/`), marker: mark(p.data.lang), title: p.data.title, date: p.data.date, description: p.data.description, kind: 'post' as const, body: p.body, tags: p.data.tags })),
-  ...notes.map((n) => ({ href: localizePath(lang, `/notes/${n.id}/`), marker: mark(n.data.lang), title: n.data.title, date: n.data.date, kind: 'note' as const })),
+  ...posts.map((p) => ({ href: localizePath(lang, `/posts/${p.id}/`), marker: mark(p.data.lang), title: p.data.title, date: p.data.date, description: p.data.description, kind: 'post' as const, body: p.body, tags: p.data.tags, cover: p.data.cover })),
+  ...notes.map((n) => ({ href: localizePath(lang, `/notes/${n.id}/`), marker: mark(n.data.lang), title: n.data.title, date: n.data.date, kind: 'note' as const, cover: n.data.cover })),
 ]
   .sort((a, b) => b.date.valueOf() - a.date.valueOf())
   .slice(0, 6);

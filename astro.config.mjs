@@ -13,7 +13,7 @@ import rehypeKatex from 'rehype-katex';
 import rehypeSlug from 'rehype-slug';
 import rehypeAutolinkHeadings from 'rehype-autolink-headings';
 import rehypeExternalLinks from 'rehype-external-links';
-import { remarkMermaid, rehypeFigure, rehypeTableWrap } from './src/markdown/plugins.mjs';
+import { remarkMermaid, rehypeFigure, rehypeImageDefaults, rehypeTableWrap } from './src/markdown/plugins.mjs';
 import { site } from './src/site.config.ts';
 
 const mono = "'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, monospace";
@@ -120,6 +120,7 @@ export default defineConfig({
         ],
         [rehypeExternalLinks, { target: '_blank', rel: ['noopener', 'noreferrer'] }],
         rehypeFigure,
+        rehypeImageDefaults,
         rehypeTableWrap,
       ],
       remarkRehype: { footnoteLabel: 'Footnotes', footnoteBackLabel: 'Back to content' },

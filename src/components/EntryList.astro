@@ -3,6 +3,7 @@ import { dotDate, readingMinutes } from '../utils/content';
 import type { Lang } from '../site.config';
 import { useT } from '../i18n';
 import { titleTransition } from '../utils/transitions';
+import Thumb from './Thumb.astro';
 
 export interface Item {
   href: string;
@@ -12,6 +13,8 @@ export interface Item {
   kind?: 'post' | 'note';
   body?: string;
   tags?: string[];
+  /** 缩略图：front block 的 cover 或正文第一张图 */
+  cover?: string;
   /** 内容语言与页面语言不同时显示的小标记 */
   marker?: string;
 }
@@ -27,7 +30,7 @@ const t = useT(lang);
 <ul class="rows">
   {items.map((it, i) => (
     <li class="reveal" style={`--i:${startIndex + i}`}>
-      <a href={it.href} class="row">
+      <a href={it.href} class:list={['row', { 'has-thumb': it.cover }]}>
         <time class="date meta" datetime={it.date.toISOString()}>{dotDate(it.date)}</time>
         <div class="main">
           <h3 class="vt-title" transition:name={titleTransition(it.href)}>{it.title}</h3>
@@ -39,7 +42,7 @@ const t = useT(lang);
             {it.tags?.slice(0, 3).map((t) => <span>#{t}</span>)}
           </div>
         </div>
-        <span class="arrow" aria-hidden="true">↗</span>
+        {it.cover ? <Thumb src={it.cover} width={144} class="row-thumb" /> : <span class="arrow" aria-hidden="true">↗</span>}
       </a>
     </li>
   ))}
@@ -58,9 +61,15 @@ const t = useT(lang);
   .row {
     display: grid;
     grid-template-columns: 132px minmax(0, 1fr) 24px;
-    gap: 24px;
+    gap: var(--sp-5);
     align-items: baseline;
     padding: 22px 0;
+  }
+  .row.has-thumb {
+    grid-template-columns: 132px minmax(0, 1fr) auto;
+  }
+  .row :global(.row-thumb) {
+    align-self: center;
   }
   .date {
     letter-spacing: 0.04em;
@@ -121,6 +130,20 @@ const t = useT(lang);
       grid-template-columns: 1fr;
       gap: 6px;
       padding: 18px 0;
+    }
+    /* 窄屏：缩略图缩小到右侧，与日期、标题并排 */
+    .row.has-thumb {
+      grid-template-columns: minmax(0, 1fr) 96px;
+      column-gap: var(--sp-4);
+    }
+    .row.has-thumb .main {
+      grid-column: 1;
+    }
+    .row :global(.row-thumb) {
+      grid-column: 2;
+      grid-row: 1 / span 2;
+      align-self: start;
+      width: 96px;
     }
     .arrow {
       display: none;

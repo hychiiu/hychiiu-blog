@@ -14,12 +14,14 @@ interface Props {
   title?: string;
   description?: string;
   type?: 'website' | 'article';
+  /** 分享图（文章封面 / 正文第一张图），缺省用头像 */
+  image?: string;
   /** 另一语言的等价页面路径；不传则按前缀自动推导 */
   alternates?: Partial<Record<Lang, string>>;
 }
 const lang = toLang(Astro.currentLocale);
 const path = Astro.url.pathname;
-const { title, description = site.description[lang], type = 'website' } = Astro.props;
+const { title, description = site.description[lang], type = 'website', image } = Astro.props;
 const alternates: Record<Lang, string> = {
   zh: Astro.props.alternates?.zh ?? localizePath('zh', stripLang(path)),
   en: Astro.props.alternates?.en ?? localizePath('en', stripLang(path)),
@@ -27,7 +29,7 @@ const alternates: Record<Lang, string> = {
 const base = Astro.site ?? site.url;
 const fullTitle = title ? `${title} · ${site.title}` : site.title;
 const canonical = new URL(path, base).href;
-const ogImage = new URL(site.avatarLarge, base).href;
+const ogImage = new URL(image ?? site.avatarLarge, base).href;
 const rss = localizePath(lang, '/rss.xml');
 ---
 <!doctype html>
@@ -59,7 +61,7 @@ const rss = localizePath(lang, '/rss.xml');
     <meta property="og:url" content={canonical} />
     <meta property="og:image" content={ogImage} />
     <meta property="og:locale" content={lang === 'zh' ? 'zh_CN' : 'en_US'} />
-    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:card" content={image ? 'summary_large_image' : 'summary'} />
     <meta name="generator" content={Astro.generator} />
     <script is:inline>
       (() => {
