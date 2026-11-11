@@ -83,6 +83,7 @@ const t = useT(lang);
   }
   .row :global(.row-thumb) {
     align-self: center;
+    width: var(--thumb-w-row);
   }
   .date {
     letter-spacing: 0.04em;
@@ -147,19 +148,14 @@ const t = useT(lang);
       gap: 6px;
       padding: 18px 0;
     }
-    /* 窄屏：缩略图缩小到右侧，与日期、标题并排 */
+    /* 窄屏：缩略图通栏置于日期与标题之上（§7 图片），无图条目保持纯文字 */
     .row.has-thumb {
-      grid-template-columns: minmax(0, 1fr) 96px;
-      column-gap: var(--sp-4);
-    }
-    .row.has-thumb .main {
-      grid-column: 1;
+      grid-template-columns: minmax(0, 1fr);
     }
     .row :global(.row-thumb) {
-      grid-column: 2;
-      grid-row: 1 / span 2;
-      align-self: start;
-      width: 96px;
+      order: -1;
+      width: 100%;
+      margin-bottom: var(--sp-2);
     }
     .arrow {
       display: none;
