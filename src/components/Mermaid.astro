@@ -1,0 +1,44 @@
+---
+// 只有页面里存在 ```mermaid 图时才会按需加载 mermaid（浏览器端渲染，跟随深浅色重绘）
+---
+<script>
+  const blocks = [...document.querySelectorAll<HTMLElement>('pre[data-mermaid]')];
+  if (blocks.length) {
+    const sources = blocks.map((b) => b.textContent ?? '');
+    const palette = (dark: boolean) => {
+      const css = getComputedStyle(document.documentElement);
+      const accent = css.getPropertyValue('--accent').trim() || '#c56473';
+      return dark
+        ? { background: '#18181a', primaryColor: '#24231f', primaryTextColor: '#f0efeb', primaryBorderColor: '#5c5a55', secondaryColor: '#2a2926', tertiaryColor: '#1f1e1c', lineColor: '#a8a69f', textColor: '#e3e1db', noteBkgColor: '#2a2926', noteTextColor: '#e3e1db', noteBorderColor: '#5c5a55', edgeLabelBackground: '#18181a', clusterBkg: '#1f1e1c', clusterBorder: '#403f3a', accent }
+        : { background: '#faf9f5', primaryColor: '#f0efeb', primaryTextColor: '#24231f', primaryBorderColor: '#a8a69f', secondaryColor: '#f6f4ee', tertiaryColor: '#f9f8f5', lineColor: '#787670', textColor: '#24231f', noteBkgColor: '#f6f0ea', noteTextColor: '#24231f', noteBorderColor: '#d0cec6', edgeLabelBackground: '#faf9f5', clusterBkg: '#f6f4ee', clusterBorder: '#d0cec6', accent };
+    };
+    let seq = 0;
+    const render = async () => {
+      const { default: mermaid } = await import('mermaid');
+      const dark = document.documentElement.dataset.theme === 'dark';
+      const { accent, ...vars } = palette(dark);
+      mermaid.initialize({
+        startOnLoad: false,
+        securityLevel: 'strict',
+        theme: 'base',
+        fontFamily: "'Noto Serif SC', 'Noto Serif CJK SC', serif",
+        themeVariables: { ...vars, fontSize: '14px', darkMode: dark, actorBorder: vars.primaryBorderColor, signalColor: vars.lineColor, labelBoxBorderColor: accent },
+      });
+      await Promise.all(
+        blocks.map(async (el, i) => {
+          try {
+            const { svg } = await mermaid.render(`mmd-${i}-${seq++}`, sources[i]);
+            el.innerHTML = svg;
+            el.dataset.rendered = '';
+          } catch (err) {
+            el.textContent = sources[i];
+            el.dataset.error = '';
+            console.error(err);
+          }
+        }),
+      );
+    };
+    render();
+    new MutationObserver(() => render()).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+  }
+</script>

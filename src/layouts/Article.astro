@@ -1,6 +1,9 @@
 ---
 import Base from './Base.astro';
 import Giscus from '../components/Giscus.astro';
+import Mermaid from '../components/Mermaid.astro';
+import 'katex/dist/katex.min.css';
+import '../styles/markdown.css';
 import { site, type Lang } from '../site.config';
 import { useT, htmlLang } from '../i18n';
 import { dotDate, readingMinutes, countWords } from '../utils/content';
@@ -69,6 +72,7 @@ const foreign = contentLang !== lang;
       )}
 
       <Giscus lang={lang} />
+      <Mermaid />
     </article>
   </div>
 </Base>

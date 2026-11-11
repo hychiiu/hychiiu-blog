@@ -354,7 +354,7 @@ h4 {
 .prose p {
   margin: 0 0 1.05em;
 }
-.prose > p:first-of-type::first-letter {
+.prose:not(.no-dropcap) > p:first-of-type::first-letter {
   float: left;
   font-size: 2.6em;
   line-height: 1;
@@ -406,19 +406,22 @@ h4 {
   color: var(--n-7);
 }
 .prose blockquote p {
-  margin: 0;
+  margin: 0 0 0.6em;
+}
+.prose blockquote p:last-child {
+  margin-bottom: 0;
 }
 .prose ul {
   list-style: none;
   padding: 0;
   margin: 1em 0 1.3em;
 }
-.prose ul li {
+.prose ul > li {
   position: relative;
   padding-left: 1.4em;
   margin-bottom: 0.35em;
 }
-.prose ul li::before {
+.prose ul:not(.contains-task-list) > li::before {
   content: '—';
   position: absolute;
   left: 0;
@@ -438,31 +441,13 @@ h4 {
   margin: 2.4em 0;
   background: color-mix(in srgb, var(--n-10) 20%, transparent);
 }
-.prose code:not(pre code) {
+.prose :not(pre) > code {
   font-family: var(--font-mono);
   font-size: 0.84em;
   padding: 1px 5px;
   border-radius: 3px;
   background: color-mix(in srgb, var(--n-10) 6%, transparent);
   color: var(--n-9);
-}
-.prose pre {
-  margin: 1.4em 0;
-  padding: 14px 16px;
-  border-radius: 6px;
-  border: 1px solid var(--border);
-  font-family: var(--font-mono);
-  font-size: 13px;
-  line-height: 1.7;
-  overflow-x: auto;
-}
-.prose pre.astro-code,
-.prose pre.astro-code span {
-  background-color: var(--n-1) !important;
-}
-:root[data-theme='dark'] .prose pre.astro-code,
-:root[data-theme='dark'] .prose pre.astro-code span {
-  color: var(--shiki-dark) !important;
 }
 .prose img {
   display: block;

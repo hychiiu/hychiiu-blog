@@ -2,6 +2,7 @@
 import Base from '../layouts/Base.astro';
 import Icon from '../components/Icon.astro';
 import EntryList, { type Item } from '../components/EntryList.astro';
+import EmptyState from '../components/EmptyState.astro';
 import { site, type Lang } from '../site.config';
 import { useT, localizePath, quoteMarks } from '../i18n';
 import { getPostsFor, getNotesFor, getStats } from '../utils/content';
@@ -21,6 +22,8 @@ const recent: Item[] = [
 const fmtWords = (w: number) => (w >= 1000 ? `${(w / 1000).toFixed(1).replace(/\.0$/, '')}k` : String(w));
 const since = site.startDate.replaceAll('-', '.').slice(0, 7);
 const ghUser = site.socials.find((s) => s.icon === 'github')?.href.split('/').filter(Boolean).pop();
+const hasQuote = Boolean(site.quote[lang]);
+const secNum = (i: number, label: string) => `${String(i).padStart(2, '0')} · ${label}`;
 const socials = site.socials.map((s) => (s.icon === 'rss' ? { ...s, href: localizePath(lang, '/rss.xml') } : s));
 ---
 <Base>
@@ -32,7 +35,7 @@ const socials = site.socials.map((s) => (s.icon === 'rss' ? { ...s, href: locali
           <span class="greet">{site.greeting[lang]}</span>
           <span class="nm">{site.name}{site.nameCJK && <span class="cn-accent cn">{site.nameCJK}</span>}</span>
         </h1>
-        <p class="tagline reveal" style="--i:2">{site.intro[lang]}{site.wave && <span class="wave" aria-hidden="true"> {site.wave}</span>}</p>
+        {site.intro[lang] && <p class="tagline reveal" style="--i:2">{site.intro[lang]}{site.wave && <span class="wave" aria-hidden="true"> {site.wave}</span>}</p>}
         {site.subIntro[lang] && <p class="tagline sub reveal" style="--i:3">{site.subIntro[lang]}</p>}
 
         <div class="tokens reveal" style="--i:4">
@@ -52,24 +55,32 @@ const socials = site.socials.map((s) => (s.icon === 'rss' ? { ...s, href: locali
 
     <section class="section">
       <div class="section-head reveal" style="--i:5">
-        <p class="section-num">{t('sec.writing')}</p>
+        <p class="section-num">{secNum(0, t('sec.writing'))}</p>
         <h2 class="section-title">{t('sec.writingTitle')}</h2>
-        <p class="section-lede">{site.recentLede[lang]}</p>
+        {site.recentLede[lang] && <p class="section-lede">{site.recentLede[lang]}</p>}
       </div>
-      {recent.length ? <EntryList items={recent} showKind startIndex={6} lang={lang} /> : <p class="section-lede">{t('home.empty')}</p>}
-      <a href={localizePath(lang, '/posts/')} class="all btn btn--primary reveal" style={`--i:${6 + recent.length}`}>{t('btn.allPosts')} <Icon name="arrow" size={14} /></a>
+      {recent.length ? (
+        <>
+          <EntryList items={recent} showKind startIndex={6} lang={lang} />
+          <a href={localizePath(lang, '/posts/')} class="all btn btn--primary reveal" style={`--i:${6 + recent.length}`}>{t('btn.allPosts')} <Icon name="arrow" size={14} /></a>
+        </>
+      ) : (
+        <EmptyState text={t('home.empty')} class="reveal" style="--i:6" />
+      )}
     </section>
 
-    <section class="section">
-      <div class="section-head reveal" style={`--i:${7 + recent.length}`}>
-        <p class="section-num">{t('sec.quote')}</p>
-        <blockquote class="quote">{quoteMarks(lang, site.quote[lang])}{site.quoteAuthor[lang] && <cite>{site.quoteAuthor[lang]}</cite>}</blockquote>
-      </div>
-    </section>
+    {hasQuote && (
+      <section class="section">
+        <div class="section-head reveal" style={`--i:${7 + recent.length}`}>
+          <p class="section-num">{secNum(1, t('sec.quote'))}</p>
+          <blockquote class="quote">{quoteMarks(lang, site.quote[lang])}{site.quoteAuthor[lang] && <cite>{site.quoteAuthor[lang]}</cite>}</blockquote>
+        </div>
+      </section>
+    )}
 
     <section class="section">
       <div class="section-head">
-        <p class="section-num">{t('sec.elsewhere')}</p>
+        <p class="section-num">{secNum(hasQuote ? 2 : 1, t('sec.elsewhere'))}</p>
         <h2 class="section-title">{t('sec.elsewhereTitle')}</h2>
       </div>
       <ul class="socials">

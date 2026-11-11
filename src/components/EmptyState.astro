@@ -1,0 +1,50 @@
+---
+interface Props {
+  text: string;
+  /** 小号 mono 副标题，例如 'Posts · 0' */
+  hint?: string;
+  class?: string;
+  style?: string;
+}
+const { text, hint, class: cls = '', style } = Astro.props;
+---
+<div class={`empty ${cls}`} style={style}>
+  <span class="mark" aria-hidden="true">〇</span>
+  <div>
+    <p class="text">{text}</p>
+    {hint && <p class="hint">{hint}</p>}
+  </div>
+</div>
+
+<style>
+  .empty {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    padding: 36px 0;
+    border-top: 1px solid var(--hair);
+    border-bottom: 1px solid var(--hair);
+  }
+  .mark {
+    font-family: var(--font-serif);
+    font-size: 30px;
+    line-height: 1;
+    color: var(--accent);
+    opacity: 0.8;
+  }
+  .text {
+    margin: 0;
+    font-family: var(--font-serif);
+    font-weight: 500;
+    font-size: 19px;
+    line-height: 1.4;
+    color: var(--n-8);
+  }
+  .hint {
+    margin: 6px 0 0;
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    letter-spacing: 0.06em;
+    color: var(--n-6);
+  }
+</style>

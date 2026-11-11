@@ -40,50 +40,32 @@ export const site = {
   greeting: { zh: "Hi, I'm", en: "Hi, I'm" } satisfies Localized,
   wave: '👋', // 显示在一句话介绍末尾，留空则不显示
 
-  /** 首页一句话介绍（TODO：之后改成你自己的） */
-  intro: {
-    zh: '一句话介绍占位，之后可改。',
-    en: 'A one-line intro placeholder — edit me later.',
-  } satisfies Localized,
-  /** 第二行补充介绍，可留空字符串 */
-  subIntro: {
-    zh: '写代码，也写一点生活。偶尔更新，慢慢来。',
-    en: 'I write code, and a little about life. Updated rarely, slowly.',
-  } satisfies Localized,
+  /** 首页一句话介绍（留空则不显示） */
+  intro: { zh: '', en: '' } satisfies Localized,
+  /** 第二行补充介绍（留空则不显示） */
+  subIntro: { zh: '', en: '' } satisfies Localized,
 
-  /** 首页引言（中文自动加「」，英文自动加 “ ”） */
-  quote: {
-    zh: '把日子过成诗，把代码写成散文。',
-    en: 'Live the days like poetry; write the code like prose.',
-  } satisfies Localized,
+  /** 首页引言（中文自动加「」，英文自动加 “ ”）。留空则整个 Quote 区块不显示 */
+  quote: { zh: '', en: '' } satisfies Localized,
   quoteAuthor: { zh: '', en: '' } satisfies Localized, // 可选，例如 '— 某本书'
 
-  /** 首页「最近在写」区块说明 */
-  recentLede: {
-    zh: '写得不多，但每一篇都认真。下面是最近留下的文字。',
-    en: 'Not much, but every piece is written with care. Here is the latest.',
-  } satisfies Localized,
+  /** 首页「最近在写」区块说明（留空则不显示） */
+  recentLede: { zh: '', en: '' } satisfies Localized,
 
   /**
    * 关于页正文。paragraphs 支持少量 HTML（<a>、<em>、<strong>）。
-   * TODO：改成你自己的介绍。
+   * paragraphs / now 为空数组时对应区块不显示。
    */
   about: {
     zh: {
-      paragraphs: [
-        '你好，我是 hychiiu。这里是关于页面的占位文字，之后可以改成你自己的故事。',
-        '可以写写你在做什么、喜欢什么、相信什么；也可以只留一句话，让<em>留白</em>替你说完剩下的。',
-      ],
-      now: ['正在做的事情：占位', '最近在读 / 在听：占位', '常用工具：占位'],
+      paragraphs: [] as string[],
+      now: [] as string[],
       colophon:
         '本站使用 <a href="https://astro.build" target="_blank" rel="noopener">Astro</a> 构建，纯静态托管于 Cloudflare Pages；视觉语言参考了开源的 Yohaku 设计系统（MIT）。',
     },
     en: {
-      paragraphs: [
-        "Hi, I'm hychiiu. This is placeholder text for the about page — replace it with your own story.",
-        'Write about what you are making, what you love, what you believe; or leave a single line and let the <em>whitespace</em> say the rest.',
-      ],
-      now: ['Working on: placeholder', 'Reading / listening: placeholder', 'Daily tools: placeholder'],
+      paragraphs: [] as string[],
+      now: [] as string[],
       colophon:
         'Built with <a href="https://astro.build" target="_blank" rel="noopener">Astro</a>, served as static files on Cloudflare Pages. The visual language follows the open-source Yohaku design system (MIT).',
     },

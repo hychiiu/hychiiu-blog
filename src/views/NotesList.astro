@@ -1,5 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
+import EmptyState from '../components/EmptyState.astro';
 import type { Lang } from '../site.config';
 import { useT, localizePath } from '../i18n';
 import { getNotesFor, dotDate } from '../utils/content';
@@ -18,7 +19,7 @@ const excerpt = (s = '') => s.replace(/^>.*$/gm, '').replace(/[#*`>\[\]_]/g, '')
       <h1 class="reveal" style="--i:1">{t('notes.title')}<span class="cn-accent">{t('notes.cn')}</span></h1>
       <p class="lede reveal" style="--i:2">{t('notes.lede')}</p>
     </header>
-    {notes.length === 0 && <p class="lede">{t('notes.empty')}</p>}
+    {notes.length === 0 && <EmptyState text={t('notes.empty')} class="reveal" style="--i:3" />}
     <ol class="notes">
       {notes.map((n, i) => (
         <li class="reveal" style={`--i:${i + 3}`}>

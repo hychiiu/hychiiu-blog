@@ -13,8 +13,8 @@
 src/
 ├── site.config.ts        ← 唯一配置文件：名字、介绍、链接、引言、强调色、评论
 ├── content/
-│   ├── posts/            ← 文章（Markdown）
-│   └── notes/            ← 手记（Markdown）
+│   ├── posts/            ← 文章（.md / .mdx）
+│   └── notes/            ← 手记（.md / .mdx）
 ├── pages/                ← 首页 / 文章 / 手记 / 关于 / 404 / RSS
 ├── components/ layouts/  ← 组件与布局
 └── styles/global.css     ← 设计令牌与排版
@@ -37,15 +37,15 @@ npm run preview    # 预览构建结果
 
 全部在 `src/site.config.ts` 里：
 
-- `name` / `intro` / `subIntro`：首页名字和介绍
-- `quote`：首页引言
+- `name` / `intro` / `subIntro`：首页名字和介绍（留空则不显示）
+- `quote`：首页引言（留空则不显示整个区块）
 - `socials`：社交链接，取消注释就能启用（X、邮箱、Telegram、B 站……）
 - `accent`：强调色（默认 Yohaku 的梅色 `#c56473`）
 - `startDate`：建站日期，首页显示「已运行 N 天」
 - `url`：绑定域名后改成你的正式域名（影响 RSS / sitemap）
 - `giscus`：评论配置（见下文）
 
-关于页的正文在 `src/pages/about.astro`，直接改文字即可。
+关于页的正文在 `site.config.ts` 的 `about` 字段里（`paragraphs` / `now` 为空时不显示）。
 
 ### 更换头像
 
@@ -82,7 +82,7 @@ weather: 晴      # 可选
 ---
 ```
 
-仓库里的 `hello-world.md` 和 `first-note.md` 是示例，删掉即可。
+没有文章时，首页和列表页会显示「还没有文章」。
 
 写完后：
 
@@ -91,6 +91,46 @@ git add . && git commit -m "new post" && git push
 ```
 
 Cloudflare Pages 会自动构建发布。
+
+## Markdown 支持
+
+文章和手记都支持 `.md` 和 `.mdx`，全部在构建时渲染，没有后端。
+
+| 功能 | 写法 | 实现 |
+| --- | --- | --- |
+| 基础语法 + GFM | 标题、列表、引用、表格、`- [ ]` 任务清单、`~~删除线~~`、`[^1]` 脚注、自动链接 | Astro 自带（remark-gfm） |
+| 图片说明 | `![替代文字](/img.png "这句会显示为图片说明")` | 自定义插件，生成 `<figure>` |
+| 数学公式 | 行内 `$E=mc^2$`，块级 `$$ … $$` | remark-math + rehype-katex（KaTeX 样式和字体打包在站内，不走 CDN） |
+| Mermaid 图 | ` ```mermaid ` 代码块 | mermaid，只在有图的页面按需加载，跟随深浅色切换 |
+| 提示块 | `> [!NOTE]` / `[!TIP]` / `[!IMPORTANT]` / `[!WARNING]` / `[!CAUTION]` | remark-github-blockquote-alert |
+| 代码块 | 语法高亮、文件名、行高亮、diff、行号、复制按钮 | Expressive Code（Shiki 双主题） |
+| 标题锚点 | 自动生成，鼠标悬停标题时出现 `#` | rehype-slug + rehype-autolink-headings |
+| 外链 | 站外链接自动新标签页打开，并带 ↗ 标记 | rehype-external-links |
+| Emoji | `:tada:` `:rocket:` | remark-emoji |
+| HTML | `<kbd>`、`<sup>`、`<sub>`、`<mark>`、`<details><summary>` | 原生支持，已配好样式 |
+| MDX | `.mdx` 文件里可以 `import` 或定义组件 | @astrojs/mdx |
+
+代码块写法：
+
+~~~md
+```ts title="src/hello.ts" {2} ins={3} del={4}
+const a = 1;
+const b = 2;          // {2} 高亮第 2 行
+const c = 3;          // ins 标记为新增
+const d = 4;          // del 标记为删除
+```
+
+```diff
+- 旧的一行
++ 新的一行
+```
+
+```python showLineNumbers
+print("显示行号")
+```
+~~~
+
+> 改过 `astro.config.mjs` 之后，如果本地构建出来的代码块样式不对，删掉 `.astro/` 目录再构建一次（这是 Astro 的内容缓存）。
 
 ## 部署到 Cloudflare Pages
 

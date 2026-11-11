@@ -1,5 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
+import EmptyState from '../components/EmptyState.astro';
 import type { Lang } from '../site.config';
 import { useT, localizePath } from '../i18n';
 import { getPostsFor, dotDate, readingMinutes } from '../utils/content';
@@ -24,7 +25,7 @@ let idx = 3;
       <p class="lede reveal" style="--i:2">{t('posts.lede')}</p>
     </header>
 
-    {posts.length === 0 && <p class="lede">{t('posts.empty')}</p>}
+    {posts.length === 0 && <EmptyState text={t('posts.empty')} class="reveal" style="--i:3" />}
 
     {[...byYear.entries()].map(([year, list], yi) => (
       <section class="section year-block">
