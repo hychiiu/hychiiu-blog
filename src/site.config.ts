@@ -16,7 +16,7 @@ export interface SocialLink {
 
 export const site = {
   /** 部署后的正式域名（用于 RSS / sitemap / canonical / hreflang）。绑定域名后改成你的域名 */
-  url: 'https://hychiiu.pages.dev',
+  url: 'https://hychiiu-blog.pages.dev',
 
   name: 'hychiiu',
   /** 名字旁边的强调色中文（Yohaku 风格的「余白」位置）。留空字符串则不显示 */
