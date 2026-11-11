@@ -2,7 +2,7 @@
 /**
  * 侧边 Dock（桌面端左侧竖排 / 窄屏底部横排）
  * - transition:persist：ClientRouter 跳转时保留同一个 DOM，激活态 / 语言 / 链接由脚本在每次跳转后更新
- * - 桌面端鼠标悬停时按距离做高斯放大（rAF + 弹簧插值，只改 transform）
+ * - 桌面端鼠标悬停时按距离做高斯放大（rAF + 临界阻尼指数插值，无回弹，只改 transform）
  */
 import { site, type Lang } from '../site.config';
 import { ui, localizePath } from '../i18n';
@@ -25,41 +25,42 @@ const label = (l: Lang, k: string) => (ui[l] as Record<string, unknown>)[`nav.${
   <div class="dock-bg" aria-hidden="true"></div>
   <ul class="dock-list" data-dock-list>
     <li class="dock-item" data-mag>
-      <a class="dock-btn avatar" href={localizePath(lang, '/')} data-home data-href-zh={localizePath('zh', '/')} data-href-en={localizePath('en', '/')} aria-label={site.name}>
+      <a class="dock-btn avatar" href={localizePath(lang, '/')} data-home data-astro-prefetch="load" data-href-zh={localizePath('zh', '/')} data-href-en={localizePath('en', '/')} aria-label={site.name}>
         <span class="ico"><img src={site.avatar} alt="" width="40" height="40" /></span>
       </a>
       <span class="tip" aria-hidden="true">{site.name}{site.nameCJK && <em> {site.nameCJK}</em>}</span>
     </li>
     <li class="dock-sep" aria-hidden="true"></li>
     {nav.map((n) => (
-      <li class="dock-item" data-mag data-key={n.key}>
+      <li class="dock-item" data-mag data-key={n.key} data-tone={n.key}>
         <a
           class="dock-btn"
           href={localizePath(lang, n.path)}
           data-nav={n.key}
+          data-astro-prefetch="load"
           data-href-zh={localizePath('zh', n.path)}
           data-href-en={localizePath('en', n.path)}
           data-label-zh={label('zh', n.key)}
           data-label-en={label('en', n.key)}
           aria-label={label(lang, n.key)}
         >
-          <span class="ico"><Icon name={n.icon} size={19} /></span>
+          <span class="ico"><Icon name={n.icon} size={18} /></span>
         </a>
         <span class="tip" aria-hidden="true" data-tip>{label(lang, n.key)}</span>
       </li>
     ))}
     <li class="dock-sep" aria-hidden="true"></li>
-    <li class="dock-item" data-mag>
-      <a class="dock-btn lang" href={alternates[other]} hreflang={other === 'zh' ? 'zh-CN' : 'en'} data-set-lang={other} data-lang-switch aria-label={ui[lang]['toggle.lang']}>
+    <li class="dock-item" data-mag data-tone="lang">
+      <a class="dock-btn lang" data-astro-prefetch="load" href={alternates[other]} hreflang={other === 'zh' ? 'zh-CN' : 'en'} data-set-lang={other} data-lang-switch aria-label={ui[lang]['toggle.lang']}>
         <span class="ico"><span class="lang-glyph" data-lang-glyph data-cjk={other === 'zh' ? '' : undefined}>{other === 'zh' ? '中' : 'EN'}</span></span>
       </a>
       <span class="tip" aria-hidden="true" data-lang-tip>{other === 'zh' ? '中文' : 'English'}</span>
     </li>
-    <li class="dock-item" data-mag>
+    <li class="dock-item" data-mag data-tone="theme">
       <button type="button" class="dock-btn" data-theme-toggle aria-label={ui[lang]['toggle.theme']} data-label-zh={ui.zh['toggle.theme']} data-label-en={ui.en['toggle.theme']}>
         <span class="ico theme-ico">
-          <Icon name="sun" size={18} class="i-sun" />
-          <Icon name="moon" size={18} class="i-moon" />
+          <Icon name="sun" size={17} class="i-sun" />
+          <Icon name="moon" size={17} class="i-moon" />
         </span>
       </button>
       <span class="tip" aria-hidden="true" data-tip>{ui[lang]['toggle.theme']}</span>
@@ -75,6 +76,7 @@ const label = (l: Lang, k: string) => (ui[l] as Record<string, unknown>)[`nav.${
     --dock-pad: 9px;
   }
   .dock {
+    view-transition-name: dock;
     position: fixed;
     z-index: 70;
     left: 20px;
@@ -85,25 +87,21 @@ const label = (l: Lang, k: string) => (ui[l] as Record<string, unknown>)[`nav.${
   .dock-bg {
     position: absolute;
     inset: calc(-1 * var(--grow-y, 0px)) calc(-1 * var(--grow-x, 0px)) calc(-1 * var(--grow-y, 0px)) 0;
-    border-radius: 20px;
+    border-radius: var(--r-pill);
     background: rgb(250 249 245 / 0.72);
     -webkit-backdrop-filter: blur(20px) saturate(1.6);
     backdrop-filter: blur(20px) saturate(1.6);
     border: 0.5px solid rgb(24 24 27 / 0.1);
     box-shadow:
       inset 0 1px 0 rgb(255 255 255 / 0.7),
-      0 1px 2px rgb(24 24 27 / 0.04),
-      0 6px 16px -6px rgb(24 24 27 / 0.1),
-      0 22px 44px -18px rgb(24 24 27 / 0.16);
+      var(--shadow-float);
   }
   :root[data-theme='dark'] .dock-bg {
     background: rgb(28 28 30 / 0.7);
     border-color: rgb(255 255 255 / 0.08);
     box-shadow:
       inset 0 1px 0 rgb(255 255 255 / 0.05),
-      0 1px 2px rgb(0 0 0 / 0.3),
-      0 10px 24px -8px rgb(0 0 0 / 0.45),
-      0 28px 56px -20px rgb(0 0 0 / 0.55);
+      var(--shadow-float);
   }
   .dock-list {
     position: relative;
@@ -136,7 +134,7 @@ const label = (l: Lang, k: string) => (ui[l] as Record<string, unknown>)[`nav.${
     height: 100%;
     padding: 0;
     border: 0;
-    border-radius: 12px;
+    border-radius: var(--r-md);
     background: transparent;
     color: var(--n-7);
     font: inherit;
@@ -144,14 +142,14 @@ const label = (l: Lang, k: string) => (ui[l] as Record<string, unknown>)[`nav.${
     transform: scale(var(--s, 1));
     transform-origin: left center;
     will-change: transform;
-    transition: color 0.2s var(--ease), background-color 0.2s var(--ease);
+    transition: color var(--dur-2) var(--ease), background-color var(--dur-2) var(--ease);
   }
   .dock-btn .ico {
     display: grid;
     place-items: center;
     width: 100%;
     height: 100%;
-    transition: transform 0.18s var(--ease);
+    transition: transform var(--dur-2) var(--ease);
   }
   .dock-btn:active .ico {
     transform: scale(0.88);
@@ -169,10 +167,74 @@ const label = (l: Lang, k: string) => (ui[l] as Record<string, unknown>)[`nav.${
     outline-offset: 2px;
   }
   .dock-btn.avatar {
-    border-radius: 50%;
+    border-radius: var(--r-round);
+  }
+  ::view-transition-old(dock),
+  ::view-transition-new(dock),
+  ::view-transition-group(dock) {
+    animation: none;
+  }
+  ::view-transition-old(dock) {
+    display: none;
+  }
+
+  /* 彩色圆形图标：柔和渐变 + 顶部高光 + 细描边 + 柔和投影 */
+  .dock-item[data-tone] {
+    --c1: #b9b6ae;
+    --c2: #8f8c85;
+    --glow: rgb(24 24 27 / 0.28);
+  }
+  .dock-item[data-tone='home'] { --c1: #e29aa5; --c2: #c56473; --glow: rgb(197 100 115 / 0.45); }
+  .dock-item[data-tone='posts'] { --c1: #9fb1e0; --c2: #5f73b8; --glow: rgb(95 115 184 / 0.42); }
+  .dock-item[data-tone='notes'] { --c1: #eccb86; --c2: #c9973f; --glow: rgb(201 151 63 / 0.42); }
+  .dock-item[data-tone='about'] { --c1: #9fcbbb; --c2: #5d9483; --glow: rgb(93 148 131 / 0.42); }
+  .dock-item[data-tone='lang'] { --c1: #c2aee0; --c2: #8565b5; --glow: rgb(133 101 181 / 0.42); }
+  .dock-item[data-tone='theme'] { --c1: #a9b3c4; --c2: #5f6b80; --glow: rgb(95 107 128 / 0.42); }
+  :root[data-theme='dark'] .dock-item[data-tone='home'] { --c1: #c8717f; --c2: #8e4150; --glow: rgb(0 0 0 / 0.5); }
+  :root[data-theme='dark'] .dock-item[data-tone='posts'] { --c1: #7486c4; --c2: #3d4c86; --glow: rgb(0 0 0 / 0.5); }
+  :root[data-theme='dark'] .dock-item[data-tone='notes'] { --c1: #cfa152; --c2: #8c6526; --glow: rgb(0 0 0 / 0.5); }
+  :root[data-theme='dark'] .dock-item[data-tone='about'] { --c1: #6fa595; --c2: #3e6b5d; --glow: rgb(0 0 0 / 0.5); }
+  :root[data-theme='dark'] .dock-item[data-tone='lang'] { --c1: #9a7dc6; --c2: #5c4488; --glow: rgb(0 0 0 / 0.5); }
+  :root[data-theme='dark'] .dock-item[data-tone='theme'] { --c1: #5d6a82; --c2: #2c3340; --glow: rgb(0 0 0 / 0.5); }
+  .dock-item[data-tone] .dock-btn {
+    border-radius: var(--r-round);
+    color: #fff;
+    background: linear-gradient(160deg, var(--c1), var(--c2));
+    box-shadow:
+      inset 0 0 0 0.5px rgb(0 0 0 / 0.1),
+      inset 0 1px 0.5px rgb(255 255 255 / 0.45),
+      0 1px 1.5px rgb(0 0 0 / 0.1),
+      0 5px 12px -5px var(--glow);
+  }
+  .dock-item[data-tone] .dock-btn .ico {
+    position: relative;
+    border-radius: var(--r-round);
+    overflow: hidden;
+  }
+  /* 顶部玻璃高光 */
+  .dock-item[data-tone] .dock-btn .ico::before {
+    content: '';
+    position: absolute;
+    inset: 1px 4px 52% 4px;
+    border-radius: 50% 50% 45% 45% / 70% 70% 30% 30%;
+    background: linear-gradient(to bottom, rgb(255 255 255 / 0.38), rgb(255 255 255 / 0));
+    pointer-events: none;
+  }
+  .dock-item[data-tone] .dock-btn svg,
+  .dock-item[data-tone] .lang-glyph {
+    position: relative;
+    filter: drop-shadow(0 0.5px 0.5px rgb(0 0 0 / 0.18));
+  }
+  .dock-item[data-tone] .dock-btn:hover,
+  .dock-item[data-tone] .dock-btn[aria-current='page'] {
+    color: #fff;
+    background: linear-gradient(160deg, var(--c1), var(--c2));
+  }
+  .dock-item[data-tone] .dock-btn:hover {
+    filter: brightness(1.04) saturate(1.05);
   }
   /* 放大模式下不再叠加底色，像 Dock 一样只用尺寸表达悬停 */
-  .dock.is-mag .dock-btn:hover {
+  .dock.is-mag .dock-item:not([data-tone]) .dock-btn:hover {
     background: transparent;
   }
   .dock-btn.avatar:hover {
@@ -181,23 +243,23 @@ const label = (l: Lang, k: string) => (ui[l] as Record<string, unknown>)[`nav.${
   .dock-btn.avatar img {
     width: 100%;
     height: 100%;
-    border-radius: 50%;
+    border-radius: var(--r-round);
     object-fit: cover;
     box-shadow: 0 0 0 0.5px rgb(24 24 27 / 0.14), 0 2px 6px -2px rgb(24 24 27 / 0.25);
   }
   .lang-glyph {
     font-family: var(--font-mono);
-    font-size: 12px;
+    font-size: var(--fs-sm);
     font-weight: 500;
     letter-spacing: 0.02em;
   }
   .lang-glyph[data-cjk] {
     font-family: var(--font-serif);
-    font-size: 14.5px;
+    font-size: var(--fs-ui);
   }
   .theme-ico svg {
     grid-area: 1 / 1;
-    transition: opacity 0.3s var(--ease), transform 0.45s var(--ease);
+    transition: opacity var(--dur-3) var(--ease), transform var(--dur-4) var(--ease);
   }
   .theme-ico .i-moon {
     opacity: 0;
@@ -218,12 +280,12 @@ const label = (l: Lang, k: string) => (ui[l] as Record<string, unknown>)[`nav.${
     left: 100%;
     top: 50%;
     margin-left: 14px;
-    padding: 4px 10px 5px;
-    border-radius: 8px;
+    padding: 4px 12px 5px;
+    border-radius: var(--r-pill);
     white-space: nowrap;
     pointer-events: none;
     font-family: var(--font-serif);
-    font-size: 12.5px;
+    font-size: var(--fs-sm);
     line-height: 1.3;
     color: var(--n-9);
     background: rgb(250 249 245 / 0.92);
@@ -233,7 +295,7 @@ const label = (l: Lang, k: string) => (ui[l] as Record<string, unknown>)[`nav.${
     box-shadow: 0 6px 18px -8px rgb(24 24 27 / 0.22);
     opacity: 0;
     transform: translate3d(calc(var(--dx, 0px) - 6px), -50%, 0);
-    transition: opacity 0.18s var(--ease), transform 0.32s var(--ease);
+    transition: opacity var(--dur-2) var(--ease), transform var(--dur-3) var(--ease);
   }
   .tip em {
     font-style: normal;
@@ -258,12 +320,12 @@ const label = (l: Lang, k: string) => (ui[l] as Record<string, unknown>)[`nav.${
     width: 4px;
     height: 4px;
     margin: -2px 0 0 -2px;
-    border-radius: 50%;
+    border-radius: var(--r-round);
     background: var(--accent);
     box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 16%, transparent);
     opacity: 0;
     transform: translate3d(var(--dot-x, 0px), var(--dot-y, 0px), 0);
-    transition: opacity 0.3s var(--ease);
+    transition: opacity var(--dur-3) var(--ease);
     pointer-events: none;
   }
   .dock-dot.on {
@@ -295,7 +357,7 @@ const label = (l: Lang, k: string) => (ui[l] as Record<string, unknown>)[`nav.${
     }
     .dock-bg {
       inset: 0;
-      border-radius: 18px;
+      border-radius: var(--r-pill);
     }
     .dock-sep {
       width: 0.5px;
@@ -404,164 +466,193 @@ const label = (l: Lang, k: string) => (ui[l] as Record<string, unknown>)[`nav.${
     engine.retarget();
   }
 
-  /* ---------- magnification engine ---------- */
-  const engine = (() => {
-    const MAX = 1.5;
-    const SIGMA = 52;
-    const K = 0.16; // spring stiffness
-    const D = 0.74; // damping (velocity retention)
-    type Node = { el: HTMLElement; btn: HTMLElement | null; c: number; v: number; t: number; base: number; size: number };
-    let nodes: Node[] = [];
-    let list: HTMLElement | null = null;
-    let pointer: number | null = null;
-    let raf = 0;
-    let dot = { c: 0, v: 0, t: 0, x: 0, init: false };
-    const mqDesk = window.matchMedia('(min-width: 1024px) and (hover: hover) and (pointer: fine)');
-    const mqMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const vertical = () => window.matchMedia('(min-width: 1024px)').matches;
-    const canMagnify = () => mqDesk.matches && !mqMotion.matches;
+  /* ---------- magnification engine ----------
+   * 无回弹：每帧做与时间相关的指数插值 v += (t - v) * (1 - e^(-k·dt))，属于临界阻尼，单调收敛、不会甩动；
+   * 指针位置本身也做平滑，避免悬停时抖动；收敛后停止 rAF。
+   * Dock 节点被 transition:persist 保留，引擎状态挂在 window 上，跳转时不重置。
+   */
+  type EngineState = {
+    nodes: { el: HTMLElement; mag: boolean; c: number; t: number; base: number; size: number }[];
+    pointer: number | null; // 平滑后的指针位置
+    rawPointer: number | null;
+    raf: number;
+    last: number;
+    dot: number | null;
+    navigating: boolean;
+    leftDuringNav: boolean;
+    bound: boolean;
+  };
+  const w = window as unknown as { __dock?: EngineState };
+  const S: EngineState = (w.__dock ??= { nodes: [], pointer: null, rawPointer: null, raf: 0, last: 0, dot: null, navigating: false, leftDuringNav: false, bound: false });
 
-    function measure() {
-      const d = dock();
-      list = d?.querySelector<HTMLElement>('[data-dock-list]') ?? null;
-      if (!list) return;
-      const v = vertical();
-      const old = new Map(nodes.map((n) => [n.el, n]));
-      nodes = [...list.children].map((el) => {
-        const h = el as HTMLElement;
-        const prev = old.get(h);
-        const base = v ? h.offsetTop + h.offsetHeight / 2 : h.offsetLeft + h.offsetWidth / 2;
-        const size = v ? h.offsetHeight : h.offsetWidth;
-        return { el: h, btn: h.hasAttribute('data-mag') ? h : null, c: prev?.c ?? 1, v: prev?.v ?? 0, t: 1, base, size };
-      });
+  const MAX = 1.5;
+  const SIGMA = 52;
+  const K_SCALE = 16; // 1/s：离开后约 280ms 回到 1%以内，单调无过冲
+  const K_POINTER = 22;
+  const K_DOT = 16;
+  const EPS = 0.001;
+  const mqDesk = window.matchMedia('(min-width: 1024px) and (hover: hover) and (pointer: fine)');
+  const mqMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const vertical = () => window.matchMedia('(min-width: 1024px)').matches;
+  const canMagnify = () => mqDesk.matches && !mqMotion.matches;
+  const r3 = (n: number) => Math.round(n * 1000) / 1000;
+
+  function measure() {
+    const list = dock()?.querySelector<HTMLElement>('[data-dock-list]');
+    if (!list) return;
+    const v = vertical();
+    const old = new Map(S.nodes.map((n) => [n.el, n]));
+    S.nodes = [...list.children].map((el) => {
+      const h = el as HTMLElement;
+      return {
+        el: h,
+        mag: h.hasAttribute('data-mag'),
+        c: old.get(h)?.c ?? 1,
+        t: 1,
+        base: v ? h.offsetTop + h.offsetHeight / 2 : h.offsetLeft + h.offsetWidth / 2,
+        size: v ? h.offsetHeight : h.offsetWidth,
+      };
+    });
+  }
+
+  function activeIndex() {
+    const d = dock();
+    const li = d?.querySelector('[aria-current="page"]')?.closest('li');
+    const idx = li ? S.nodes.findIndex((n) => n.el === li) : -1;
+    d?.querySelector('[data-dock-dot]')?.classList.toggle('on', idx >= 0);
+    return idx;
+  }
+
+  function frame(now: number) {
+    S.raf = 0;
+    const d = dock();
+    if (!d || !S.nodes.length) return;
+    const dt = Math.min(0.05, S.last ? (now - S.last) / 1000 : 1 / 60);
+    S.last = now;
+    const v = vertical();
+    const mag = canMagnify();
+    d.classList.toggle('is-mag', mag);
+    let moving = false;
+
+    // 平滑指针
+    if (S.rawPointer == null) S.pointer = null;
+    else if (S.pointer == null) S.pointer = S.rawPointer;
+    else {
+      S.pointer += (S.rawPointer - S.pointer) * (1 - Math.exp(-K_POINTER * dt));
+      if (Math.abs(S.rawPointer - S.pointer) > 0.1) moving = true;
     }
 
-    function targets() {
-      for (const n of nodes) {
-        if (!n.btn || pointer == null || !canMagnify()) n.t = 1;
-        else {
-          const dist = pointer - n.base;
-          n.t = 1 + (MAX - 1) * Math.exp(-(dist * dist) / (2 * SIGMA * SIGMA));
-        }
-      }
-      const d = dock();
-      const active = d?.querySelector('[aria-current="page"]')?.closest('li') as HTMLElement | null;
-      const idx = active ? nodes.findIndex((n) => n.el === active) : -1;
-      d?.querySelector('[data-dock-dot]')?.classList.toggle('on', idx >= 0);
-      return idx;
+    const a = 1 - Math.exp(-K_SCALE * dt);
+    for (const n of S.nodes) {
+      n.t = n.mag && mag && S.pointer != null ? 1 + (MAX - 1) * Math.exp(-((S.pointer - n.base) ** 2) / (2 * SIGMA * SIGMA)) : 1;
+      n.c += (n.t - n.c) * a;
+      if (Math.abs(n.t - n.c) < EPS) n.c = n.t;
+      else moving = true;
     }
 
-    function frame() {
-      raf = 0;
-      const d = dock();
-      if (!d || !list) return;
-      d.classList.toggle('is-mag', canMagnify());
-      const idx = targets();
-      let moving = false;
-      for (const n of nodes) {
-        const a = (n.t - n.c) * K;
-        n.v = (n.v + a) * D;
-        n.c += n.v;
-        if (Math.abs(n.v) > 0.0004 || Math.abs(n.t - n.c) > 0.0004) moving = true;
-        else {
-          n.c = n.t;
-          n.v = 0;
-        }
-      }
-      const v = vertical();
-      const extra = nodes.map((n) => (n.btn ? n.size * (n.c - 1) : 0));
-      const total = extra.reduce((s, e) => s + e, 0);
-      let acc = 0;
-      let maxE = 0;
-      const offs: number[] = [];
-      nodes.forEach((n, i) => {
-        const off = acc + extra[i] / 2 - total / 2;
-        acc += extra[i];
-        maxE = Math.max(maxE, extra[i]);
-        offs.push(off);
-        if (v) {
-          n.el.style.setProperty('--ty', `${off.toFixed(2)}px`);
-          n.el.style.setProperty('--dx', `${extra[i].toFixed(2)}px`);
-        } else {
-          n.el.style.removeProperty('--ty');
-          n.el.style.removeProperty('--dx');
-        }
-        const btn = n.btn?.querySelector<HTMLElement>('.dock-btn');
-        if (btn) btn.style.setProperty('--s', v ? n.c.toFixed(4) : '1');
-      });
-      const bg = d.querySelector<HTMLElement>('.dock-bg');
-      if (bg) {
-        if (v) {
-          bg.style.setProperty('--grow-y', `${(total / 2).toFixed(2)}px`);
-          bg.style.setProperty('--grow-x', `${(maxE * 0.92).toFixed(2)}px`);
-        } else {
-          bg.style.removeProperty('--grow-y');
-          bg.style.removeProperty('--grow-x');
-        }
-      }
-      // indicator dot follows the active item with its own spring
-      if (idx >= 0) {
-        const pad = parseFloat(getComputedStyle(list).paddingTop) || 0;
-        const target = nodes[idx].base + (v ? offs[idx] : 0);
-        if (!dot.init || mqMotion.matches) {
-          dot.c = target;
-          dot.v = 0;
-          dot.init = true;
-        } else {
-          dot.v = (dot.v + (target - dot.c) * 0.14) * 0.72;
-          dot.c += dot.v;
-          if (Math.abs(dot.v) > 0.02 || Math.abs(target - dot.c) > 0.05) moving = true;
-          else dot.c = target;
-        }
-        const el = d.querySelector<HTMLElement>('[data-dock-dot]')!;
-        if (v) {
-          el.style.setProperty('--dot-x', '0px');
-          el.style.setProperty('--dot-y', `${dot.c.toFixed(2)}px`);
-        } else {
-          el.style.setProperty('--dot-x', `${dot.c.toFixed(2)}px`);
-          el.style.setProperty('--dot-y', '0px');
-        }
-        void pad;
-      }
-      if (moving) raf = requestAnimationFrame(frame);
-    }
-    const kick = () => {
-      if (!raf) raf = requestAnimationFrame(frame);
-    };
+    const extra = S.nodes.map((n) => (n.mag ? n.size * (n.c - 1) : 0));
+    const total = extra.reduce((s, e) => s + e, 0);
+    let acc = 0;
+    let maxE = 0;
+    const offs = S.nodes.map((n, i) => {
+      const off = acc + extra[i] / 2 - total / 2;
+      acc += extra[i];
+      maxE = Math.max(maxE, extra[i]);
+      n.el.style.setProperty('--ty', v ? `${r3(off)}px` : '0px');
+      n.el.style.setProperty('--dx', v ? `${r3(extra[i])}px` : '0px');
+      n.el.querySelector<HTMLElement>('.dock-btn')?.style.setProperty('--s', String(v ? r3(n.c) : 1));
+      return off;
+    });
+    const bg = d.querySelector<HTMLElement>('.dock-bg');
+    bg?.style.setProperty('--grow-y', v ? `${r3(total / 2)}px` : '0px');
+    bg?.style.setProperty('--grow-x', v ? `${r3(maxE * 0.92)}px` : '0px');
 
-    function bind() {
-      const d = dock();
-      if (!d || d.dataset.bound) return;
-      d.dataset.bound = '1';
-      d.addEventListener('pointermove', (e) => {
-        if (e.pointerType !== 'mouse' || !list) return;
-        const r = list.getBoundingClientRect();
-        pointer = vertical() ? e.clientY - r.top : e.clientX - r.left;
-        kick();
-      });
-      d.addEventListener('pointerleave', () => {
-        pointer = null;
-        kick();
-      });
-      window.addEventListener('resize', () => {
-        measure();
-        kick();
-      });
-      mqMotion.addEventListener('change', kick);
+    const idx = activeIndex();
+    if (idx >= 0) {
+      const target = S.nodes[idx].base + (v ? offs[idx] : 0);
+      if (S.dot == null || mqMotion.matches) S.dot = target;
+      else {
+        S.dot += (target - S.dot) * (1 - Math.exp(-K_DOT * dt));
+        if (Math.abs(target - S.dot) < 0.05) S.dot = target;
+        else moving = true;
+      }
+      const el = d.querySelector<HTMLElement>('[data-dock-dot]')!;
+      el.style.setProperty('--dot-x', v ? '0px' : `${r3(S.dot)}px`);
+      el.style.setProperty('--dot-y', v ? `${r3(S.dot)}px` : '0px');
     }
+    if (moving) S.raf = requestAnimationFrame(frame);
+    else S.last = 0;
+  }
+  const kick = () => {
+    if (!S.raf) S.raf = requestAnimationFrame(frame);
+  };
 
-    return {
-      init() {
-        bind();
-        measure();
+  function bind() {
+    const d = dock();
+    if (!d || S.bound) return;
+    S.bound = true;
+    d.addEventListener('pointermove', (e) => {
+      if (e.pointerType !== 'mouse') return;
+      const list = d.querySelector<HTMLElement>('[data-dock-list]')!;
+      const r = list.getBoundingClientRect();
+      S.rawPointer = vertical() ? e.clientY - r.top : e.clientX - r.left;
+      kick();
+    });
+    d.addEventListener('pointerleave', () => {
+      // 跳转过程中视图过渡会短暂接管指针，忽略这期间的 leave，保持放大状态
+      if (S.navigating) {
+        S.leftDuringNav = true;
+        return;
+      }
+      S.rawPointer = null;
+      kick();
+    });
+    // 点击后立即把激活点移到新位置（不等页面加载）
+    d.addEventListener('click', (e) => {
+      const a = (e.target as Element).closest<HTMLAnchorElement>('a[data-nav], a[data-home]');
+      if (!a) return;
+      const key = a.dataset.nav ?? 'home';
+      d.querySelectorAll('[data-nav]').forEach((x) => x.removeAttribute('aria-current'));
+      d.querySelector(`[data-nav="${key}"]`)?.setAttribute('aria-current', 'page');
+      kick();
+    });
+    document.addEventListener('astro:before-preparation', () => (S.navigating = true));
+    document.addEventListener('astro:page-load', () => {
+      setTimeout(() => {
+        S.navigating = false;
+        // 跳转期间指针确实离开了 Dock，则现在平滑收回；否则保持放大
+        if (S.leftDuringNav) S.rawPointer = null;
+        S.leftDuringNav = false;
         kick();
+      }, 60);
+    });
+    // 兜底：指针在 Dock 外移动时收回（防止跳转期间漏掉 pointerleave）
+    document.addEventListener(
+      'pointermove',
+      (e) => {
+        if (S.rawPointer == null || S.navigating || e.pointerType !== 'mouse') return;
+        if (!(e.target as Element).closest?.('[data-dock]')) {
+          S.rawPointer = null;
+          kick();
+        }
       },
-      retarget() {
-        if (!nodes.length) measure();
-        kick();
-      },
-    };
-  })();
+      { passive: true },
+    );
+    window.addEventListener('resize', () => {
+      measure();
+      kick();
+    });
+    mqMotion.addEventListener('change', kick);
+  }
+
+  const engine = {
+    init() {
+      bind();
+      if (!S.nodes.length || !S.nodes[0].el.isConnected) measure();
+      kick();
+    },
+    retarget: kick,
+  };
 
   document.addEventListener('astro:page-load', () => {
     engine.init();
