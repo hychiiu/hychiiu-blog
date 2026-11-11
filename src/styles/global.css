@@ -280,6 +280,9 @@ h4 {
 .prose p {
   margin: 0;
 }
+.prose > * + p {
+  margin-top: 1.15em;
+}
 .prose > :first-child {
   margin-top: 0;
 }
