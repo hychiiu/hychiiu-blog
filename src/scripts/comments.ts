@@ -1,10 +1,11 @@
 /**
  * 评论区客户端：主题同步、utterances 就绪后收起静态列表、「在本页留言」按需加载 utterances。
  */
+import { comments } from '../config/integrations';
 import { once } from './runtime';
 
-const ORIGIN = 'https://utteranc.es';
-const theme = () => (document.documentElement.dataset.theme === 'dark' ? 'github-dark' : 'github-light');
+const { origin: ORIGIN, theme: THEMES } = comments.utterances;
+const theme = () => (document.documentElement.dataset.theme === 'dark' ? THEMES.dark : THEMES.light);
 if (once('comments')) {
   // 主题切换时同步 utterances
   window.addEventListener('themechange', () => {

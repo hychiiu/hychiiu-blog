@@ -1,5 +1,5 @@
 import type { CollectionEntry } from 'astro:content';
-import type { Lang } from '../site.config';
+import type { Lang } from '../config';
 import { localizePath } from '../i18n';
 import { getPostsFor, getNotesFor } from './content';
 

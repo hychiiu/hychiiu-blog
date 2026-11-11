@@ -4,10 +4,10 @@
  */
 import type { Loader } from 'astro/loaders';
 import { readFile } from 'node:fs/promises';
-import { fileURLToPath } from 'node:url';
-import type { IssuesFile } from '../types/issues';
+import { resolve } from 'node:path';
+import { content } from '../config/content';
+import type { IssuesFile, IssueKind } from '../types/issues';
 
-/** 数据文件；本地预览可用 YH_ISSUES_FILE 指向一份测试数据（不提交到仓库） */
 /** 正文里第一张图片（Markdown 或 <img>，忽略代码块），用作列表缩略图 / og:image */
 export function firstImage(md: string): string | undefined {
   const text = md.replace(/^(```|~~~)[\s\S]*?^\1/gm, '').replace(/`[^`\n]*`/g, '');
@@ -15,9 +15,8 @@ export function firstImage(md: string): string | undefined {
   return m ? (m[1] ?? m[2]) : undefined;
 }
 
-const FILE = process.env.YH_ISSUES_FILE
-  ? new URL(`file://${process.env.YH_ISSUES_FILE}`)
-  : new URL('../data/issues.json', import.meta.url);
+/** 数据文件（config/content.ts）；本地预览可用 YH_ISSUES_FILE 指向一份测试数据（不提交到仓库） */
+const FILE = resolve(process.cwd(), content.localDataFile || content.dataFile);
 
 /**
  * 正文开头可选的元信息块，两种写法任选：
@@ -54,11 +53,11 @@ export function splitFront(body: string): { meta: Record<string, string | string
 const str = (v: unknown) => (typeof v === 'string' && v.trim() ? v.trim() : undefined);
 const slugOk = (s?: string) => (s && /^[\p{L}\p{N}][\p{L}\p{N}_-]*$/u.test(s) ? s : undefined);
 
-export function issuesLoader(kind: 'post' | 'note'): Loader {
+export function issuesLoader(kind: IssueKind): Loader {
   return {
     name: `github-issues-${kind}`,
     load: async ({ store, renderMarkdown, generateDigest, logger, watcher, parseData }) => {
-      const path = fileURLToPath(FILE);
+      const path = FILE;
       const sync = async () => {
         let data: IssuesFile;
         try {

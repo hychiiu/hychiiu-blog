@@ -5,9 +5,9 @@
  * 颜色、圆角、阴影、时长全部来自 tokens.css。
  */
 .dock {
-  --slot: 44px;
-  --plate: 36px;
-  --dot: 4px;
+  --slot: var(--dock-slot);
+  --plate: var(--dock-plate);
+  --dot: var(--dock-dot);
   position: fixed;
   z-index: 55;
   isolation: isolate;
@@ -92,8 +92,8 @@
 }
 .dock-avatar img {
   display: block;
-  width: 34px;
-  height: 34px;
+  width: var(--dock-avatar);
+  height: var(--dock-avatar);
   border-radius: var(--r-round);
   object-fit: cover;
   box-shadow: 0 0 0 1px var(--hair);
@@ -139,20 +139,20 @@
   box-shadow: var(--shadow-pop);
   color: var(--ink);
   font-family: var(--font-serif);
-  font-size: 13px;
+  font-size: var(--fs-tip);
   line-height: 1.4;
   white-space: nowrap;
   pointer-events: none;
   opacity: 0;
   transition:
-    opacity 120ms var(--ease),
-    transform 120ms var(--ease);
+    opacity var(--dur-tip) var(--ease),
+    transform var(--dur-tip) var(--ease);
 }
 
 /* ---------- 竖向（≥1024px） ---------- */
 @media (min-width: 1024px) {
   .dock {
-    --slot: 44px;
+    --slot: var(--dock-slot);
     top: 50%;
     left: var(--dock-inset);
     width: var(--dock-w);
@@ -191,7 +191,7 @@
 /* ---------- 横向底部（<1024px） ---------- */
 @media (max-width: 1023.98px) {
   .dock {
-    --slot: 42px;
+    --slot: var(--dock-bar-slot);
     bottom: calc(var(--sp-3) + env(safe-area-inset-bottom, 0px));
     left: 50%;
     padding: 0 var(--sp-2);
@@ -201,19 +201,19 @@
     transform: none;
   }
   .dock-list {
-    height: 52px;
+    height: var(--dock-bar-h);
   }
   .dock-item {
     width: var(--slot);
-    height: 52px;
+    height: var(--dock-bar-h);
     transform: none;
   }
   .dock-item.is-avatar {
     width: 46px;
   }
   .dock-avatar img {
-    width: 30px;
-    height: 30px;
+    width: var(--dock-bar-avatar);
+    height: var(--dock-bar-avatar);
   }
   .dock-sep {
     width: 1px;
@@ -273,11 +273,11 @@
 
 /* 页面避让：顶部保留原头部高度的留白；底部 Dock 时内容底部留出空间 */
 body {
-  padding-top: 60px;
+  padding-top: var(--page-top);
 }
 @media (max-width: 1023.98px) {
   body {
     padding-top: var(--sp-5);
-    padding-bottom: calc(52px + var(--sp-3) * 2 + env(safe-area-inset-bottom, 0px));
+    padding-bottom: calc(var(--dock-bar-h) + var(--sp-3) * 2 + env(safe-area-inset-bottom, 0px));
   }
 }

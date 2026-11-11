@@ -3,10 +3,10 @@
  * 评论（docs/DESIGN.md §7 评论）
  * - 构建时把 issue 下的评论静态渲染成和文章一致的排版（同步由 GitHub Action 触发）；
  * - 底部胶囊按钮「在 GitHub 上留言 ↗」直接打开 issue；
- * - 「在本页留言」按需加载 utterances（同一个 issue，需在仓库安装 https://github.com/apps/utterances），
+ * - 「在本页留言」按需加载 utterances（同一个 issue，需在仓库安装 GitHub App，见 config/integrations.ts），
  *   加载成功后它会列出全部评论，此时收起静态列表避免重复。默认不加载：iframe 是 GitHub 风格，和站点不协调，也更省流量。
  */
-import type { Lang } from '../site.config';
+import { comments as commentsConfig, type Lang } from '../config';
 import { useT } from '../i18n';
 import { dotDate } from '../utils/content';
 import type { EntryComment } from '../utils/issue-schema';
@@ -99,11 +99,15 @@ const reactionsOf = (r?: Record<string, number>) => Object.entries(r ?? {}).filt
         <a class="btn btn--ghost" href={url} target="_blank" rel="noopener noreferrer">
           {t('comments.onGitHub')} <span aria-hidden="true">↗</span>
         </a>
-        <button type="button" class="c-inline" data-utterances-load>
-          {t('comments.inline')}
-        </button>
+        {commentsConfig.utterances.enabled && (
+          <button type="button" class="c-inline" data-utterances-load>
+            {t('comments.inline')}
+          </button>
+        )}
       </div>
-      <div class="utterances-slot" data-utterances data-repo={repo} data-issue={number} hidden></div>
+      {commentsConfig.utterances.enabled && (
+        <div class="utterances-slot" data-utterances data-repo={repo} data-issue={number} hidden />
+      )}
     </>
   )}
 </section>

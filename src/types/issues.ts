@@ -1,3 +1,5 @@
+import type { Lang } from '../config/locales';
+
 /**
  * src/data/issues.json 的结构（由 scripts/sync-issues.mjs 生成，src/utils/issues-loader.ts 读取）。
  * 这里只描述原始 JSON；经过渲染与校验后的条目类型见 src/utils/issue-schema.ts。
@@ -20,16 +22,18 @@ export interface RawComment {
   reactions?: Reactions;
 }
 
+/** 由 label 决定（config/content.ts 的 labels）：post → 文章，note → 手记 */
+export type IssueKind = 'post' | 'note';
+
 export interface RawIssue {
   number: number;
-  /** 由 label 决定：post → 文章，note → 手记 */
-  kind: 'post' | 'note';
+  kind: IssueKind;
   title: string;
   body: string;
   /** closed = 归档 */
   state: 'open' | 'closed';
   locked: boolean;
-  lang: 'zh' | 'en';
+  lang: Lang;
   tags: string[];
   url: string;
   createdAt: string;

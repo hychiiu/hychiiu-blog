@@ -7,11 +7,13 @@
  *
  * Dock 被 transition:persist 保留，状态挂在 window 上，站内跳转不重置、不重复绑定。
  */
+import { isNavActive } from '../config/nav';
+import { defaultLang, langs, locales, otherLang, type Lang } from '../config/locales';
+import { dockMotion } from '../config/motion';
 import { stripLang } from '../utils/path';
 import { bindControls } from './controls';
 import { once, prefersReducedMotion } from './runtime';
 
-type Lang = 'zh' | 'en';
 type Node = { el: HTMLElement; btn: HTMLElement | null; mag: boolean; c: number; base: number; size: number };
 type State = {
   nodes: Node[];
@@ -26,13 +28,17 @@ type State = {
   bgSize: number;
 };
 
-const MAX = 1.28; // 最大放大倍数
-const SLOTS = 2.5; // 余弦衰减半径（以槽位计，约影响上下各两项）
-const K_SCALE = 18; // 1/s：离开后约 250ms 回到 1% 以内
-const K_POINTER = 24;
-const K_DOT = 20;
-const EPS = 0.0005;
-const GLYPH = 20; // 图标字形尺寸，与 Dock.astro 一致
+// 参数见 config/motion.ts
+const {
+  maxScale: MAX,
+  falloffSlots: SLOTS,
+  kScale: K_SCALE,
+  kPointer: K_POINTER,
+  kDot: K_DOT,
+  epsilon: EPS,
+  glyph: GLYPH,
+  dotGap: DOT_GAP,
+} = dockMotion;
 
 const w = window as unknown as { __yhDock?: State };
 const S: State = (w.__yhDock ??= {
@@ -150,7 +156,7 @@ function frame(now: number) {
     }
     if (v) {
       // 字形右侧：随放大向右让开（字形 20px，间距 6px）
-      const x = d.offsetWidth / 2 + (GLYPH * n.c) / 2 + 6 - ds / 2;
+      const x = d.offsetWidth / 2 + (GLYPH * n.c) / 2 + DOT_GAP - ds / 2;
       dotEl.style.setProperty('--dot-x', `${r3(x)}px`);
       dotEl.style.setProperty(
         '--dot-y',
@@ -175,26 +181,27 @@ function syncDock() {
   const d = dock();
   if (!d) return;
   const root = document.documentElement;
-  const lang: Lang = root.dataset.lang === 'en' ? 'en' : 'zh';
-  const key = lang === 'zh' ? 'Zh' : 'En';
+  const lang: Lang = (langs as readonly string[]).includes(root.dataset.lang ?? '')
+    ? (root.dataset.lang as Lang)
+    : defaultLang;
+  const key = lang[0].toUpperCase() + lang.slice(1); // data-href-zh → dataset.hrefZh
   const path = stripLang(location.pathname);
   const lbl = (el: HTMLElement) => el.dataset[`label${key}`];
   if (lbl(d)) d.setAttribute('aria-label', lbl(d)!);
   d.querySelectorAll<HTMLAnchorElement>('[data-href-zh]').forEach((a) => (a.href = a.dataset[`href${key}`]!));
   d.querySelectorAll<HTMLAnchorElement>('[data-nav]').forEach((a) => {
     const p = a.dataset.path!;
-    const active = p === '/' ? path === '/' : path.startsWith(p.replace(/\/$/, ''));
-    if (active) a.setAttribute('aria-current', 'page');
+    if (isNavActive(p, path)) a.setAttribute('aria-current', 'page');
     else a.removeAttribute('aria-current');
   });
-  const other: Lang = lang === 'zh' ? 'en' : 'zh';
+  const other = otherLang(lang);
   const langLink = d.querySelector<HTMLAnchorElement>('[data-dock-lang]');
   if (langLink) {
-    langLink.href = root.getAttribute(`data-alt-${other}`) || (other === 'en' ? '/en/' : '/');
-    langLink.hreflang = other === 'zh' ? 'zh-CN' : 'en';
+    langLink.href = root.getAttribute(`data-alt-${other}`) || (other === defaultLang ? '/' : `/${other}/`);
+    langLink.hreflang = locales[other].html;
     langLink.dataset.setLang = other;
     const g = langLink.querySelector('[data-glyph]');
-    if (g) g.textContent = other === 'en' ? 'EN' : '中';
+    if (g) g.textContent = locales[other].short;
   }
   d.querySelectorAll<HTMLElement>('.dock-btn[data-label-zh]').forEach((b) => {
     const text = lbl(b)!;

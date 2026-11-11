@@ -1,7 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
 import Icon from '../components/Icon.astro';
-import { site, type Lang } from '../site.config';
+import { site, type Lang } from '../config';
 import { useT } from '../i18n';
 import { socialLinks } from '../utils/view';
 
@@ -59,7 +59,7 @@ const socials = socialLinks(lang);
         </dl>
       </aside>
 
-      <!-- 关于页正文在 src/site.config.ts 的 about 字段里（中英文各一份） -->
+      <!-- 关于页正文在 src/config/site.ts 的 about 字段里（中英文各一份） -->
       <div class="prose no-dropcap reveal" style="--i:4">
         {about.paragraphs.map((para) => (
           <p set:html={para} />

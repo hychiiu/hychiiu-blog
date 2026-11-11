@@ -1,5 +1,7 @@
 import { panZoom, type PanZoom } from './pan-zoom';
 import { idle } from './runtime';
+import zh from '../i18n/zh';
+import en from '../i18n/en';
 
 const ICONS = {
   in: '<path d="M8 3.5v9M3.5 8h9"/>',
@@ -9,25 +11,18 @@ const ICONS = {
   close: '<path d="M4 4l8 8M12 4l-8 8"/>',
 } as const;
 type Act = keyof typeof ICONS;
-const T = {
-  zh: {
-    in: '放大',
-    out: '缩小',
-    reset: '复位',
-    full: '全屏查看',
-    close: '关闭',
-    hint: '⌘/Ctrl + 滚轮缩放 · 拖拽平移 · 双击复位',
-  },
-  en: {
-    in: 'Zoom in',
-    out: 'Zoom out',
-    reset: 'Reset',
-    full: 'Fullscreen',
-    close: 'Close',
-    hint: '⌘/Ctrl + scroll to zoom · drag to pan · double-click to reset',
-  },
+/** 控件文案来自 src/i18n（mermaid.*） */
+const tr = () => {
+  const d = document.documentElement.dataset.lang === 'en' ? en : zh;
+  return {
+    in: d['mermaid.in'],
+    out: d['mermaid.out'],
+    reset: d['mermaid.reset'],
+    full: d['mermaid.full'],
+    close: d['mermaid.close'],
+    hint: d['mermaid.hint'],
+  } as Record<Act | 'hint', string>;
 };
-const tr = () => T[document.documentElement.lang.startsWith('zh') ? 'zh' : 'en'];
 
 function toolbar(acts: Act[]) {
   const bar = document.createElement('div');
@@ -91,43 +86,29 @@ function enhance(pre: HTMLElement) {
   wrap.appendChild(bar);
 }
 
-const palette = (dark: boolean) => {
-  const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#c56473';
-  return dark
-    ? {
-        background: '#18181a',
-        primaryColor: '#24231f',
-        primaryTextColor: '#f0efeb',
-        primaryBorderColor: '#5c5a55',
-        secondaryColor: '#2a2926',
-        tertiaryColor: '#1f1e1c',
-        lineColor: '#a8a69f',
-        textColor: '#e3e1db',
-        noteBkgColor: '#2a2926',
-        noteTextColor: '#e3e1db',
-        noteBorderColor: '#5c5a55',
-        edgeLabelBackground: '#18181a',
-        clusterBkg: '#1f1e1c',
-        clusterBorder: '#403f3a',
-        accent,
-      }
-    : {
-        background: '#faf9f5',
-        primaryColor: '#f0efeb',
-        primaryTextColor: '#24231f',
-        primaryBorderColor: '#a8a69f',
-        secondaryColor: '#f6f4ee',
-        tertiaryColor: '#f9f8f5',
-        lineColor: '#787670',
-        textColor: '#24231f',
-        noteBkgColor: '#f6f0ea',
-        noteTextColor: '#24231f',
-        noteBorderColor: '#d0cec6',
-        edgeLabelBackground: '#faf9f5',
-        clusterBkg: '#f6f4ee',
-        clusterBorder: '#d0cec6',
-        accent,
-      };
+/** Mermaid 配色：读取 tokens.css 的 --mermaid-* 令牌（随当前主题变化） */
+const PALETTE_KEYS = [
+  'background',
+  'primaryColor',
+  'primaryTextColor',
+  'primaryBorderColor',
+  'secondaryColor',
+  'tertiaryColor',
+  'lineColor',
+  'textColor',
+  'noteBkgColor',
+  'noteTextColor',
+  'noteBorderColor',
+  'edgeLabelBackground',
+  'clusterBkg',
+  'clusterBorder',
+] as const;
+const token = (name: string) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+const palette = () => {
+  const vars = Object.fromEntries(
+    PALETTE_KEYS.map((k) => [k, token(`--mermaid-${k.replace(/[A-Z]/g, (c) => '-' + c.toLowerCase())}`)]),
+  ) as Record<(typeof PALETTE_KEYS)[number], string>;
+  return { ...vars, accent: token('--accent') };
 };
 let seq = 0;
 const render = async () => {
@@ -136,15 +117,15 @@ const render = async () => {
   for (const b of blocks) b.dataset.src ??= b.textContent ?? '';
   const { default: mermaid } = await import('mermaid');
   const dark = document.documentElement.dataset.theme === 'dark';
-  const { accent, ...vars } = palette(dark);
+  const { accent, ...vars } = palette();
   mermaid.initialize({
     startOnLoad: false,
     securityLevel: 'strict',
     theme: 'base',
-    fontFamily: "'Noto Serif SC', 'Noto Serif CJK SC', serif",
+    fontFamily: token('--mermaid-font'),
     themeVariables: {
       ...vars,
-      fontSize: '14px',
+      fontSize: token('--fs-md'),
       darkMode: dark,
       actorBorder: vars.primaryBorderColor,
       signalColor: vars.lineColor,

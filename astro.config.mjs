@@ -13,8 +13,14 @@ import rehypeSlug from 'rehype-slug';
 import rehypeAutolinkHeadings from 'rehype-autolink-headings';
 import rehypeExternalLinks from 'rehype-external-links';
 import { remarkMermaid, rehypeFigure, rehypeImageDefaults, rehypeTableWrap } from './src/markdown/plugins.mjs';
-import { site } from './src/site.config.ts';
+import { loadEnv } from 'vite';
 
+// 先把 .env / .env.local 合并进 process.env（已有的环境变量优先），配置层 src/config 统一从这里读取
+for (const [k, v] of Object.entries(loadEnv(process.env.NODE_ENV ?? 'production', process.cwd(), '')))
+  process.env[k] ??= v;
+const { site, langs, defaultLang, htmlLang } = await import('./src/config/index.ts');
+
+// Expressive Code 在构建时生成样式，这里与 tokens.css 的 --font-mono 保持一致
 const mono = "'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, monospace";
 
 export default defineConfig({
@@ -24,8 +30,8 @@ export default defineConfig({
   // 鼠标悬停 / 手指按下时预取站内链接，配合 ClientRouter 做到秒开
   prefetch: { prefetchAll: true, defaultStrategy: 'viewport' },
   i18n: {
-    locales: ['zh', 'en'],
-    defaultLocale: 'zh',
+    locales: [...langs],
+    defaultLocale: defaultLang,
     routing: { prefixDefaultLocale: false },
   },
   integrations: [
@@ -79,25 +85,25 @@ export default defineConfig({
           inlineButtonBorder: 'transparent',
           inlineButtonBorderOpacity: '0',
           tooltipSuccessBackground: 'var(--accent)',
-          tooltipSuccessForeground: '#fff',
+          tooltipSuccessForeground: 'var(--on-accent)',
         },
         textMarkers: {
           lineMarkerAccentWidth: '2px',
           lineMarkerAccentMargin: '0px',
           markBackground: 'var(--accent-8)',
           markBorderColor: 'var(--accent-30)',
-          insBackground: 'color-mix(in srgb, #5f8a63 10%, transparent)',
-          insBorderColor: 'color-mix(in srgb, #5f8a63 45%, transparent)',
-          insDiffIndicatorColor: '#5f8a63',
-          delBackground: 'color-mix(in srgb, #c56473 9%, transparent)',
-          delBorderColor: 'color-mix(in srgb, #c56473 40%, transparent)',
-          delDiffIndicatorColor: '#c56473',
+          insBackground: 'color-mix(in srgb, var(--diff-ins) 10%, transparent)',
+          insBorderColor: 'color-mix(in srgb, var(--diff-ins) 45%, transparent)',
+          insDiffIndicatorColor: 'var(--diff-ins)',
+          delBackground: 'color-mix(in srgb, var(--diff-del) 9%, transparent)',
+          delBorderColor: 'color-mix(in srgb, var(--diff-del) 40%, transparent)',
+          delDiffIndicatorColor: 'var(--diff-del)',
         },
       },
     }),
     sitemap({
       filter: (page) => !/\/404\/?$/.test(page),
-      i18n: { defaultLocale: 'zh', locales: { zh: 'zh-CN', en: 'en' } },
+      i18n: { defaultLocale: defaultLang, locales: htmlLang },
     }),
   ],
   markdown: {

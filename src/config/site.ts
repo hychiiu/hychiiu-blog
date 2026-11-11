@@ -1,22 +1,16 @@
 /**
- * 站点唯一配置文件 —— 改名字、介绍、链接、引言、强调色、评论都在这里。
+ * 站点身份与首页 / 关于页内容 —— 改名字、介绍、引言、强调色都在这里。
  * 带 { zh, en } 的字段分别是中文 / 英文版本（英文站点在 /en/）。
- * 界面上的固定文案（导航、按钮、页脚等）在 src/i18n.ts 的字典里。
+ * 其它配置：语言 locales.ts、导航 nav.ts、社交 social.ts、内容来源 content.ts、评论 / 备案 integrations.ts、
+ * 部署 deploy.ts；界面固定文案在 src/i18n/{zh,en}.ts。
  */
-
-export type Lang = 'zh' | 'en';
-export type Localized<T = string> = Record<Lang, T>;
-
-export interface SocialLink {
-  /** 图标名：github | x | mail | telegram | bilibili | weibo | zhihu | steam | instagram | rss | link */
-  icon: 'github' | 'x' | 'mail' | 'telegram' | 'bilibili' | 'weibo' | 'zhihu' | 'steam' | 'instagram' | 'rss' | 'link';
-  label: string;
-  href: string;
-}
+import { env } from './env.ts';
+import { defaultLang } from './locales.ts';
+import type { Localized } from './locales.ts';
 
 export const site = {
-  /** 部署后的正式域名（用于 RSS / sitemap / canonical / hreflang）。绑定域名后改成你的域名 */
-  url: 'https://inbluemoon.com',
+  /** 正式域名（RSS / sitemap / canonical / hreflang / robots.txt）。环境变量 SITE_URL 可覆盖 */
+  url: env('SITE_URL', 'https://inbluemoon.com'),
 
   name: 'hychiiu',
   /** 名字旁边的强调色中文（Yohaku 风格的「余白」位置）。留空字符串则不显示 */
@@ -24,8 +18,8 @@ export const site = {
   /** 浏览器标签页标题 */
   title: 'hychiiu',
 
-  /** 默认语言（根路径 /）与可选语言 */
-  defaultLang: 'zh' as Lang,
+  /** 默认语言（根路径 /），定义见 locales.ts */
+  defaultLang,
 
   /** SEO 描述 */
   description: {
@@ -84,31 +78,6 @@ export const site = {
     dark: '#c56473', // 与 yohaku.innei.dev 暗色一致；想更亮可用 '#e095a4'
   },
 
-  /** 社交平台：首页名字下方的图标和关于页都用这份列表。取消注释并填上地址即可启用；RSS 会自动指向当前语言的 feed */
-  social: [
-    { icon: 'github', label: 'GitHub', href: 'https://github.com/hychiiu' },
-    { icon: 'mail', label: 'Email', href: 'mailto:i@hychiiu.com' },
-    // { icon: 'x', label: 'X', href: 'https://x.com/你的用户名' },
-    // { icon: 'telegram', label: 'Telegram', href: 'https://t.me/你的用户名' },
-    // { icon: 'bilibili', label: 'Bilibili', href: 'https://space.bilibili.com/你的UID' },
-    // { icon: 'weibo', label: '微博', href: 'https://weibo.com/你的UID' },
-    // { icon: 'zhihu', label: '知乎', href: 'https://www.zhihu.com/people/你的ID' },
-    // { icon: 'steam', label: 'Steam', href: 'https://steamcommunity.com/id/你的ID' },
-    // { icon: 'instagram', label: 'Instagram', href: 'https://instagram.com/你的用户名' },
-    { icon: 'rss', label: 'RSS', href: '/rss.xml' },
-  ] satisfies SocialLink[] as SocialLink[],
-
-  /**
-   * 文章来源：GitHub 仓库的 Issues（见 README「写文章」）。评论用 utterances，
-   * 需要在仓库安装 https://github.com/apps/utterances
-   */
-  repo: 'hychiiu/hychiiu-blog',
-
-  /**
-   * 工信部 ICP 备案号。只在 hosts 列出的域名上显示；number 为空则不渲染。
-   */
-  icp: {
-    number: '苏ICP备2022019472号-1',
-    hosts: ['inbluemoon.com', 'www.inbluemoon.com'],
-  },
+  /** 浏览器地址栏颜色（与 tokens.css 的 --paper 一致） */
+  themeColor: { light: '#faf9f5', dark: '#18181a' },
 };

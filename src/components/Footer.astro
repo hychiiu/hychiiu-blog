@@ -1,5 +1,5 @@
 ---
-import { site, type Lang } from '../site.config';
+import { site, icp, credits, type Lang } from '../config';
 import { localizePath, useT } from '../i18n';
 interface Props {
   lang: Lang;
@@ -21,30 +21,30 @@ const years = startYear === year ? `${year}` : `${startYear}–${year}`;
         </p>
         <p class="meta-line">
           {t('footer.builtWith')}{' '}
-          <a href="https://astro.build" target="_blank" rel="noopener">
-            Astro
+          <a href={credits.builtWith.url} target="_blank" rel="noopener">
+            {credits.builtWith.name}
           </a>
           <span class="dot" aria-hidden="true">
             ·
           </span>
           {t('footer.hostedOn')}{' '}
-          <a href="https://pages.cloudflare.com" target="_blank" rel="noopener">
-            Cloudflare
+          <a href={credits.hostedOn.url} target="_blank" rel="noopener">
+            {credits.hostedOn.name}
           </a>
         </p>
       </div>
       <div class="col right">
-        <nav class="meta-line links" aria-label="Feeds">
+        <nav class="meta-line links" aria-label={t('footer.feeds')}>
           <a href={localizePath(lang, '/rss.xml')}>RSS</a>
           <span class="dot" aria-hidden="true">
             ·
           </span>
           <a href="/sitemap-index.xml">{t('footer.sitemap')}</a>
         </nav>
-        {site.icp.number && (
-          <p class="meta-line icp" id="icp-filing" hidden data-hosts={site.icp.hosts.join(',')}>
-            <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener">
-              {site.icp.number}
+        {icp.number && (
+          <p class="meta-line icp" id="icp-filing" hidden data-hosts={icp.hosts.join(',')}>
+            <a href={icp.url} target="_blank" rel="noopener">
+              {icp.number}
             </a>
           </p>
         )}
@@ -53,7 +53,7 @@ const years = startYear === year ? `${year}` : `${startYear}–${year}`;
   </div>
 </footer>
 
-{site.icp.number && <script>
+{icp.number && <script>
   function revealIcp() {
     const el = document.getElementById('icp-filing');
     if (!el) return;

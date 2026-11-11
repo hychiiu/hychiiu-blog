@@ -3,7 +3,7 @@ import Base from '../layouts/Base.astro';
 import Icon from '../components/Icon.astro';
 import EntryList, { type Item } from '../components/EntryList.astro';
 import EmptyState from '../components/EmptyState.astro';
-import { site, type Lang } from '../site.config';
+import { site, type Lang } from '../config';
 import { useT, localizePath, quoteMarks } from '../i18n';
 import { getPostsFor, getNotesFor, getPosts, getNotes } from '../utils/content';
 import { langMarker, pad2, socialLinks } from '../utils/view';

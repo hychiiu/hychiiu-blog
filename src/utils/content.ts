@@ -1,5 +1,5 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
-import type { Lang } from '../site.config';
+import { content, type Lang } from '../config';
 
 const isProd = import.meta.env.PROD;
 
@@ -28,7 +28,7 @@ export function countWords(text = ''): number {
 }
 
 export function readingMinutes(text = ''): number {
-  return Math.max(1, Math.round(countWords(text) / 400));
+  return Math.max(1, Math.round(countWords(text) / content.wordsPerMinute));
 }
 
 /** Yohaku 风格的点分日期：2026·11·11 */

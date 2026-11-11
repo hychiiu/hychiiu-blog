@@ -1,7 +1,7 @@
 /**
  * 视图层共用的小函数：列表分组、语言标记、编号、社交链接。
  */
-import { site, type Lang } from '../site.config';
+import { social, type Lang } from '../config';
 import { useT, localizePath } from '../i18n';
 
 /** 按年份分组（保持输入顺序，输入通常已按日期倒序） */
@@ -26,5 +26,5 @@ export const pad2 = (n: number) => String(n).padStart(2, '0');
 
 /** 站点社交链接；RSS 指向当前语言的订阅地址 */
 export function socialLinks(lang: Lang) {
-  return site.social.map((s) => (s.icon === 'rss' ? { ...s, href: localizePath(lang, '/rss.xml') } : s));
+  return social.map((s) => (s.icon === 'rss' ? { ...s, href: localizePath(lang, '/rss.xml') } : s));
 }

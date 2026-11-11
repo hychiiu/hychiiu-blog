@@ -5,7 +5,7 @@
  * transition:persist：跨 ClientRouter 跳转保留同一个 DOM 与放大状态；
  * 放大引擎与跳转后的同步见 scripts/dock.ts，主题 / 语言点击见 scripts/controls.ts 的事件委托。
  */
-import { site, type Lang } from '../site.config';
+import { site, nav, isNavActive, locales, otherLang, dockMotion, type Lang } from '../config';
 import { ui, localizePath, stripLang, useT } from '../i18n';
 import { getPosts, getNotes } from '../utils/content';
 import Icon from './Icon.astro';
@@ -18,16 +18,10 @@ const { lang, alternates } = Astro.props;
 const t = useT(lang);
 const path = stripLang(Astro.url.pathname);
 const hasArchive = [...(await getPosts()), ...(await getNotes())].some((e) => e.data.archived);
-const items = [
-  { key: 'home', path: '/' },
-  { key: 'posts', path: '/posts/' },
-  { key: 'notes', path: '/notes/' },
-  { key: 'about', path: '/about/' },
-  ...(hasArchive ? [{ key: 'archive', path: '/archive/' }] : []),
-];
+const items = nav.filter((item) => !item.onlyIfArchived || hasArchive);
 const label = (l: Lang, k: string) => (ui[l] as Record<string, unknown>)[k] as string;
-const isActive = (p: string) => (p === '/' ? path === '/' : path.startsWith(p.replace(/\/$/, '')));
-const other: Lang = lang === 'zh' ? 'en' : 'zh';
+const isActive = (p: string) => isNavActive(p, path);
+const other = otherLang(lang);
 ---
 
 <nav
@@ -70,7 +64,7 @@ const other: Lang = lang === 'zh' ? 'en' : 'zh';
           data-label-zh={label('zh', `nav.${item.key}`)}
           data-label-en={label('en', `nav.${item.key}`)}
         >
-          <Icon name={item.key} size={20} />
+          <Icon name={item.icon} size={dockMotion.glyph} />
         </a>
         <span class="dock-tip" aria-hidden="true">
           {label(lang, `nav.${item.key}`)}
@@ -82,7 +76,7 @@ const other: Lang = lang === 'zh' ? 'en' : 'zh';
       <a
         href={alternates[other]}
         class="dock-btn dock-lang"
-        hreflang={other === 'zh' ? 'zh-CN' : 'en'}
+        hreflang={locales[other].html}
         data-dock-lang
         data-set-lang={other}
         aria-label={t('lang.other')}
@@ -90,7 +84,7 @@ const other: Lang = lang === 'zh' ? 'en' : 'zh';
         data-label-en={label('en', 'lang.other')}
       >
         <span class="glyph" data-glyph>
-          {other === 'en' ? 'EN' : '中'}
+          {locales[other].short}
         </span>
       </a>
       <span class="dock-tip" aria-hidden="true">
@@ -106,8 +100,8 @@ const other: Lang = lang === 'zh' ? 'en' : 'zh';
         data-label-zh={label('zh', 'toggle.theme')}
         data-label-en={label('en', 'toggle.theme')}
       >
-        <Icon name="sun-line" size={20} class="i-sun" />
-        <Icon name="moon-line" size={20} class="i-moon" />
+        <Icon name="sun-line" size={dockMotion.glyph} class="i-sun" />
+        <Icon name="moon-line" size={dockMotion.glyph} class="i-moon" />
       </button>
       <span class="dock-tip" aria-hidden="true">
         {t('toggle.theme')}

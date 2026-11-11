@@ -2,6 +2,7 @@
  * 文章 / 手记条目的 zod 模式（content.config.ts 使用），以及由此推导出的类型，供组件复用。
  */
 import { z } from 'astro/zod';
+import { langs, defaultLang } from '../config/locales';
 
 const reactions = z.record(z.string(), z.number());
 
@@ -30,7 +31,7 @@ export const entrySchema = z.object({
   cover: z.string().optional(),
   tags: z.array(z.string()).optional().default([]),
   draft: z.boolean().optional().default(false),
-  lang: z.enum(['zh', 'en']).optional().default('zh'),
+  lang: z.enum(langs).optional().default(defaultLang),
   /** closed issue = 归档 */
   archived: z.boolean().default(false),
   locked: z.boolean().default(false),

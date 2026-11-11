@@ -92,6 +92,38 @@
   --dock-w: 56px;
   --dock-inset: 16px;
   --dock-safe: calc(var(--dock-inset) + var(--dock-w) + var(--sp-6));
+  --dock-slot: 44px; /* 每项占位 */
+  --dock-plate: 36px; /* hover 圆形底板 */
+  --dock-dot: 4px; /* 激活点 */
+  --dock-avatar: 34px;
+  --dock-bar-h: 52px; /* 底部横向 Dock 高度 */
+  --dock-bar-slot: 42px;
+  --dock-bar-avatar: 30px;
+  --fs-tip: 13px; /* Dock 提示（衬线） */
+  --page-top: 60px; /* 页面顶部留白（原头部高度） */
+
+  /* 代码 diff 标记（astro.config.mjs 的 Expressive Code 引用） */
+  --diff-ins: #5f8a63;
+  --diff-del: #c56473;
+  --on-accent: #fff;
+
+  /* Mermaid 图表配色（scripts/mermaid.ts 读取；与中性色阶一致） */
+  --mermaid-font: 'Noto Serif SC', 'Noto Serif CJK SC', serif;
+  --mermaid-background: #faf9f5;
+  --mermaid-primary-color: #f0efeb;
+  --mermaid-primary-text-color: #24231f;
+  --mermaid-primary-border-color: #a8a69f;
+  --mermaid-secondary-color: #f6f4ee;
+  --mermaid-tertiary-color: #f9f8f5;
+  --mermaid-line-color: #787670;
+  --mermaid-text-color: #24231f;
+  --mermaid-note-bkg-color: #f6f0ea;
+  --mermaid-note-text-color: #24231f;
+  --mermaid-note-border-color: #d0cec6;
+  --mermaid-edge-label-background: #faf9f5;
+  --mermaid-cluster-bkg: #f6f4ee;
+  --mermaid-cluster-border: #d0cec6;
+  --dur-tip: 120ms; /* 提示淡入 */
 
   /* 动效：只用减速曲线，无回弹 */
   --dur-1: 80ms; /* 按压、旧页淡出 */
@@ -130,6 +162,22 @@
   --shadow-float: 0 1px 2px rgb(0 0 0 / 0.3), 0 10px 24px -8px rgb(0 0 0 / 0.45), 0 28px 56px -20px rgb(0 0 0 / 0.55);
   --shadow-pop: 0 4px 14px -4px rgb(0 0 0 / 0.5);
   --shadow-dock: 0 1px 2px rgb(0 0 0 / 0.25), 0 8px 24px -12px rgb(0 0 0 / 0.5);
+
+  /* Mermaid 深色配色 */
+  --mermaid-background: #18181a;
+  --mermaid-primary-color: #24231f;
+  --mermaid-primary-text-color: #f0efeb;
+  --mermaid-primary-border-color: #5c5a55;
+  --mermaid-secondary-color: #2a2926;
+  --mermaid-tertiary-color: #1f1e1c;
+  --mermaid-line-color: #a8a69f;
+  --mermaid-text-color: #e3e1db;
+  --mermaid-note-bkg-color: #2a2926;
+  --mermaid-note-text-color: #e3e1db;
+  --mermaid-note-border-color: #5c5a55;
+  --mermaid-edge-label-background: #18181a;
+  --mermaid-cluster-bkg: #1f1e1c;
+  --mermaid-cluster-border: #403f3a;
 
   color-scheme: dark;
 }

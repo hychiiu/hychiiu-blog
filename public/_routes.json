@@ -1,5 +1,0 @@
-{
-  "version": 1,
-  "include": ["/posts/*", "/notes/*", "/en/posts/*", "/en/notes/*"],
-  "exclude": []
-}

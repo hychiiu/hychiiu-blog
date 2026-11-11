@@ -1,6 +1,6 @@
 import rss from '@astrojs/rss';
 import type { APIContext } from 'astro';
-import { site, type Lang } from '../site.config';
+import { site, type Lang } from '../config';
 import { htmlLang, localizePath, useT } from '../i18n';
 import { getPostsFor, getNotesFor } from './content';
 
