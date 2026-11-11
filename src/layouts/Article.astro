@@ -348,10 +348,11 @@ const foreign = contentLang !== lang;
   .to-top:hover {
     color: var(--accent);
   }
-  @media (max-width: 640px) {
+  /* 底部 Dock 时浮在 Dock 上方，不与其重叠（§10 窄屏） */
+  @media (max-width: 1023.98px) {
     .to-top {
       right: var(--sp-4);
-      bottom: calc(var(--sp-4) + env(safe-area-inset-bottom, 0px));
+      bottom: var(--dock-bar-clear);
     }
   }
   @media (max-width: 640px) {

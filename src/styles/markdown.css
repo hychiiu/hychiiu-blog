@@ -53,7 +53,7 @@
 }
 
 /* ---------- links ---------- */
-.prose a[target='_blank']:not(.heading-anchor)::after {
+.prose a[target='_blank']:not(.heading-anchor, :has(> img))::after {
   content: '↗';
   display: inline-block;
   margin-left: 1px;
@@ -62,6 +62,12 @@
   vertical-align: super;
   line-height: 0;
   color: var(--n-5);
+}
+
+/* 包着图片的链接（点开原图）：不画下划线、不加外链角标 */
+.prose a:has(> img) {
+  display: block;
+  border-bottom: 0;
 }
 
 /* ---------- lists ---------- */
@@ -227,6 +233,19 @@
   border-top: 1px solid var(--border);
   border-bottom: 1px solid var(--border);
 }
+/* 可横向滚动时，被截断的一侧出现极淡的渐隐边（纯 CSS：local 遮罩随内容滚动，scroll 阴影固定在边缘） */
+.prose :is(.table-wrap, .katex-display) {
+  background:
+    linear-gradient(to right, var(--paper) 40%, rgb(var(--paper-rgb) / 0)) left / var(--scroll-hint) 100% no-repeat
+      local,
+    linear-gradient(to left, var(--paper) 40%, rgb(var(--paper-rgb) / 0)) right / var(--scroll-hint) 100% no-repeat
+      local,
+    linear-gradient(to right, var(--hair), transparent) left / calc(var(--scroll-hint) / 2) 100% no-repeat scroll,
+    linear-gradient(to left, var(--hair), transparent) right / calc(var(--scroll-hint) / 2) 100% no-repeat scroll;
+}
+.prose td {
+  min-width: var(--cell-min);
+}
 .prose table {
   width: 100%;
   margin: 0;
@@ -354,11 +373,11 @@
 /* ---------- code (non-Expressive-Code fallbacks) ---------- */
 .prose pre:not(.expressive-code pre):not(.mermaid) {
   margin: 1.4em 0;
-  padding: 16px 20px;
+  padding: var(--code-pad-y) var(--code-pad-x);
   border-radius: var(--r-md);
   background: var(--surface-1);
   font-family: var(--font-mono);
-  font-size: var(--fs-meta);
+  font-size: var(--fs-code);
   line-height: var(--lh-code);
   overflow-x: auto;
 }
@@ -370,7 +389,7 @@
 }
 /* 文件名：标签栏退化为代码上方一行弱色小字（§7 代码块） */
 .prose .expressive-code .frame.has-title:not(.is-terminal) .header {
-  padding: 12px 20px 0;
+  padding: var(--sp-3) var(--code-pad-x) 0;
   border: 0;
   background: var(--surface-1);
   border-radius: var(--r-md) var(--r-md) 0 0;
@@ -474,6 +493,10 @@
 @media (hover: none) {
   .mmd-ctrl {
     opacity: 1;
+  }
+  /* 触屏：正文里只留「全屏」，缩放与平移交给灯箱，控件不挡住小图 */
+  .mermaid-wrap .mmd-ctrl button:not([data-act='full']) {
+    display: none;
   }
 }
 .mmd-ctrl button {

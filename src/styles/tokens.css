@@ -101,6 +101,17 @@
   --dock-bar-avatar: 30px;
   --fs-tip: 13px; /* Dock 提示（衬线） */
   --page-top: 60px; /* 页面顶部留白（原头部高度） */
+  /* 底部 Dock 占用的高度（含上下间距与安全区）：正文留白、浮钮避让共用 */
+  --dock-bar-clear: calc(var(--dock-bar-h) + var(--sp-3) * 2 + env(safe-area-inset-bottom, 0px));
+
+  /* 代码块排版（astro.config.mjs 的 Expressive Code 引用；窄屏见下方覆盖） */
+  --fs-code: var(--fs-meta);
+  --code-pad-y: var(--sp-4);
+  --code-pad-x: 20px;
+  /* 表格单元格在窄屏横向滚动时的最小宽度，避免文字被挤成一两个字一行 */
+  --cell-min: 0;
+  /* 可横向滚动区域边缘的渐隐提示宽度 */
+  --scroll-hint: var(--sp-5);
 
   /* 代码 diff 标记（astro.config.mjs 的 Expressive Code 引用） */
   --diff-ins: #5f8a63;
@@ -180,4 +191,13 @@
   --mermaid-cluster-border: #403f3a;
 
   color-scheme: dark;
+}
+
+/* 窄屏（≤ 640px）：代码字号降一级、内边距收窄；表格单元格保底宽度（§7 代码块 / 表格） */
+@media (max-width: 640px) {
+  :root {
+    --fs-code: var(--fs-sm);
+    --code-pad-x: var(--sp-4);
+    --cell-min: 6.5em;
+  }
 }

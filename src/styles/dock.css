@@ -278,6 +278,6 @@ body {
 @media (max-width: 1023.98px) {
   body {
     padding-top: var(--sp-5);
-    padding-bottom: calc(var(--dock-bar-h) + var(--sp-3) * 2 + env(safe-area-inset-bottom, 0px));
+    padding-bottom: var(--dock-bar-clear);
   }
 }
