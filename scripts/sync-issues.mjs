@@ -86,7 +86,9 @@ for (const i of issues) {
 }
 result.sort((a, b) => a.number - b.number);
 
-const json = JSON.stringify({ repo, issues: result }, null, 2) + '\n';
+/** @type {import('../src/types/issues').IssuesFile} 结构定义见 src/types/issues.ts */
+const data = { repo, issues: result };
+const json = JSON.stringify(data, null, 2) + '\n';
 const prev = existsSync(out) ? readFileSync(out, 'utf8') : '';
 if (prev === json) {
   console.log(`issues.json 无变化（${result.length} 条）`);

@@ -5,35 +5,7 @@
 import type { Loader } from 'astro/loaders';
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
-
-export interface IssueComment {
-  id: number;
-  author: string;
-  avatar: string;
-  authorUrl: string;
-  association?: string;
-  body: string;
-  url: string;
-  createdAt: string;
-  updatedAt: string;
-  reactions?: Record<string, number>;
-}
-interface IssueRecord {
-  number: number;
-  kind: 'post' | 'note';
-  title: string;
-  body: string;
-  state: 'open' | 'closed';
-  locked: boolean;
-  lang: 'zh' | 'en';
-  tags: string[];
-  url: string;
-  createdAt: string;
-  updatedAt: string;
-  closedAt?: string | null;
-  reactions?: Record<string, number>;
-  comments: IssueComment[];
-}
+import type { IssuesFile } from '../types/issues';
 
 /** 数据文件；本地预览可用 YH_ISSUES_FILE 指向一份测试数据（不提交到仓库） */
 /** 正文里第一张图片（Markdown 或 <img>，忽略代码块），用作列表缩略图 / og:image */
@@ -88,7 +60,7 @@ export function issuesLoader(kind: 'post' | 'note'): Loader {
     load: async ({ store, renderMarkdown, generateDigest, logger, watcher, parseData }) => {
       const path = fileURLToPath(FILE);
       const sync = async () => {
-        let data: { repo: string; issues: IssueRecord[] };
+        let data: IssuesFile;
         try {
           data = JSON.parse(await readFile(path, 'utf8'));
         } catch (e) {
