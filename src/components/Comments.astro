@@ -9,26 +9,15 @@
 import type { Lang } from '../site.config';
 import { useT } from '../i18n';
 import { dotDate } from '../utils/content';
+import type { EntryComment } from '../utils/issue-schema';
 
-interface Comment {
-  id: number;
-  author: string;
-  avatar: string;
-  authorUrl: string;
-  association?: string;
-  html: string;
-  url: string;
-  createdAt: Date;
-  updatedAt: Date;
-  reactions?: Record<string, number>;
-}
 interface Props {
   lang: Lang;
   repo: string;
   number: number;
   url: string;
   locked?: boolean;
-  comments: Comment[];
+  comments: EntryComment[];
 }
 const { lang, repo, number, url, locked = false, comments } = Astro.props;
 const t = useT(lang);
@@ -281,36 +270,5 @@ const reactionsOf = (r?: Record<string, number>) => Object.entries(r ?? {}).filt
 </style>
 
 <script>
-  const ORIGIN = 'https://utteranc.es';
-  const theme = () => (document.documentElement.dataset.theme === 'dark' ? 'github-dark' : 'github-light');
-  const w = window as unknown as { __yhCommentsBound?: boolean };
-  if (!w.__yhCommentsBound) {
-    w.__yhCommentsBound = true;
-    // 主题切换时同步 utterances
-    window.addEventListener('themechange', () => {
-      const frame = document.querySelector<HTMLIFrameElement>('iframe.utterances-frame');
-      frame?.contentWindow?.postMessage({ type: 'set-theme', theme: theme() }, ORIGIN);
-    });
-    // utterances 就绪（首次 resize 消息）后收起静态列表，避免重复
-    window.addEventListener('message', (e) => {
-      if (e.origin !== ORIGIN || (e.data as { type?: string })?.type !== 'resize') return;
-      document.querySelector('[data-static-comments]')?.setAttribute('hidden', '');
-    });
-    // 「在本页留言」：按需挂载 utterances
-    document.addEventListener('click', (e) => {
-      const btn = (e.target as Element).closest<HTMLButtonElement>('[data-utterances-load]');
-      const slot = document.querySelector<HTMLElement>('[data-utterances]');
-      if (!btn || !slot || slot.childElementCount) return;
-      btn.hidden = true;
-      slot.hidden = false;
-      const s = document.createElement('script');
-      s.src = `${ORIGIN}/client.js`;
-      s.async = true;
-      s.crossOrigin = 'anonymous';
-      s.setAttribute('repo', slot.dataset.repo!);
-      s.setAttribute('issue-number', slot.dataset.issue!);
-      s.setAttribute('theme', theme());
-      slot.appendChild(s);
-    });
-  }
+  import '../scripts/comments';
 </script>

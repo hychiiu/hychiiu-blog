@@ -1,7 +1,7 @@
 /** 界面文案字典 + 语言工具。内容类文案（介绍、引言、关于）在 src/site.config.ts。 */
 import { site, type Lang } from './site.config';
+import { stripLang } from './utils/path';
 
-export const langs: Lang[] = ['zh', 'en'];
 export const htmlLang: Record<Lang, string> = { zh: 'zh-CN', en: 'en' };
 
 export const ui = {
@@ -165,21 +165,8 @@ export function localizePath(lang: Lang, path: string): string {
   return `/${lang}${clean === '/' ? '/' : clean}`;
 }
 
-/** 去掉语言前缀：'/en/posts/' -> '/posts/' */
-export function stripLang(path: string): string {
-  const p = path.replace(/^\/en(?=\/|$)/, '');
-  return p === '' ? '/' : p;
-}
-
-export function navItems(lang: Lang) {
-  const t = useT(lang);
-  return [
-    { label: t('nav.home'), href: localizePath(lang, '/') },
-    { label: t('nav.posts'), href: localizePath(lang, '/posts/') },
-    { label: t('nav.notes'), href: localizePath(lang, '/notes/') },
-    { label: t('nav.about'), href: localizePath(lang, '/about/') },
-  ];
-}
+/** 去掉语言前缀：'/en/posts/' -> '/posts/'（实现见 utils/path，浏览器端脚本也在用） */
+export { stripLang };
 
 export function quoteMarks(lang: Lang, s: string) {
   return lang === 'zh' ? `「${s}」` : `“${s}”`;

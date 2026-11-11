@@ -8,7 +8,7 @@ import { site, type Lang } from '../site.config';
 import { useT, htmlLang } from '../i18n';
 import { dotDate, readingMinutes, countWords } from '../utils/content';
 import { titleTransition } from '../utils/transitions';
-import type { ComponentProps } from 'astro/types';
+import type { EntryData } from '../utils/issue-schema';
 
 interface Props {
   title: string;
@@ -27,16 +27,7 @@ interface Props {
   contentLang: Lang;
   alternates?: Partial<Record<Lang, string>>;
   /** 来自 GitHub issue 的元数据（评论、归档状态等） */
-  issue?: {
-    number: number;
-    url: string;
-    repo: string;
-    archived: boolean;
-    locked: boolean;
-    updated: Date;
-    cover?: string;
-    comments: ComponentProps<typeof Comments>['comments'];
-  };
+  issue?: EntryData;
 }
 const {
   title,
@@ -173,44 +164,7 @@ const foreign = contentLang !== lang;
 </Base>
 
 <script>
-  /**
-   * 返回链接：若是从本站页面进入（含 ClientRouter 站内跳转），用 history.back() 回到原列表并恢复滚动位置；
-   * 直接打开文章时则按链接跳到列表页。
-   * 回到顶部：滚过一屏后淡入。
-   */
-  const w = window as unknown as { __yhInternalNav?: boolean; __yhArticleBound?: boolean };
-  if (!w.__yhArticleBound) {
-    w.__yhArticleBound = true;
-    document.addEventListener('click', (e) => {
-      const back = (e.target as Element).closest<HTMLAnchorElement>('[data-back]');
-      if (back && !(e.metaKey || e.ctrlKey || e.shiftKey || e.button)) {
-        let sameOrigin = false;
-        try {
-          sameOrigin = !!document.referrer && new URL(document.referrer).origin === location.origin;
-        } catch {}
-        if ((w.__yhInternalNav || sameOrigin) && history.length > 1) {
-          e.preventDefault();
-          history.back();
-        }
-        return;
-      }
-      if ((e.target as Element).closest('[data-to-top]')) {
-        const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-        window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
-      }
-    });
-    let ticking = false;
-    const onScroll = () => {
-      if (ticking) return;
-      ticking = true;
-      requestAnimationFrame(() => {
-        ticking = false;
-        document.querySelector('[data-to-top]')?.classList.toggle('on', scrollY > innerHeight * 0.9);
-      });
-    };
-    addEventListener('scroll', onScroll, { passive: true });
-    document.addEventListener('astro:page-load', onScroll);
-  }
+  import '../scripts/article';
 </script>
 
 <style>
