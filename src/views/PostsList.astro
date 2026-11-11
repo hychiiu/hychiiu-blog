@@ -20,6 +20,8 @@ const byYear = groupByYear(posts);
 let idx = 3;
 // 有任意一篇带图时，整列都留出缩略图位，保证右侧 meta 对齐
 const withThumbs = posts.some((p) => p.data.cover);
+// 列表最上面那张图在首屏内，不懒加载
+const firstPostId = posts[0]?.id;
 ---
 
 <Base title={t('nav.posts')} description={t('posts.lede')}>
@@ -67,7 +69,7 @@ const withThumbs = posts.some((p) => p.data.cover);
                 </span>
                 {withThumbs &&
                   (p.data.cover ? (
-                    <Thumb src={p.data.cover} width={120} class="list-thumb" />
+                    <Thumb src={p.data.cover} width={120} class="list-thumb" eager={p.id === firstPostId} />
                   ) : (
                     <span class="list-thumb" />
                   ))}
@@ -132,12 +134,6 @@ const withThumbs = posts.some((p) => p.data.cover);
     display: flex;
     gap: 12px;
     font-size: var(--fs-xs);
-  }
-  .marker {
-    padding: 0 6px;
-    border: 1px solid var(--border);
-    border-radius: var(--r-xs);
-    font-size: var(--fs-2xs);
   }
   .tg {
     color: var(--accent);
