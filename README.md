@@ -12,16 +12,19 @@
 
 ```
 src/
-├── site.config.ts        ← 唯一配置文件：名字、介绍、链接、引言、强调色、评论
+├── config/               ← 配置层（唯一来源，见下文「配置」）
+├── i18n/                 ← 界面文案字典 zh.ts / en.ts
 ├── data/issues.json      ← 由 GitHub Action 从 Issues 自动同步，不要手改
 ├── pages/                ← 首页 / 文章 / 手记 / 关于 / 404 / RSS
 ├── components/ layouts/  ← 组件与布局
 ├── scripts/              ← 浏览器端小模块（如 Mermaid 缩放平移）
-└── styles/global.css     ← 设计令牌与排版
+└── styles/               ← tokens.css 设计令牌 + 排版 / 组件样式
 docs/DESIGN.md            ← 前端视觉设计规范（改界面前先看）
 public/                   ← 头像、favicon 等静态文件
 scripts/avatar.mjs        ← 一键生成头像 webp / favicon
 scripts/sync-issues.mjs   ← 把 Issues 同步成 src/data/issues.json
+functions/                ← Cloudflare Pages Function（让下线的文章及时 404）
+.env.example              ← 可选环境变量
 .github/workflows/        ← issue 有变动时自动同步；CI 检查
 ```
 
@@ -43,19 +46,37 @@ npm run check      # astro check + tsc 类型检查
 
 没有真实文章时，可以用一份测试数据预览：`YH_ISSUES_FILE=/绝对路径/issues.json npm run dev`（格式同 `src/data/issues.json`，不要提交）。
 
+## 配置
+
+所有可调的配置都在 `src/config/`，组件、脚本、GitHub Action、Pages Function 都从这里读取，代码里不写域名、仓库、文案等字面量；视觉数值只用 `src/styles/tokens.css` 里的 CSS 令牌（规范见 `docs/DESIGN.md`）。
+
+| 文件                     | 内容                                                                                               | 环境变量覆盖                                                                                 |
+| ------------------------ | -------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| `config/site.ts`         | 名字、标题、介绍、引言、关于页、头像、建站日期、强调色、地址栏颜色、正式域名                       | `SITE_URL`                                                                                   |
+| `config/locales.ts`      | 支持的语言、默认语言、`html lang` / `og:locale` 代码                                               | —                                                                                            |
+| `config/nav.ts`          | Dock 导航项（顺序、路径、图标；「归档」仅在有归档内容时显示）                                      | —                                                                                            |
+| `config/social.ts`       | 首页 / 关于页的社交链接                                                                            | —                                                                                            |
+| `config/content.ts`      | 文章来源仓库、作者、特殊 label（`post` / `note` / `draft` / `en`）、数据文件、GitHub API、阅读速度 | `GITHUB_REPO`（其次 `GITHUB_REPOSITORY`）、`BLOG_AUTHOR`、`GITHUB_API_URL`、`YH_ISSUES_FILE` |
+| `config/integrations.ts` | 评论（utterances）、ICP 备案号与显示域名、页脚致谢链接                                             | `COMMENTS_INLINE`、`ICP_NUMBER`（设为空即关闭）、`ICP_HOSTS`                                 |
+| `config/deploy.ts`       | Pages 项目名、交给 Function 的路径（生成 `dist/_routes.json`）、缓存键参数、构建号                 | `PAGES_PROJECT`                                                                              |
+| `config/motion.ts`       | Dock 放大 / 激活点动画参数                                                                         | —                                                                                            |
+| `config/env.ts`          | 读取环境变量的工具（浏览器 / Worker 中自动用默认值）                                               | —                                                                                            |
+
+环境变量全部可选：复制 `.env.example` 为 `.env`（不提交），或在 Cloudflare Pages / GitHub Actions 里配置同名变量。`astro build` 会自动读取 `.env`，`npm run sync` / `npm run deploy` 也会。`robots.txt`、`_routes.json` 在构建时由配置生成。
+
 ## 修改个人信息
 
-全部在 `src/site.config.ts` 里：
+在 `src/config/` 里（见上表）：
 
 - `name` / `intro` / `subIntro`：首页名字和介绍（留空则不显示）
 - `quote`：首页引言（留空则不显示整个区块）
-- `social`：首页名字下方的社交图标，取消注释就能启用（X、Telegram、B 站、微博、知乎、Steam、Instagram……）
+- `social.ts`：首页名字下方的社交图标，取消注释就能启用（X、Telegram、B 站、微博、知乎、Steam、Instagram……）
 - `accent`：强调色（默认 Yohaku 的梅色 `#c56473`）
 - `startDate`：建站日期，首页显示「已运行 N 天」
-- `url`：绑定域名后改成你的正式域名（影响 RSS / sitemap）
-- `repo`：文章来源仓库（Issues）
+- `url`：正式域名（影响 RSS / sitemap / robots.txt），也可用 `SITE_URL`
+- `content.ts` 的 `repo`：文章来源仓库（Issues），也可用 `GITHUB_REPO`
 
-关于页的正文在 `site.config.ts` 的 `about` 字段里（`paragraphs` / `now` 为空时不显示）。
+关于页的正文在 `config/site.ts` 的 `about` 字段里（`paragraphs` / `now` 为空时不显示）。
 
 ### 更换头像
 
@@ -113,7 +134,7 @@ weather: 晴                 # 手记专用
 
 ```bash
 gh workflow run sync-issues.yml          # 手动触发一次同步
-GITHUB_TOKEN=$(gh auth token) node scripts/sync-issues.mjs   # 本地拉取最新 issues 到 src/data/issues.json
+GITHUB_TOKEN=$(gh auth token) npm run sync   # 本地拉取最新 issues 到 src/data/issues.json
 npm run dev
 ```
 
@@ -174,10 +195,8 @@ print("显示行号")
 ```bash
 npm run build
 npx wrangler login                 # 第一次需要登录 Cloudflare
-npx wrangler pages deploy dist --project-name hychiiu-blog
+npm run deploy                     # 项目名见 config/deploy.ts（PAGES_PROJECT 可覆盖）
 ```
-
-（也可以直接 `npm run deploy`，它会先构建再上传。）
 
 ## 绑定自定义域名
 
@@ -185,13 +204,13 @@ npx wrangler pages deploy dist --project-name hychiiu-blog
 2. 输入域名，例如 `blog.example.com` 或 `example.com`。
    - 域名已托管在 Cloudflare：会自动添加 DNS 记录，等几分钟证书签发即可。
    - 域名在别处：按提示添加一条 `CNAME` 指向 `你的项目.pages.dev`（根域名建议把 DNS 迁到 Cloudflare）。
-3. 回到 `src/site.config.ts`，把 `url` 改成 `https://你的域名`，提交并推送。
+3. 把 `src/config/site.ts` 的 `url` 改成 `https://你的域名`（或在 Pages 设置环境变量 `SITE_URL`），提交并推送。
 
 ## 中英文双语
 
-- 中文为默认语言，在根路径 `/`；英文在 `/en/`（Astro i18n 路由）。右上角 `中 | EN | 主题` 切换，会跳到当前页面的对应语言版本，并记住选择（localStorage）。
-- 界面文案（导航、按钮、区块标题、页脚、404……）在 `src/i18n.ts` 的字典里。
-- 首页介绍、第二行介绍、引言、关于页正文在 `src/site.config.ts`，每项都有 `zh` / `en` 两份。
+- 中文为默认语言，在根路径 `/`；英文在 `/en/`（Astro i18n 路由）。Dock 底部的 `EN` / `中` 按钮切换，会跳到当前页面的对应语言版本，并记住选择（localStorage）。
+- 界面文案（导航、按钮、区块标题、页脚、404、Mermaid 控件……）在 `src/i18n/zh.ts` / `en.ts`（`en` 缺键时类型检查会报错）。
+- 首页介绍、第二行介绍、引言、关于页正文在 `src/config/site.ts`，每项都有 `zh` / `en` 两份。
 - 文章 / 手记可在 frontmatter 写 `lang: en`（默认 `zh`）：
   - 中文站列出全部文章，英文文章带 `English` 小标记；
   - 英文站只列英文文章；一篇英文都没有时，回退显示中文文章，并带 `Chinese` 小标记。
