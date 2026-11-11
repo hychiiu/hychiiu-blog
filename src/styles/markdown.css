@@ -27,7 +27,7 @@
 .prose h4,
 .prose h5,
 .prose h6 {
-  scroll-margin-top: 80px;
+  scroll-margin-top: var(--anchor-offset);
 }
 .prose .heading-anchor {
   margin-left: 0.4em;
@@ -49,7 +49,7 @@
   color: var(--accent);
 }
 .prose :target {
-  scroll-margin-top: 80px;
+  scroll-margin-top: var(--anchor-offset);
 }
 
 /* ---------- links ---------- */
@@ -247,7 +247,6 @@
   min-width: var(--cell-min);
 }
 .prose table {
-  width: 100%;
   margin: 0;
   font-family: var(--font-serif);
 }

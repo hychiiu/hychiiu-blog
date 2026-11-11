@@ -26,7 +26,7 @@
   font-size: var(--fs-xl);
   line-height: 1.35;
   letter-spacing: -0.005em;
-  scroll-margin-top: 80px;
+  scroll-margin-top: var(--anchor-offset);
 }
 .prose h2::before {
   content: counter(h2);

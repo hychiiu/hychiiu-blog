@@ -34,6 +34,14 @@
   letter-spacing: 0;
 }
 
+/* 语言 / 状态小标记（列表与文章 meta 共用，组件内只写差异） */
+.marker {
+  padding: 0 6px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-xs);
+  font-size: var(--fs-2xs);
+}
+
 /* 内页页头 */
 .page-hero {
   padding: 88px 0 40px;

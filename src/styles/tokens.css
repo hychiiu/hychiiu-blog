@@ -101,6 +101,7 @@
   --dock-bar-avatar: 30px;
   --fs-tip: 13px; /* Dock 提示（衬线） */
   --page-top: 60px; /* 页面顶部留白（原头部高度） */
+  --anchor-offset: 80px; /* 锚点跳转时标题与视口顶部的距离 */
   /* 底部 Dock 占用的高度（含上下间距与安全区）：正文留白、浮钮避让共用 */
   --dock-bar-clear: calc(var(--dock-bar-h) + var(--sp-3) * 2 + env(safe-area-inset-bottom, 0px));
 
