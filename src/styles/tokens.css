@@ -1,0 +1,128 @@
+/*
+ * 设计令牌（Yohaku 风格，源自 MIT 协议的 Yohaku 设计系统；规范见 docs/DESIGN.md）：
+ * 单一强调色梅红 #c56473、暖色中性灰阶 n-1…10、衬线为主的排版、mono 元信息、发丝线分隔、
+ * 左对齐的编辑式版心，留白是主要材料。组件只引用这里定义的变量。
+ */
+
+:root {
+  /* Neutral · light — warm parchment */
+  --n-1: #f9f8f5;
+  --n-2: #f0efeb;
+  --n-3: #e3e1db;
+  --n-4: #d0cec6;
+  --n-5: #a8a69f;
+  --n-6: #787670;
+  --n-7: #5c5a55;
+  --n-8: #403f3a;
+  --n-9: #24231f;
+  --n-10: #141312;
+
+  --paper: #faf9f5;
+  --paper-rgb: 250 249 245;
+  --border: rgb(24 24 27 / 0.1);
+  --hair: rgb(24 24 27 / 0.08);
+  --accent: var(--accent-light, #c56473);
+  --accent-8: color-mix(in srgb, var(--accent) 8%, transparent);
+  --accent-12: color-mix(in srgb, var(--accent) 12%, transparent);
+  --accent-30: color-mix(in srgb, var(--accent) 30%, transparent);
+
+  --font-sans:
+    'Inter Variable', system-ui, -apple-system, 'PingFang SC', 'Microsoft YaHei', 'Segoe UI', Roboto, Helvetica,
+    'Noto Sans SC', 'Hiragino Sans GB', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
+  --font-serif:
+    'Noto Serif SC', 'Noto Serif CJK SC', 'Source Han Serif SC', 'Source Han Serif', 'Songti SC', STSong, Georgia, serif;
+  --font-mono:
+    'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, Consolas, 'Noto Sans Mono CJK SC',
+    monospace;
+
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* ===== 设计令牌（规范见 docs/DESIGN.md，组件只引用这些变量） ===== */
+  /* 语义色 */
+  --ink: var(--n-9); /* 正文 */
+  --ink-strong: var(--n-10); /* 标题 */
+  --ink-muted: var(--n-7); /* 次要文字 / meta */
+  --ink-faint: var(--n-6); /* 占位、辅助 */
+  --surface-1: color-mix(in srgb, var(--n-10) 2.6%, transparent); /* 代码、引用等极淡底 */
+  --surface-2: color-mix(in srgb, var(--n-10) 5%, transparent); /* hover 底 */
+
+  /* 字号阶梯 */
+  --fs-2xs: 10.5px; /* mono 角标 */
+  --fs-xs: 11.5px; /* mono meta、徽标 */
+  --fs-sm: 12.5px; /* 图注、提示气泡 */
+  --fs-meta: 13.5px; /* 返回链接、上下篇、按钮 */
+  --fs-md: 14px; /* UI 正文、代码 */
+  --fs-ui: 15px; /* 列表摘要 */
+  --fs-body: 16px; /* 文章正文 */
+  --fs-lg: 18px;
+  --fs-xl: 21px;
+  --fs-2xl: 30px;
+  --fs-3xl: 32px;
+  --fs-4xl: 44px;
+  --lh-tight: 1.25;
+  --lh-ui: 1.5;
+  --lh-body: 1.85;
+  --lh-code: 1.7;
+
+  /* 间距（4px 基准） */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 24px;
+  --sp-6: 32px;
+  --sp-7: 48px;
+  --sp-8: 64px;
+  --sp-9: 96px;
+
+  /* 圆角 */
+  --r-xs: 4px; /* 行内代码、kbd */
+  --r-sm: 8px; /* 小块 */
+  --r-md: 12px; /* 代码块、图片、卡片 */
+  --r-pill: 9999px; /* 胶囊：按钮、标签、Dock、提示 */
+  --r-round: 50%; /* 头像、图标 */
+
+  /* 阴影：只用于浮层，内容区不用 */
+  --shadow-float:
+    0 1px 2px rgb(24 24 27 / 0.04), 0 6px 16px -6px rgb(24 24 27 / 0.1), 0 22px 44px -18px rgb(24 24 27 / 0.16);
+  --shadow-pop: 0 4px 14px -4px rgb(24 24 27 / 0.18);
+
+  /* 动效：只用减速曲线，无回弹 */
+  --dur-1: 80ms; /* 按压、旧页淡出 */
+  --dur-2: 200ms; /* hover、颜色、新页淡入 */
+  --dur-3: 300ms; /* 展开、主题切换 */
+  --dur-4: 450ms;
+  --dur-5: 700ms;
+
+  --shell: 1120px;
+  --shell-pad: 64px;
+  --measure: 720px;
+
+  color-scheme: light;
+}
+
+:root[data-theme='dark'] {
+  /* Neutral · dark — the same warm scale, inverted */
+  --n-1: #141312;
+  --n-2: #24231f;
+  --n-3: #403f3a;
+  --n-4: #5c5a55;
+  --n-5: #787670;
+  --n-6: #a8a69f;
+  --n-7: #d0cec6;
+  --n-8: #e3e1db;
+  --n-9: #f0efeb;
+  --n-10: #f9f8f5;
+
+  --paper: #18181a;
+  --paper-rgb: 24 24 26;
+  --border: rgb(255 255 255 / 0.1);
+  --hair: rgb(255 255 255 / 0.07);
+  --accent: var(--accent-dark, #c56473);
+  --surface-1: rgb(255 255 255 / 0.03);
+  --surface-2: rgb(255 255 255 / 0.06);
+  --shadow-float: 0 1px 2px rgb(0 0 0 / 0.3), 0 10px 24px -8px rgb(0 0 0 / 0.45), 0 28px 56px -20px rgb(0 0 0 / 0.55);
+  --shadow-pop: 0 4px 14px -4px rgb(0 0 0 / 0.5);
+
+  color-scheme: dark;
+}

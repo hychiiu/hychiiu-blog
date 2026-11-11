@@ -1,0 +1,81 @@
+/* 动效（§6）：入场 reveal 与 ClientRouter 页面过渡；均尊重 prefers-reduced-motion */
+
+/* ---------- motion: quiet reveal ---------- */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.reveal {
+  animation: rise var(--dur-5) var(--ease) both;
+  animation-delay: calc(var(--i, 0) * 70ms);
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-delay: 0ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* ---------- page transitions (Astro ClientRouter) ---------- */
+@keyframes yh-page-out {
+  to {
+    opacity: 0;
+  }
+}
+@keyframes yh-page-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+::view-transition-group(*) {
+  animation-duration: 0.3s;
+  animation-timing-function: var(--ease);
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+/* shared title: list item → article title */
+.vt-title {
+  width: fit-content;
+  view-transition-class: yh-title;
+}
+@keyframes yh-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+@keyframes yh-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+::view-transition-group(*.yh-title) {
+  animation-duration: 0.32s;
+}
+::view-transition-old(*.yh-title),
+::view-transition-new(*.yh-title) {
+  height: 100%;
+  width: auto;
+  object-fit: contain;
+  object-position: left top;
+}
+::view-transition-old(*.yh-title) {
+  animation: 0.12s ease-out both yh-fade-out;
+}
+::view-transition-new(*.yh-title) {
+  animation: var(--dur-3) var(--ease) both yh-fade-in;
+}

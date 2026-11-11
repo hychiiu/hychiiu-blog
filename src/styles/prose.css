@@ -1,0 +1,136 @@
+/* 长文排版 .prose 的基础规则；Markdown 扩展语法（提示块、代码、Mermaid…）见 markdown.css */
+
+/* ---------- long-form prose ---------- */
+.prose {
+  counter-reset: h2;
+  font-family: var(--font-serif);
+  font-size: var(--fs-body);
+  line-height: 1.9;
+  color: var(--n-9);
+  overflow-wrap: break-word;
+}
+.prose p {
+  margin: 0 0 1.05em;
+}
+.prose:not(.no-dropcap) > p:first-of-type::first-letter {
+  float: left;
+  font-size: 2.6em;
+  line-height: 1;
+  padding: 4px 8px 0 0;
+  color: var(--accent);
+  font-weight: 500;
+}
+.prose h2 {
+  counter-increment: h2;
+  margin: 2.2em 0 0.7em;
+  font-size: var(--fs-xl);
+  line-height: 1.35;
+  letter-spacing: -0.005em;
+  scroll-margin-top: 80px;
+}
+.prose h2::before {
+  content: counter(h2);
+  margin-right: 10px;
+  color: var(--accent);
+  font-feature-settings: 'tnum';
+}
+.prose h3 {
+  margin: 1.8em 0 0.6em;
+  font-size: var(--fs-lg);
+  line-height: 1.45;
+}
+.prose a {
+  color: var(--accent);
+  border-bottom: 1px solid var(--accent-30);
+  transition: border-color var(--dur-2) var(--ease);
+}
+.prose a:hover {
+  border-color: var(--accent);
+}
+.prose strong {
+  font-weight: 500;
+  color: var(--n-10);
+}
+.prose em {
+  font-style: normal;
+  font-weight: 500;
+  color: var(--accent);
+}
+.prose blockquote {
+  margin: 1.4em 0;
+  padding: 4px 0 4px 16px;
+  border-left: 2px solid var(--accent);
+  font-style: italic;
+  color: var(--n-7);
+}
+.prose blockquote p {
+  margin: 0 0 0.6em;
+}
+.prose blockquote p:last-child {
+  margin-bottom: 0;
+}
+.prose ul {
+  list-style: none;
+  padding: 0;
+  margin: 1em 0 1.3em;
+}
+.prose ul > li {
+  position: relative;
+  padding-left: 1.4em;
+  margin-bottom: 0.35em;
+}
+.prose ul:not(.contains-task-list) > li::before {
+  content: '—';
+  position: absolute;
+  left: 0;
+  color: var(--n-5);
+}
+.prose ol {
+  padding-left: 1.4em;
+}
+.prose ol li::marker {
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+}
+.prose hr {
+  height: 0.5px;
+  border: 0;
+  margin: 2.4em 0;
+  background: color-mix(in srgb, var(--n-10) 20%, transparent);
+}
+.prose :not(pre) > code {
+  font-family: var(--font-mono);
+  font-size: 0.86em;
+  padding: 0.12em 0.4em;
+  border-radius: var(--r-xs);
+  background: var(--surface-2);
+  color: var(--ink);
+}
+.prose img {
+  display: block;
+  border-radius: var(--r-sm);
+}
+.prose table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--fs-md);
+}
+.prose th,
+.prose td {
+  padding: 0.5em 0.75em;
+  border-bottom: 1px solid var(--hair);
+  text-align: left;
+}
+.prose th {
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  color: var(--n-7);
+}
+@media (max-width: 640px) {
+  .prose {
+    font-size: var(--fs-ui);
+    line-height: 1.85;
+  }
+}

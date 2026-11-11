@@ -1,0 +1,158 @@
+/* 通用小组件：排版原件（eyebrow / meta）、页头、编号分节、标签、按钮（§7） */
+
+/* ---------- type primitives ---------- */
+.eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--n-7);
+}
+.eyebrow .dot {
+  flex: none;
+  width: 6px;
+  height: 6px;
+  border-radius: var(--r-round);
+  background: var(--accent);
+}
+.mono {
+  font-family: var(--font-mono);
+}
+.meta {
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  color: var(--n-7);
+  font-variant-numeric: tabular-nums;
+}
+.cn-accent {
+  color: var(--accent);
+  letter-spacing: 0;
+}
+
+/* page hero (inner pages) */
+.page-hero {
+  padding: 88px 0 40px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 56px;
+}
+.page-hero h1 {
+  margin: 20px 0 14px;
+  font-size: clamp(44px, 7vw, 72px);
+  line-height: 1.06;
+  letter-spacing: -0.015em;
+}
+.page-hero h1 .cn-accent {
+  margin-left: 14px;
+}
+.page-hero .lede {
+  margin: 0;
+  max-width: 56ch;
+  font-family: var(--font-serif);
+  font-size: var(--fs-lg);
+  line-height: 1.6;
+  color: var(--n-7);
+}
+@media (max-width: 720px) {
+  .page-hero {
+    padding: 48px 0 28px;
+    margin-bottom: 36px;
+  }
+  .page-hero .lede {
+    font-size: var(--fs-ui);
+  }
+}
+
+/* numbered section */
+.section {
+  margin-bottom: 72px;
+}
+.section-head {
+  margin-bottom: 24px;
+}
+.section-num {
+  margin: 0 0 6px;
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-size: var(--fs-md);
+  letter-spacing: 0.04em;
+  color: var(--accent);
+}
+.section-title {
+  font-size: var(--fs-3xl);
+  line-height: 1.2;
+  letter-spacing: 0.02em;
+}
+.section-lede {
+  margin: 14px 0 0;
+  max-width: 64ch;
+  font-family: var(--font-serif);
+  font-size: var(--fs-body);
+  line-height: 1.6;
+  color: var(--n-7);
+}
+@media (max-width: 720px) {
+  .section {
+    margin-bottom: 56px;
+  }
+  .section-title {
+    font-size: var(--fs-2xl);
+  }
+}
+
+/* tag (accent tint) */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  color: var(--accent);
+  transition: opacity var(--dur-2) var(--ease);
+}
+.tag:hover {
+  opacity: 0.75;
+}
+
+/* button primary (translucent accent) */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 34px;
+  padding: 0 var(--sp-4);
+  border-radius: var(--r-pill);
+  border: 1px solid transparent;
+  font-size: var(--fs-meta);
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+  transition:
+    color var(--dur-2) var(--ease),
+    background-color var(--dur-2) var(--ease),
+    border-color var(--dur-2) var(--ease);
+}
+.btn:active {
+  transform: translateY(0.5px);
+}
+/* 幽灵按钮：发丝线描边，hover 极淡底（§7 按钮） */
+.btn--ghost {
+  border-color: var(--border);
+  color: var(--ink);
+}
+.btn--ghost:hover {
+  background: var(--surface-2);
+  color: var(--accent);
+}
+.btn--primary {
+  background: var(--accent-8);
+  border-color: var(--accent-30);
+  color: var(--accent);
+}
+.btn--primary:hover {
+  background: var(--accent-12);
+  border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+}
