@@ -6,24 +6,34 @@ const { lang } = Astro.props;
 const t = useT(lang);
 const year = new Date().getFullYear();
 const startYear = new Date(site.startDate).getFullYear();
+const years = startYear === year ? `${year}` : `${startYear}–${year}`;
 ---
 <footer class="footer" transition:name="footer" transition:animate="none">
   <div class="shell">
     <div class="inner">
-      <span>© {startYear === year ? year : `${startYear}–${year}`} {site.name}{site.nameCJK && <span class="cn"> · {site.nameCJK}</span>}</span>
-      <span class="links">
-        <a href={localizePath(lang, '/rss.xml')}>rss</a>
-        <span aria-hidden="true">·</span>
-        <a href="/sitemap-index.xml">sitemap</a>
-        <span aria-hidden="true">·</span>
-        <span>{t('footer.built')}</span>
-      </span>
+      <div class="col left">
+        <p class="sign">
+          <span class="copy">©</span> {years}&nbsp;<span class="name">{site.name}</span>{site.nameCJK && <span class="cjk">{site.nameCJK}</span>}
+        </p>
+        <p class="meta-line">
+          {t('footer.builtWith')} <a href="https://astro.build" target="_blank" rel="noopener">Astro</a>
+          <span class="dot" aria-hidden="true">·</span>
+          {t('footer.hostedOn')} <a href="https://pages.cloudflare.com" target="_blank" rel="noopener">Cloudflare</a>
+        </p>
+      </div>
+      <div class="col right">
+        <nav class="meta-line links" aria-label="Feeds">
+          <a href={localizePath(lang, '/rss.xml')}>RSS</a>
+          <span class="dot" aria-hidden="true">·</span>
+          <a href="/sitemap-index.xml">{t('footer.sitemap')}</a>
+        </nav>
+        {site.icp.number && (
+          <p class="meta-line icp" id="icp-filing" hidden data-hosts={site.icp.hosts.join(',')}>
+            <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener">{site.icp.number}</a>
+          </p>
+        )}
+      </div>
     </div>
-    {site.icp.number && (
-      <p class="icp" id="icp-filing" hidden data-hosts={site.icp.hosts.join(',')}>
-        <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener">{site.icp.number}</a>
-      </p>
-    )}
   </div>
 </footer>
 
@@ -45,45 +55,85 @@ const startYear = new Date(site.startDate).getFullYear();
 
 <style>
   .footer {
-    margin-top: 96px;
+    margin-top: 120px;
   }
   .inner {
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 8px 24px;
-    padding: 20px 0 40px;
-    border-top: 1px solid var(--hair);
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: baseline;
+    gap: 6px 40px;
+    padding: 32px 0 48px;
+    border-top: 0.5px solid color-mix(in srgb, var(--n-10) 16%, transparent);
+  }
+  .col {
+    display: contents;
+  }
+  .left > :nth-child(1) { grid-area: 1 / 1; }
+  .left > :nth-child(2) { grid-area: 2 / 1; }
+  .right > :nth-child(1) { grid-area: 1 / 2; justify-self: end; }
+  .right > :nth-child(2) { grid-area: 2 / 2; justify-self: end; }
+  p {
+    margin: 0;
+  }
+  .sign {
+    font-family: var(--font-serif);
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--n-8);
+    letter-spacing: 0.01em;
+  }
+  .copy {
+    color: var(--n-6);
+  }
+  .cjk {
+    margin-left: 0.45em;
+    color: var(--n-6);
+    letter-spacing: 0.08em;
+  }
+  .meta-line {
     font-family: var(--font-mono);
     font-size: 11px;
-    color: var(--n-7);
-    letter-spacing: 0.02em;
-  }
-  .cn {
-    color: var(--accent);
+    line-height: 1.6;
+    letter-spacing: 0.04em;
+    color: var(--n-6);
   }
   .links {
     display: flex;
-    gap: 8px;
+    align-items: baseline;
+  }
+  .dot {
+    margin: 0 0.7em;
+    color: var(--n-5);
   }
   a {
-    transition: color 0.15s ease;
+    color: inherit;
+    border-bottom: 1px solid transparent;
+    transition: color 0.2s var(--ease), border-color 0.2s var(--ease);
+  }
+  .meta-line a {
+    color: var(--n-7);
   }
   a:hover {
     color: var(--accent);
+    border-bottom-color: var(--accent-30);
   }
-  .icp {
-    margin: -16px 0 0;
-    padding: 0 0 32px;
-    font-family: var(--font-mono);
-    font-size: 11px;
-    color: var(--n-7);
-    letter-spacing: 0.02em;
+  .icp[hidden] {
+    display: none;
   }
-  .icp a {
-    transition: color 0.15s ease;
-  }
-  .icp a:hover {
-    color: var(--accent);
+  @media (max-width: 640px) {
+    .footer {
+      margin-top: 88px;
+    }
+    .inner {
+      grid-template-columns: 1fr;
+      justify-items: center;
+      gap: 6px;
+      padding: 28px 0 40px;
+      text-align: center;
+    }
+    .left > :nth-child(1) { grid-area: 1 / 1; }
+    .left > :nth-child(2) { grid-area: 2 / 1; margin-bottom: 10px; }
+    .right > :nth-child(1) { grid-area: 3 / 1; justify-self: center; }
+    .right > :nth-child(2) { grid-area: 4 / 1; justify-self: center; }
   }
 </style>
