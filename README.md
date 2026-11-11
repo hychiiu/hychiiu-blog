@@ -5,21 +5,22 @@
 - 框架：[Astro](https://astro.build)（纯静态输出，无后端）
 - 视觉：参考开源的 [Yohaku 设计系统](https://github.com/Innei/Yohaku/tree/main/design-system)（MIT）的设计令牌——暖白纸面、衬线标题、单一强调色、大量留白。代码为原创实现，未使用 Innei 的品牌、文案或闭源代码。
 - 托管：Cloudflare Pages（免费）
-- 评论：Giscus（基于 GitHub Discussions，默认关闭，配置后自动启用）
+- 内容：GitHub Issues（一个 issue = 一篇文章，评论即 issue 评论）
+- 评论：构建时静态展示 issue 评论 + utterances 实时评论
 
 ## 目录结构
 
 ```
 src/
 ├── site.config.ts        ← 唯一配置文件：名字、介绍、链接、引言、强调色、评论
-├── content/
-│   ├── posts/            ← 文章（.md / .mdx）
-│   └── notes/            ← 手记（.md / .mdx）
+├── data/issues.json      ← 由 GitHub Action 从 Issues 自动同步，不要手改
 ├── pages/                ← 首页 / 文章 / 手记 / 关于 / 404 / RSS
 ├── components/ layouts/  ← 组件与布局
 └── styles/global.css     ← 设计令牌与排版
 public/                   ← 头像、favicon 等静态文件
 scripts/avatar.mjs        ← 一键生成头像 webp / favicon
+scripts/sync-issues.mjs   ← 把 Issues 同步成 src/data/issues.json
+.github/workflows/        ← issue 有变动时自动同步
 ```
 
 ## 本地开发
@@ -39,11 +40,11 @@ npm run preview    # 预览构建结果
 
 - `name` / `intro` / `subIntro`：首页名字和介绍（留空则不显示）
 - `quote`：首页引言（留空则不显示整个区块）
-- `socials`：社交链接，取消注释就能启用（X、邮箱、Telegram、B 站……）
+- `social`：首页名字下方的社交图标，取消注释就能启用（X、Telegram、B 站、微博、知乎、Steam、Instagram……）
 - `accent`：强调色（默认 Yohaku 的梅色 `#c56473`）
 - `startDate`：建站日期，首页显示「已运行 N 天」
 - `url`：绑定域名后改成你的正式域名（影响 RSS / sitemap）
-- `giscus`：评论配置（见下文）
+- `repo`：文章来源仓库（Issues）
 
 关于页的正文在 `site.config.ts` 的 `about` 字段里（`paragraphs` / `now` 为空时不显示）。
 
@@ -55,46 +56,61 @@ npm run avatar -- ./你的头像.png
 
 会自动生成 `public/avatar.webp`（256px）、`avatar@2x.webp`（512px）、`favicon.png`、`apple-touch-icon.png`。
 
-## 写一篇文章
+## 写一篇文章（GitHub Issues）
 
-在 `src/content/posts/` 下新建一个 `.md` 文件，文件名就是网址，例如 `my-first-post.md` → `/posts/my-first-post/`：
+文章和手记都写在本仓库的 **Issues** 里，不需要改任何文件：
 
-```md
----
-title: 文章标题
-date: 2026-11-11
-description: 一句话摘要（显示在列表和 SEO 里）
-tags: [随笔, 技术]
-draft: false        # true 时只在本地 dev 可见，不会发布
----
+1. 打开 <https://github.com/hychiiu/hychiiu-blog/issues/new>，标题就是文章标题，正文用 Markdown 写（下文「Markdown 支持」里的语法都能用，图片直接拖进编辑框即可）。
+2. 加标签：
+   - `post` → 文章，`note` → 手记（二选一）
+   - `en` → 英文文章（不加默认中文）
+   - 其他任意标签 → 文章的 tag
+3. 提交。GitHub Action（`.github/workflows/sync-issues.yml`）会在 1 分钟内把内容同步进 `src/data/issues.json` 并提交，Cloudflare Pages 随后自动重新构建发布。
 
-正文用 Markdown 写。
-```
+只有**仓库主人本人**发的、带 `post` / `note` 标签的 issue 才会被收录，别人开的 issue 不会出现在站点上。
 
-写手记同理，放在 `src/content/notes/`，frontmatter 为：
+正文开头可以放一段可选的元信息（两种写法任选，不写就用默认值）：
 
 ```md
----
-title: 手记标题
-date: 2026-11-11
-mood: 平静       # 可选
-weather: 晴      # 可选
----
+<!--
+slug: my-first-post        # 网址，默认是 issue 编号，例如 /posts/12/
+description: 一句话摘要      # 显示在列表和 SEO 里
+date: 2026-11-11           # 覆盖发布日期（默认是 issue 创建时间）
+cover: https://…/cover.png
+tags: [随笔, 技术]          # 额外的 tag（也可以直接用标签）
+mood: 平静                  # 手记专用
+weather: 晴                 # 手记专用
+-->
 ```
 
-没有文章时，首页和列表页会显示「还没有文章」。
+或者用 `---` 包起来的同样内容。用 HTML 注释写的话，在 GitHub 上看 issue 时不会显示出来。
 
-写完后：
+| 操作 | 做法 |
+| --- | --- |
+| 修改 | 直接编辑 issue，保存后自动同步 |
+| 归档 | **关闭（Close）** issue：文章仍然可以访问（链接不变），但不再出现在首页和列表里，会移到「归档」页（`/archive/`），文章页显示「已归档」，RSS 不再包含 |
+| 恢复 | 重新打开（Reopen）issue |
+| 取消发布 | 加上 `draft` 标签，或者直接删除 issue |
+| 草稿 | 先加 `draft` 标签写，写完去掉标签即发布 |
+
+### 评论
+
+- issue 下面的评论会在构建时静态展示在文章底部（头像、名字、日期、Markdown、表情回应）。
+- 文章页底部还有 [utterances](https://utteranc.es) 实时评论框，读者登录 GitHub 后可以直接评论，评论会写进同一个 issue。**需要先给仓库安装 utterances App：<https://github.com/apps/utterances>**（选择只授权 `hychiiu-blog` 仓库）。
+- 锁定（Lock）issue 后评论框会隐藏。
+- 新评论同样会触发同步，几分钟后静态评论也会更新。另外每天会自动兜底同步一次。
+
+### 手动同步 / 本地预览
 
 ```bash
-git add . && git commit -m "new post" && git push
+gh workflow run sync-issues.yml          # 手动触发一次同步
+GITHUB_TOKEN=$(gh auth token) node scripts/sync-issues.mjs   # 本地拉取最新 issues 到 src/data/issues.json
+npm run dev
 ```
-
-Cloudflare Pages 会自动构建发布。
 
 ## Markdown 支持
 
-文章和手记都支持 `.md` 和 `.mdx`，全部在构建时渲染，没有后端。
+issue 正文和评论都用同一套管线在构建时渲染，没有后端。
 
 | 功能 | 写法 | 实现 |
 | --- | --- | --- |
@@ -108,7 +124,6 @@ Cloudflare Pages 会自动构建发布。
 | 外链 | 站外链接自动新标签页打开，并带 ↗ 标记 | rehype-external-links |
 | Emoji | `:tada:` `:rocket:` | remark-emoji |
 | HTML | `<kbd>`、`<sup>`、`<sub>`、`<mark>`、`<details><summary>` | 原生支持，已配好样式 |
-| MDX | `.mdx` 文件里可以 `import` 或定义组件 | @astrojs/mdx |
 
 代码块写法：
 
@@ -162,13 +177,6 @@ npx wrangler pages deploy dist --project-name hychiiu-blog
    - 域名已托管在 Cloudflare：会自动添加 DNS 记录，等几分钟证书签发即可。
    - 域名在别处：按提示添加一条 `CNAME` 指向 `你的项目.pages.dev`（根域名建议把 DNS 迁到 Cloudflare）。
 3. 回到 `src/site.config.ts`，把 `url` 改成 `https://你的域名`，提交并推送。
-
-## 开启评论（Giscus）
-
-1. 准备一个**公开**的 GitHub 仓库，在仓库 Settings 里开启 **Discussions**。
-2. 安装 [giscus App](https://github.com/apps/giscus) 并授权这个仓库。
-3. 打开 <https://giscus.app/zh-CN>，填仓库名，选一个分类（推荐 Announcements），页面下方会生成 `data-repo`、`data-repo-id`、`data-category`、`data-category-id`。
-4. 把这四个值填进 `src/site.config.ts` 的 `giscus` 里，重新部署，文章页底部就会出现评论区（会跟随深浅色切换）。
 
 ## 中英文双语
 

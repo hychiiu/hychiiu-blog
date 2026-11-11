@@ -1,6 +1,6 @@
 ---
 import Base from './Base.astro';
-import Giscus from '../components/Giscus.astro';
+import Comments from '../components/Comments.astro';
 import Mermaid from '../components/Mermaid.astro';
 import 'katex/dist/katex.min.css';
 import '../styles/markdown.css';
@@ -25,8 +25,10 @@ interface Props {
   /** 正文语言（frontmatter lang） */
   contentLang: Lang;
   alternates?: Partial<Record<Lang, string>>;
+  /** 来自 GitHub issue 的元数据（评论、归档状态等） */
+  issue?: { number: number; url: string; repo: string; archived: boolean; locked: boolean; updated: Date; comments: any[] };
 }
-const { title, date, description, tags = [], body = '', kind, backHref, backLabel, extra = [], prev, next, lang, contentLang, alternates } = Astro.props;
+const { title, date, description, tags = [], body = '', kind, backHref, backLabel, extra = [], prev, next, lang, contentLang, alternates, issue } = Astro.props;
 const t = useT(lang);
 const label = kind === 'note' ? t('kind.note') : tags[0] ?? t('kind.post');
 const foreign = contentLang !== lang;
@@ -39,6 +41,7 @@ const foreign = contentLang !== lang;
         <time datetime={date.toISOString()}>{dotDate(date)}</time>
         <span>{t('post.min')(readingMinutes(body))}</span>
         <span>{t('post.words')(countWords(body))}</span>
+        {issue?.archived && <span class="marker archived">{t('archive.badge')}</span>}
         {foreign && <span class="marker">{contentLang === 'zh' ? t('marker.zh') : t('marker.en')}</span>}
       </div>
       <h1 class="post-title vt-title" style="--i:1" lang={htmlLang[contentLang]} transition:name={titleTransition(Astro.url.pathname)}>{title}</h1>
@@ -72,7 +75,7 @@ const foreign = contentLang !== lang;
         </nav>
       )}
 
-      <Giscus lang={lang} />
+      {issue && <Comments lang={lang} repo={issue.repo} number={issue.number} url={issue.url} locked={issue.locked} comments={issue.comments} />}
       <Mermaid />
     </article>
   </div>
@@ -98,6 +101,10 @@ const foreign = contentLang !== lang;
     border: 1px solid var(--border);
     border-radius: 4px;
     font-size: 11px;
+  }
+  .marker.archived {
+    color: var(--n-6);
+    border-style: dashed;
   }
   .notice {
     margin: -12px 0 24px;

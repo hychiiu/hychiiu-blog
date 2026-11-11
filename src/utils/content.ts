@@ -64,12 +64,17 @@ function forLang<T extends { data: { lang: Lang } }>(all: T[], lang: Lang): T[] 
   return own.length ? own : all;
 }
 
-export async function getPostsFor(lang: Lang) {
-  return forLang(await getPosts(), lang);
+type Scope = 'published' | 'archived' | 'all';
+const inScope = (scope: Scope) => (e: { data: { archived: boolean } }) =>
+  scope === 'all' ? true : scope === 'archived' ? e.data.archived : !e.data.archived;
+
+/** scope：published = 未归档（open issue，默认）；archived = 已归档（closed issue）；all = 全部（用于生成详情页） */
+export async function getPostsFor(lang: Lang, scope: Scope = 'published') {
+  return forLang(await getPosts(), lang).filter(inScope(scope));
 }
 
-export async function getNotesFor(lang: Lang) {
-  return forLang(await getNotes(), lang);
+export async function getNotesFor(lang: Lang, scope: Scope = 'published') {
+  return forLang(await getNotes(), lang).filter(inScope(scope));
 }
 
 export async function getStats(lang: Lang = 'zh') {

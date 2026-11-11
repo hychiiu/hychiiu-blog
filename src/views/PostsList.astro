@@ -7,6 +7,7 @@ import { useT, localizePath } from '../i18n';
 import { getPostsFor, dotDate, readingMinutes } from '../utils/content';
 
 interface Props { lang: Lang }
+const archivedCount = (await getPostsFor(Astro.props.lang, 'archived')).length;
 const { lang } = Astro.props;
 const t = useT(lang);
 const posts = await getPostsFor(lang);
@@ -51,10 +52,19 @@ let idx = 3;
         </ul>
       </section>
     ))}
+    {archivedCount > 0 && (
+      <p class="to-archive meta"><a href={localizePath(lang, '/archive/')}>{t('archive.link')} · {archivedCount} →</a></p>
+    )}
   </div>
 </Base>
 
 <style>
+  .to-archive {
+    margin: 40px 0 0;
+  }
+  .to-archive a:hover {
+    color: var(--accent);
+  }
   .list {
     list-style: none;
     margin: 0;

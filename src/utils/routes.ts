@@ -7,7 +7,7 @@ type Kind = 'posts' | 'notes';
 /** 生成某语言下文章 / 手记详情页的静态路径，并计算另一语言的等价页面 */
 export async function entryPaths(kind: Kind, lang: Lang) {
   const get = kind === 'posts' ? getPostsFor : getNotesFor;
-  const [list, zhList, enList] = await Promise.all([get(lang), get('zh'), get('en')]);
+  const [list, zhList, enList] = await Promise.all([get(lang, 'all'), get('zh', 'all'), get('en', 'all')]);
   const has = { zh: new Set(zhList.map((e) => e.id)), en: new Set(enList.map((e) => e.id)) };
   const href = (id: string) => localizePath(lang, `/${kind}/${id}/`);
   return list.map((entry, i) => ({

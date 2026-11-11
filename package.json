@@ -31,6 +31,7 @@
     "remark-emoji": "^5.0.2",
     "remark-github-blockquote-alert": "^2.1.0",
     "remark-math": "^6.0.0",
+    "simple-icons": "^16.37.0",
     "unist-util-visit": "^5.2.0"
   },
   "devDependencies": {

@@ -1,4 +1,5 @@
 ---
+import { siGithub, siX, siTelegram, siBilibili, siSinaweibo, siZhihu, siSteam, siInstagram } from 'simple-icons';
 interface Props {
   name: string;
   size?: number;
@@ -26,6 +27,17 @@ const icons: Record<string, string> = {
   back: '<path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M19 12H5m5 5-5-5 5-5"/>',
   menu: '<path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" d="M4 7h16M4 12h16M4 17h16"/>',
 };
+const brand = (i: { path: string }) => `<path fill="currentColor" d="${i.path}"/>`;
+Object.assign(icons, {
+  github: brand(siGithub),
+  x: brand(siX),
+  telegram: brand(siTelegram),
+  bilibili: brand(siBilibili),
+  weibo: brand(siSinaweibo),
+  zhihu: brand(siZhihu),
+  steam: brand(siSteam),
+  instagram: brand(siInstagram),
+});
 const body = icons[name] ?? icons.link;
 ---
 <svg class={cls} width={size} height={size} viewBox="0 0 24 24" aria-hidden="true" set:html={body} />

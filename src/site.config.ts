@@ -8,8 +8,8 @@ export type Lang = 'zh' | 'en';
 export type Localized<T = string> = Record<Lang, T>;
 
 export interface SocialLink {
-  /** 图标名：github | x | mail | telegram | bilibili | rss | link */
-  icon: 'github' | 'x' | 'mail' | 'telegram' | 'bilibili' | 'rss' | 'link';
+  /** 图标名：github | x | mail | telegram | bilibili | weibo | zhihu | steam | instagram | rss | link */
+  icon: 'github' | 'x' | 'mail' | 'telegram' | 'bilibili' | 'weibo' | 'zhihu' | 'steam' | 'instagram' | 'rss' | 'link';
   label: string;
   href: string;
 }
@@ -84,28 +84,25 @@ export const site = {
     dark: '#c56473', // 与 yohaku.innei.dev 暗色一致；想更亮可用 '#e095a4'
   },
 
-  /** 社交链接：取消注释即可启用。RSS 会自动指向当前语言的 feed */
-  socials: [
+  /** 社交平台：首页名字下方的图标和关于页都用这份列表。取消注释并填上地址即可启用；RSS 会自动指向当前语言的 feed */
+  social: [
     { icon: 'github', label: 'GitHub', href: 'https://github.com/hychiiu' },
+    { icon: 'mail', label: 'Email', href: 'mailto:i@hychiiu.com' },
     // { icon: 'x', label: 'X', href: 'https://x.com/你的用户名' },
-    // { icon: 'mail', label: 'Email', href: 'mailto:you@example.com' },
     // { icon: 'telegram', label: 'Telegram', href: 'https://t.me/你的用户名' },
     // { icon: 'bilibili', label: 'Bilibili', href: 'https://space.bilibili.com/你的UID' },
+    // { icon: 'weibo', label: '微博', href: 'https://weibo.com/你的UID' },
+    // { icon: 'zhihu', label: '知乎', href: 'https://www.zhihu.com/people/你的ID' },
+    // { icon: 'steam', label: 'Steam', href: 'https://steamcommunity.com/id/你的ID' },
+    // { icon: 'instagram', label: 'Instagram', href: 'https://instagram.com/你的用户名' },
     { icon: 'rss', label: 'RSS', href: '/rss.xml' },
   ] satisfies SocialLink[] as SocialLink[],
 
   /**
-   * Giscus 评论（基于 GitHub Discussions）。
-   * TODO：到 https://giscus.app/zh-CN 生成配置后，把下面四个值填上，评论区就会自动出现。
-   * 四个值任意一个为空时，评论区不渲染。
+   * 文章来源：GitHub 仓库的 Issues（见 README「写文章」）。评论用 utterances，
+   * 需要在仓库安装 https://github.com/apps/utterances
    */
-  giscus: {
-    repo: '', // 例如 'hychiiu/blog'
-    repoId: '', // 例如 'R_kgDOxxxxxx'
-    category: '', // 例如 'Announcements'
-    categoryId: '', // 例如 'DIC_kwDOxxxxxx'
-    mapping: 'pathname',
-  },
+  repo: 'hychiiu/hychiiu-blog',
 
   /**
    * 工信部 ICP 备案号。只在 hosts 列出的域名上显示；number 为空则不渲染。
@@ -115,7 +112,3 @@ export const site = {
     hosts: ['inbluemoon.com', 'www.inbluemoon.com'],
   },
 };
-
-export const giscusEnabled = Boolean(
-  site.giscus.repo && site.giscus.repoId && site.giscus.category && site.giscus.categoryId,
-);

@@ -1,0 +1,51 @@
+name: Sync issues
+
+# Issue / 评论有变化时，把文章数据同步进仓库（src/data/issues.json），
+# push 后 Cloudflare Pages 会自动重新构建。
+on:
+  issues:
+    types: [opened, edited, deleted, closed, reopened, labeled, unlabeled, locked, unlocked, transferred]
+  issue_comment:
+    types: [created, edited, deleted]
+  workflow_dispatch:
+  schedule:
+    - cron: '17 19 * * *' # 每天 03:17（北京时间）兜底同步一次（评论点赞等不触发事件的变化）
+
+permissions:
+  contents: write
+  issues: read
+
+concurrency:
+  group: sync-issues
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    # 只处理仓库所有者的 issue（评论则看所属 issue 的作者），手动 / 定时任务总是运行
+    if: >-
+      github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' ||
+      github.event.issue.user.login == github.repository_owner
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Fetch issues
+        run: node scripts/sync-issues.mjs "$GITHUB_REPOSITORY"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Commit if changed
+        run: |
+          if git diff --quiet -- src/data/issues.json; then
+            echo "no changes"; exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
+          git add src/data/issues.json
+          git commit -m "content: sync issues (${{ github.event_name }}${{ github.event.issue.number && format(' #{0}', github.event.issue.number) || '' }})"
+          for i in 1 2 3; do
+            git pull --rebase --autostash origin "${GITHUB_REF_NAME}" && git push && exit 0
+            sleep 5
+          done
+          exit 1

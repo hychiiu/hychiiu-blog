@@ -1,0 +1,214 @@
+---
+/**
+ * 评论：构建时把 issue 下的评论静态渲染出来 + utterances 实时评论（同一个 issue）
+ * 实时评论需要在仓库安装 utterances App：https://github.com/apps/utterances
+ */
+import type { Lang } from '../site.config';
+import { useT } from '../i18n';
+import { dotDate } from '../utils/content';
+
+interface Comment {
+  id: number;
+  author: string;
+  avatar: string;
+  authorUrl: string;
+  association?: string;
+  html: string;
+  url: string;
+  createdAt: Date;
+  updatedAt: Date;
+  reactions?: Record<string, number>;
+}
+interface Props {
+  lang: Lang;
+  repo: string;
+  number: number;
+  url: string;
+  locked?: boolean;
+  comments: Comment[];
+}
+const { lang, repo, number, url, locked = false, comments } = Astro.props;
+const t = useT(lang);
+const emoji: Record<string, string> = { '+1': '👍', '-1': '👎', laugh: '😄', hooray: '🎉', confused: '😕', heart: '❤️', rocket: '🚀', eyes: '👀' };
+const avatar = (u: string) => `${u}${u.includes('?') ? '&' : '?'}s=80`;
+---
+<section class="comments" aria-label={t('post.comments')}>
+  <header class="c-head">
+    <h2 class="eyebrow"><span class="dot"></span><span>{t('post.comments')} · {comments.length}</span></h2>
+    <a class="gh" href={url} target="_blank" rel="noopener noreferrer">{t('comments.onGitHub')} ↗</a>
+  </header>
+
+  {comments.length > 0 ? (
+    <ol class="c-list">
+      {comments.map((c) => (
+        <li class="c" id={`comment-${c.id}`}>
+          <a class="c-avatar" href={c.authorUrl} target="_blank" rel="noopener noreferrer" aria-label={c.author}>
+            <img src={avatar(c.avatar)} alt="" width="36" height="36" loading="lazy" decoding="async" />
+          </a>
+          <div class="c-main">
+            <div class="c-meta">
+              <a class="c-name" href={c.authorUrl} target="_blank" rel="noopener noreferrer">{c.author}</a>
+              {c.association === 'OWNER' && <span class="c-badge">{t('comments.author')}</span>}
+              <a class="c-date" href={c.url} target="_blank" rel="noopener noreferrer"><time datetime={c.createdAt.toISOString()}>{dotDate(c.createdAt)}</time></a>
+            </div>
+            <div class="prose c-body" set:html={c.html} />
+            {c.reactions && (
+              <div class="c-react">
+                {Object.entries(c.reactions).map(([k, n]) => <span>{emoji[k] ?? k} {n}</span>)}
+              </div>
+            )}
+          </div>
+        </li>
+      ))}
+    </ol>
+  ) : (
+    <p class="c-empty">{t('comments.empty')}</p>
+  )}
+
+  {locked ? (
+    <p class="c-empty">{t('comments.locked')}</p>
+  ) : (
+    <div class="utterances-slot" data-utterances data-repo={repo} data-issue={number}></div>
+  )}
+</section>
+
+<style>
+  .comments {
+    margin-top: 64px;
+    padding-top: 28px;
+    border-top: 0.5px solid color-mix(in srgb, var(--n-10) 16%, transparent);
+  }
+  .c-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .gh {
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    color: var(--n-6);
+    transition: color 0.2s var(--ease);
+  }
+  .gh:hover {
+    color: var(--accent);
+  }
+  .c-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .c {
+    display: grid;
+    grid-template-columns: 36px minmax(0, 1fr);
+    gap: 14px;
+    padding: 18px 0;
+    border-bottom: 1px solid var(--hair);
+  }
+  .c:first-child {
+    padding-top: 0;
+  }
+  .c-avatar img {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+    box-shadow: 0 0 0 0.5px var(--border);
+  }
+  .c-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 4px;
+  }
+  .c-name {
+    font-family: var(--font-serif);
+    font-weight: 500;
+    font-size: 14px;
+    color: var(--n-10);
+  }
+  .c-name:hover {
+    color: var(--accent);
+  }
+  .c-badge {
+    padding: 0 6px;
+    border: 1px solid var(--accent-30);
+    border-radius: 4px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    line-height: 1.6;
+    color: var(--accent);
+  }
+  .c-date {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--n-6);
+  }
+  .c-body {
+    font-size: 15px;
+    line-height: 1.8;
+  }
+  .c-body :global(> :first-child) {
+    margin-top: 0;
+  }
+  .c-body :global(> :last-child) {
+    margin-bottom: 0;
+  }
+  .c-body :global(> p:first-of-type::first-letter) {
+    float: none;
+    font-size: inherit;
+    padding: 0;
+    color: inherit;
+    font-weight: inherit;
+  }
+  .c-react {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .c-react span {
+    padding: 1px 8px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--n-7);
+  }
+  .c-empty {
+    margin: 0 0 8px;
+    font-family: var(--font-serif);
+    font-size: 14.5px;
+    color: var(--n-6);
+  }
+  .utterances-slot {
+    margin-top: 20px;
+    min-height: 1px;
+  }
+  .utterances-slot :global(.utterances) {
+    max-width: none;
+  }
+</style>
+
+<script>
+  const ORIGIN = 'https://utteranc.es';
+  const theme = () => (document.documentElement.dataset.theme === 'dark' ? 'github-dark' : 'github-light');
+  window.addEventListener('themechange', () => {
+    const frame = document.querySelector<HTMLIFrameElement>('iframe.utterances-frame');
+    frame?.contentWindow?.postMessage({ type: 'set-theme', theme: theme() }, ORIGIN);
+  });
+  // 每次进入页面（含 ClientRouter 站内跳转）挂载 utterances
+  document.addEventListener('astro:page-load', () => {
+    const slot = document.querySelector<HTMLElement>('[data-utterances]');
+    if (!slot || slot.childElementCount) return;
+    const s = document.createElement('script');
+    s.src = `${ORIGIN}/client.js`;
+    s.async = true;
+    s.crossOrigin = 'anonymous';
+    s.setAttribute('repo', slot.dataset.repo!);
+    s.setAttribute('issue-number', slot.dataset.issue!);
+    s.setAttribute('theme', theme());
+    slot.appendChild(s);
+  });
+</script>

@@ -7,6 +7,7 @@ import { useT, localizePath } from '../i18n';
 import { getNotesFor, dotDate } from '../utils/content';
 
 interface Props { lang: Lang }
+const archivedCount = (await getNotesFor(Astro.props.lang, 'archived')).length;
 const { lang } = Astro.props;
 const t = useT(lang);
 const notes = await getNotesFor(lang);
@@ -43,10 +44,19 @@ const excerpt = (s = '') => s.replace(/^>.*$/gm, '').replace(/[#*`>\[\]_]/g, '')
         </li>
       ))}
     </ol>
+    {archivedCount > 0 && (
+      <p class="to-archive meta"><a href={localizePath(lang, '/archive/')}>{t('archive.link')} · {archivedCount} →</a></p>
+    )}
   </div>
 </Base>
 
 <style>
+  .to-archive {
+    margin: 40px 0 0;
+  }
+  .to-archive a:hover {
+    color: var(--accent);
+  }
   .notes {
     list-style: none;
     margin: 0;
