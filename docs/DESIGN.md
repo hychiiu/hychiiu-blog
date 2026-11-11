@@ -32,7 +32,7 @@
 | `--fs-xs` | 11.5px | mono meta、徽标、文件名标签 |
 | `--fs-sm` | 12.5px | 图注、提示气泡、表格表头 |
 | `--fs-meta` | 13.5px | 返回链接、上一篇/下一篇、按钮、评论 meta |
-| `--fs-md` | 14px | UI 正文、代码块（行内代码用 0.86em） |
+| `--fs-md` | 14px | UI 正文（代码块用 `--fs-meta`，行内代码 0.86em） |
 | `--fs-ui` | 15px | 列表摘要、评论正文 |
 | `--fs-body` | 16px | 文章正文 |
 | `--fs-lg / xl / 2xl / 3xl / 4xl` | 18 / 21 / 30 / 32 / 44px | 标题层级 |
@@ -64,7 +64,7 @@
 - **链接**：正文链接墨色 + 1px 下划线（`--accent-30`），hover 变 `--accent`；导航类链接无下划线。
 - **按钮**：胶囊，`--fs-meta`，高 32–36px，发丝线边框，hover `--surface-2`；主按钮也不用实心大色块。
 - **返回链接 / 上下篇**：衬线 `--fs-meta`，`--ink-muted`，hover `--accent`；上下篇两栏，标签用 mono `--fs-2xs` 大写。
-- **代码块**：无窗口边框、无阴影、无标签栏；底色 `--surface-1`，圆角 `--r-md`；`--fs-md` 的 JetBrains Mono，行高 `--lh-code`；文件名为右上角 mono `--fs-xs` 弱色小标签；复制按钮为 hover 才出现的幽灵图标；高亮行用 `--accent-8` 轻底 + 左侧 2px 细条。终端框仅在显式指定 `frame="terminal"` 时显示。
+- **代码块**：无窗口边框、无阴影、无标签栏；底色 `--surface-1`，圆角 `--r-md`；`--fs-meta` 的 JetBrains Mono，行高 `--lh-code`；文件名为右上角 mono `--fs-xs` 弱色小标签；复制按钮为 hover 才出现的幽灵图标；高亮行用 `--accent-8` 轻底 + 左侧 2px 细条。终端框仅在显式指定 `frame="terminal"` 时显示。
 - **行内代码**：`--surface-2` 底、`--r-xs`、0.86em，无边框。
 - **表格**：只用横向发丝线，表头 `--fs-sm` mono 弱色；宽表横向滚动。
 - **提示块（Alert）**：左侧 2px 色条 + 极淡底，标题 mono `--fs-xs`。

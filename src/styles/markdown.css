@@ -352,13 +352,12 @@
 /* ---------- code (non-Expressive-Code fallbacks) ---------- */
 .prose pre:not(.expressive-code pre):not(.mermaid) {
   margin: 1.4em 0;
-  padding: 14px 16px;
-  border-radius: var(--r-sm);
-  border: 1px solid var(--border);
-  background: var(--n-1);
+  padding: 16px 20px;
+  border-radius: var(--r-md);
+  background: var(--surface-1);
   font-family: var(--font-mono);
   font-size: var(--fs-meta);
-  line-height: 1.7;
+  line-height: var(--lh-code);
   overflow-x: auto;
 }
 .prose .expressive-code {
@@ -366,6 +365,53 @@
 }
 .prose .expressive-code pre {
   font-family: var(--font-mono);
+}
+/* 文件名：标签栏退化为代码上方一行弱色小字（§7 代码块） */
+.prose .expressive-code .frame.has-title:not(.is-terminal) .header {
+  padding: 12px 20px 0;
+  border: 0;
+  background: var(--surface-1);
+  border-radius: var(--r-md) var(--r-md) 0 0;
+}
+.prose .expressive-code .frame.has-title:not(.is-terminal) .header::before,
+.prose .expressive-code .frame.has-title:not(.is-terminal) .header::after {
+  display: none;
+}
+.prose .expressive-code .frame.has-title:not(.is-terminal) .title {
+  padding: 0;
+  border: 0;
+  background: none;
+  font-size: var(--fs-xs);
+  letter-spacing: 0.02em;
+  color: var(--ink-faint);
+}
+.prose .expressive-code .frame.has-title:not(.is-terminal) .title::after {
+  display: none;
+}
+.prose .expressive-code .frame.has-title:not(.is-terminal) pre {
+  padding-top: 0;
+  border-top: 0;
+  border-radius: 0 0 var(--r-md) var(--r-md);
+}
+.prose .expressive-code .frame.has-title:not(.is-terminal) pre > code {
+  padding-top: 8px;
+}
+/* 复制按钮：小号幽灵图标，指针悬停代码块时才淡入 */
+.prose .expressive-code .copy button {
+  width: 28px;
+  height: 28px;
+}
+.prose .expressive-code .copy button::after {
+  opacity: 0.8;
+}
+@media (hover: hover) {
+  .prose .expressive-code .copy {
+    opacity: 0;
+    transition: opacity var(--dur-2) var(--ease);
+  }
+  .prose .expressive-code .frame:is(:hover, :focus-within) .copy {
+    opacity: 1;
+  }
 }
 
 /* ---------- KaTeX ---------- */
