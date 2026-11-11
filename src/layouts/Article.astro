@@ -36,6 +36,9 @@ const foreign = contentLang !== lang;
 <Base title={title} description={description || title} type="article" alternates={alternates}>
   <div class="shell">
     <article class="post">
+      <a class="back-link reveal" style="--i:0" href={backHref} data-back>
+        <span aria-hidden="true">←</span> {backLabel}
+      </a>
       <div class="post-meta reveal" style="--i:0">
         <a href={backHref} class="accent">{label}</a>
         <time datetime={date.toISOString()}>{dotDate(date)}</time>
@@ -63,15 +66,14 @@ const foreign = contentLang !== lang;
       <footer class="post-footer">
         <div class="tags">
           {tags.map((tag) => <span class="tag">#{tag}</span>)}
-          {tags.length === 0 && <a class="back" href={backHref}>← {backLabel}</a>}
         </div>
         <span>{t('post.words')(countWords(body))} · {dotDate(date)}</span>
       </footer>
 
       {(prev || next) && (
         <nav class="pager" aria-label={`${t('post.prev')} / ${t('post.next')}`}>
-          {prev ? <a href={prev.href}><span class="meta">{t('post.prev')}</span><span class="pg">{prev.title}</span></a> : <span />}
-          {next ? <a href={next.href} class="r"><span class="meta">{t('post.next')}</span><span class="pg">{next.title}</span></a> : <span />}
+          {prev ? <a href={prev.href} rel="prev"><span class="pg-label">{t('post.prev')}</span><span class="pg">{prev.title}</span></a> : <span />}
+          {next ? <a href={next.href} rel="next" class="r"><span class="pg-label">{t('post.next')}</span><span class="pg">{next.title}</span></a> : <span />}
         </nav>
       )}
 
@@ -79,12 +81,76 @@ const foreign = contentLang !== lang;
       <Mermaid />
     </article>
   </div>
+  <button type="button" class="to-top" data-to-top aria-label={t('post.toTop')} title={t('post.toTop')}>
+    <svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 13V3.5M3.8 7.5 8 3.3l4.2 4.2" /></svg>
+  </button>
 </Base>
+
+<script>
+  /**
+   * 返回链接：若是从本站页面进入（含 ClientRouter 站内跳转），用 history.back() 回到原列表并恢复滚动位置；
+   * 直接打开文章时则按链接跳到列表页。
+   * 回到顶部：滚过一屏后淡入。
+   */
+  const w = window as unknown as { __yhInternalNav?: boolean; __yhArticleBound?: boolean };
+  if (!w.__yhArticleBound) {
+    w.__yhArticleBound = true;
+    document.addEventListener('click', (e) => {
+      const back = (e.target as Element).closest<HTMLAnchorElement>('[data-back]');
+      if (back && !(e.metaKey || e.ctrlKey || e.shiftKey || e.button)) {
+        let sameOrigin = false;
+        try {
+          sameOrigin = !!document.referrer && new URL(document.referrer).origin === location.origin;
+        } catch {}
+        if ((w.__yhInternalNav || sameOrigin) && history.length > 1) {
+          e.preventDefault();
+          history.back();
+        }
+        return;
+      }
+      if ((e.target as Element).closest('[data-to-top]')) {
+        const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+        window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
+      }
+    });
+    let ticking = false;
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        ticking = false;
+        document.querySelector('[data-to-top]')?.classList.toggle('on', scrollY > innerHeight * 0.9);
+      });
+    };
+    addEventListener('scroll', onScroll, { passive: true });
+    document.addEventListener('astro:page-load', onScroll);
+  }
+</script>
 
 <style>
   .post {
     max-width: var(--measure);
-    padding-top: 72px;
+    padding-top: var(--sp-8);
+  }
+  /* 返回链接（§7 返回链接）：衬线 fs-meta，弱色，hover 强调色 */
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: var(--sp-5);
+    font-family: var(--font-serif);
+    font-size: var(--fs-meta);
+    color: var(--ink-muted);
+    transition: color var(--dur-2) var(--ease);
+  }
+  .back-link span {
+    transition: transform var(--dur-2) var(--ease);
+  }
+  .back-link:hover {
+    color: var(--accent);
+  }
+  .back-link:hover span {
+    transform: translateX(-2px);
   }
   .post-meta {
     display: flex;
@@ -175,35 +241,78 @@ const foreign = contentLang !== lang;
   .tags .tag {
     font-size: var(--fs-xs);
   }
-  .back:hover {
-    color: var(--accent);
-  }
+  /* 上一篇 / 下一篇（§7）：无卡片，两栏，mono 小标签 + 衬线标题 */
   .pager {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 16px;
-    margin-top: 40px;
+    gap: var(--sp-6);
+    margin-top: var(--sp-6);
   }
   .pager a {
     display: grid;
-    gap: 6px;
-    padding: 16px 18px;
-    border: 1px solid var(--border);
-    border-radius: var(--r-md);
-    transition: border-color var(--dur-2) var(--ease), background var(--dur-2) var(--ease);
-  }
-  .pager a:hover {
-    border-color: color-mix(in srgb, var(--n-10) 18%, transparent);
-    background: color-mix(in srgb, var(--n-10) 2%, transparent);
+    gap: var(--sp-1);
+    align-content: start;
   }
   .pager .r {
     text-align: right;
   }
+  .pg-label {
+    font-family: var(--font-mono);
+    font-size: var(--fs-2xs);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
   .pg {
     font-family: var(--font-serif);
-    font-weight: 500;
-    font-size: var(--fs-ui);
-    color: var(--n-10);
+    font-size: var(--fs-md);
+    line-height: var(--lh-ui);
+    color: var(--ink);
+    transition: color var(--dur-2) var(--ease);
+  }
+  .pager a:hover .pg {
+    color: var(--accent);
+  }
+  /* 回到顶部：小号圆形幽灵按钮，滚动后淡入；窄屏位于底部 Dock 之上 */
+  .to-top {
+    position: fixed;
+    right: var(--sp-5);
+    bottom: var(--sp-5);
+    z-index: 60;
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: 0.5px solid var(--border);
+    border-radius: var(--r-round);
+    background: rgb(var(--paper-rgb) / 0.8);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    box-shadow: var(--shadow-pop);
+    color: var(--ink-muted);
+    cursor: pointer;
+    opacity: 0;
+    transform: translateY(6px);
+    pointer-events: none;
+    transition:
+      opacity var(--dur-2) var(--ease),
+      transform var(--dur-2) var(--ease),
+      color var(--dur-2) var(--ease);
+  }
+  .to-top:global(.on) {
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+  }
+  .to-top:hover {
+    color: var(--accent);
+  }
+  @media (max-width: 1023px) {
+    .to-top {
+      right: var(--sp-4);
+      bottom: calc(76px + env(safe-area-inset-bottom, 0px));
+    }
   }
   @media (max-width: 640px) {
     .post {
@@ -217,6 +326,10 @@ const foreign = contentLang !== lang;
     }
     .pager {
       grid-template-columns: 1fr;
+      gap: var(--sp-4);
+    }
+    .pager .r {
+      text-align: left;
     }
   }
 </style>

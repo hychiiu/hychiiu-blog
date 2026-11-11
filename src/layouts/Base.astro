@@ -91,6 +91,10 @@ const rss = localizePath(lang, '/rss.xml');
         document.addEventListener('astro:before-swap', (e) => {
           e.newDocument.documentElement.dataset.theme = root.dataset.theme;
         });
+        // 记录「发生过站内跳转」，文章页返回链接据此决定用 history.back()
+        document.addEventListener('astro:after-swap', () => {
+          window.__yhInternalNav = true;
+        });
       })();
     </script>
     <ClientRouter />
