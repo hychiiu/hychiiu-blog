@@ -32,8 +32,8 @@
     'Segoe UI Emoji';
   --font-serif: 'Noto Serif SC', 'Noto Serif CJK SC', 'Source Han Serif SC', 'Source Han Serif',
     'Songti SC', STSong, Georgia, serif;
-  --font-mono: 'JetBrains Mono Variable', 'JetBrains Mono', 'OperatorMonoSSmLig Nerd Font',
-    'Operator Mono', 'Cascadia Code', 'Fira Code', Consolas, Monaco, 'Noto Sans Mono CJK SC', monospace;
+  --font-mono: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, Consolas,
+    'Noto Sans Mono CJK SC', monospace;
 
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
   --shell: 1120px;

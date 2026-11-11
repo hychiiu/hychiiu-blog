@@ -1,5 +1,5 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
-import { site } from '../site.config';
+import { site, type Lang } from '../site.config';
 
 const isProd = import.meta.env.PROD;
 
@@ -53,8 +53,27 @@ export function isoDate(d: Date) {
 export type Post = CollectionEntry<'posts'>;
 export type Note = CollectionEntry<'notes'>;
 
-export async function getStats() {
-  const [posts, notes] = await Promise.all([getPosts(), getNotes()]);
+/**
+ * 某语言站点要展示的条目：
+ * - zh：全部条目（英文条目带 English 标记）
+ * - en：英文条目；若一篇都没有，则回退展示中文条目（带 Chinese 标记）
+ */
+function forLang<T extends { data: { lang: Lang } }>(all: T[], lang: Lang): T[] {
+  if (lang === 'zh') return all;
+  const own = all.filter((e) => e.data.lang === lang);
+  return own.length ? own : all;
+}
+
+export async function getPostsFor(lang: Lang) {
+  return forLang(await getPosts(), lang);
+}
+
+export async function getNotesFor(lang: Lang) {
+  return forLang(await getNotes(), lang);
+}
+
+export async function getStats(lang: Lang = 'zh') {
+  const [posts, notes] = await Promise.all([getPostsFor(lang), getNotesFor(lang)]);
   const words = [...posts, ...notes].reduce((s, e) => s + countWords(e.body ?? ''), 0);
   return { posts: posts.length, notes: notes.length, words, days: daysSince(site.startDate) };
 }

@@ -1,10 +1,14 @@
 ---
-import { site, giscusEnabled } from '../site.config';
+import { site, giscusEnabled, type Lang } from '../site.config';
+import { useT } from '../i18n';
+interface Props { lang?: Lang }
+const { lang = 'zh' } = Astro.props;
+const t = useT(lang);
 const g = site.giscus;
 ---
 {giscusEnabled && (
-  <section class="comments" aria-label="评论">
-    <h2 class="eyebrow">评论</h2>
+  <section class="comments" aria-label={t('post.comments')}>
+    <h2 class="eyebrow">{t('post.comments')}</h2>
     <div
       class="giscus-slot"
       data-giscus
@@ -13,7 +17,7 @@ const g = site.giscus;
       data-category={g.category}
       data-category-id={g.categoryId}
       data-mapping={g.mapping}
-      data-lang={g.lang}
+      data-lang={lang === 'zh' ? 'zh-CN' : 'en'}
     ></div>
   </section>
 )}

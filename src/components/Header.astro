@@ -1,26 +1,33 @@
 ---
-import { site } from '../site.config';
-import Icon from './Icon.astro';
-const path = Astro.url.pathname;
-const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWith(href.replace(/\/$/, '')));
+import { site, type Lang } from '../site.config';
+import { localizePath, navItems, stripLang } from '../i18n';
+import Toolbar from './Toolbar.astro';
+interface Props {
+  lang: Lang;
+  alternates: Record<Lang, string>;
+}
+const { lang, alternates } = Astro.props;
+const path = stripLang(Astro.url.pathname);
+const items = navItems(lang);
+const isActive = (href: string) => {
+  const h = stripLang(href);
+  return h === '/' ? path === '/' : path.startsWith(h.replace(/\/$/, ''));
+};
 ---
 <header class="topnav" data-header>
   <div class="shell bar">
-    <a href="/" class="brand" aria-label={`${site.name} 首页`}>
+    <a href={localizePath(lang, '/')} class="brand" aria-label={site.name}>
+      <img src={site.avatar} alt="" width="26" height="26" />
       <span class="name">{site.name}</span>
       {site.nameCJK && <span class="cn">{site.nameCJK}</span>}
     </a>
-    <div class="right">
-      <nav class="links" aria-label="主导航">
-        {site.nav.map((item) => (
-          <a href={item.href} class:list={{ active: isActive(item.href) }} aria-current={isActive(item.href) ? 'page' : undefined}>{item.label}</a>
-        ))}
-      </nav>
-      <span class="sep" aria-hidden="true"></span>
-      <button class="toggle" type="button" data-theme-toggle aria-label="切换深浅色">
-        <Icon name="sun" size={15} class="i-sun" />
-        <Icon name="moon" size={15} class="i-moon" />
-      </button>
+    <nav class="links" aria-label="Main">
+      {items.map((item) => (
+        <a href={item.href} class:list={{ active: isActive(item.href) }} aria-current={isActive(item.href) ? 'page' : undefined}>{item.label}</a>
+      ))}
+    </nav>
+    <div class="tools">
+      <Toolbar lang={lang} alternates={alternates} />
     </div>
   </div>
 </header>
@@ -42,14 +49,21 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWit
   .bar {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    gap: 28px;
     height: 60px;
   }
   .brand {
     display: flex;
-    align-items: baseline;
+    align-items: center;
     gap: 10px;
     font-family: var(--font-serif);
+  }
+  .brand img {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid var(--border);
   }
   .name {
     font-size: 18px;
@@ -59,11 +73,6 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWit
   .cn {
     font-size: 15px;
     color: var(--accent);
-  }
-  .right {
-    display: flex;
-    align-items: center;
-    gap: 6px;
   }
   .links {
     display: flex;
@@ -84,53 +93,33 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWit
     color: var(--n-10);
     background: var(--n-2);
   }
-  .sep {
-    width: 1px;
-    height: 16px;
-    margin: 0 4px;
-    background: var(--border);
+  .tools {
+    margin-left: auto;
   }
-  .toggle {
-    display: grid;
-    place-items: center;
-    width: 30px;
-    height: 28px;
-    border: 0;
-    border-radius: 4px;
-    background: none;
-    color: var(--n-7);
-    cursor: pointer;
-    transition: color 0.15s ease, background 0.15s ease;
-  }
-  .toggle:hover {
-    color: var(--n-10);
-    background: var(--n-2);
-  }
-  .toggle :global(svg) {
-    grid-area: 1 / 1;
-    transition: opacity 0.25s var(--ease), transform 0.4s var(--ease);
-  }
-  .toggle :global(.i-moon) {
-    opacity: 0;
-    transform: rotate(-45deg) scale(0.7);
-  }
-  :global(:root[data-theme='dark']) .toggle :global(.i-sun) {
-    opacity: 0;
-    transform: rotate(45deg) scale(0.7);
-  }
-  :global(:root[data-theme='dark']) .toggle :global(.i-moon) {
-    opacity: 1;
-    transform: none;
-  }
-  @media (max-width: 560px) {
-    .bar {
-      height: 54px;
+  /* 宽屏：和 yohaku.innei.dev 一样浮在右上角 */
+  @media (min-width: 1360px) {
+    .tools {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      z-index: 60;
     }
-    .links a {
-      padding: 4px 7px;
+  }
+  @media (max-width: 640px) {
+    .bar {
+      flex-wrap: wrap;
+      height: auto;
+      gap: 6px 12px;
+      padding-top: 10px;
+      padding-bottom: 8px;
     }
     .cn {
       display: none;
+    }
+    .links {
+      order: 3;
+      width: 100%;
+      margin-left: -10px;
     }
   }
 </style>
@@ -140,13 +129,4 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWit
   const onScroll = () => header?.classList.toggle('scrolled', window.scrollY > 8);
   onScroll();
   window.addEventListener('scroll', onScroll, { passive: true });
-  document.querySelector('[data-theme-toggle]')?.addEventListener('click', () => {
-    const root = document.documentElement;
-    const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
-    const sys = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-    root.dataset.theme = next;
-    if (next === sys) localStorage.removeItem('theme');
-    else localStorage.setItem('theme', next);
-    window.dispatchEvent(new CustomEvent('themechange', { detail: next }));
-  });
 </script>

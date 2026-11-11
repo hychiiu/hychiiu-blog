@@ -1,5 +1,7 @@
 ---
 import { dotDate, readingMinutes } from '../utils/content';
+import type { Lang } from '../site.config';
+import { useT } from '../i18n';
 
 export interface Item {
   href: string;
@@ -9,13 +11,17 @@ export interface Item {
   kind?: 'post' | 'note';
   body?: string;
   tags?: string[];
+  /** 内容语言与页面语言不同时显示的小标记 */
+  marker?: string;
 }
 interface Props {
   items: Item[];
   showKind?: boolean;
   startIndex?: number;
+  lang?: Lang;
 }
-const { items, showKind = false, startIndex = 0 } = Astro.props;
+const { items, showKind = false, startIndex = 0, lang = 'zh' } = Astro.props;
+const t = useT(lang);
 ---
 <ul class="rows">
   {items.map((it, i) => (
@@ -26,8 +32,9 @@ const { items, showKind = false, startIndex = 0 } = Astro.props;
           <h3>{it.title}</h3>
           {it.description && <p class="desc">{it.description}</p>}
           <div class="info meta">
-            {showKind && <span class="kind">{it.kind === 'note' ? '手记' : '文章'}</span>}
-            {it.kind !== 'note' && it.body && <span>~ {readingMinutes(it.body)} min</span>}
+            {showKind && <span class="kind">{it.kind === 'note' ? t('kind.note') : t('kind.post')}</span>}
+            {it.marker && <span class="marker">{it.marker}</span>}
+            {it.kind !== 'note' && it.body && <span>{t('post.min')(readingMinutes(it.body))}</span>}
             {it.tags?.slice(0, 3).map((t) => <span>#{t}</span>)}
           </div>
         </div>
@@ -86,6 +93,14 @@ const { items, showKind = false, startIndex = 0 } = Astro.props;
   }
   .kind {
     color: var(--accent);
+  }
+  .marker {
+    padding: 0 6px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    line-height: 1.6;
+    font-size: 10.5px;
+    letter-spacing: 0.04em;
   }
   .arrow {
     justify-self: end;

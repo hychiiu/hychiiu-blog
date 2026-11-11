@@ -1,7 +1,8 @@
 ---
 import Base from './Base.astro';
 import Giscus from '../components/Giscus.astro';
-import { site } from '../site.config';
+import { site, type Lang } from '../site.config';
+import { useT, htmlLang } from '../i18n';
 import { dotDate, readingMinutes, countWords } from '../utils/content';
 
 interface Props {
@@ -16,21 +17,29 @@ interface Props {
   extra?: string[];
   prev?: { href: string; title: string };
   next?: { href: string; title: string };
+  lang: Lang;
+  /** 正文语言（frontmatter lang） */
+  contentLang: Lang;
+  alternates?: Partial<Record<Lang, string>>;
 }
-const { title, date, description, tags = [], body = '', kind, backHref, backLabel, extra = [], prev, next } = Astro.props;
-const label = kind === 'note' ? '手记' : tags[0] ?? '文章';
+const { title, date, description, tags = [], body = '', kind, backHref, backLabel, extra = [], prev, next, lang, contentLang, alternates } = Astro.props;
+const t = useT(lang);
+const label = kind === 'note' ? t('kind.note') : tags[0] ?? t('kind.post');
+const foreign = contentLang !== lang;
 ---
-<Base title={title} description={description || title} type="article">
+<Base title={title} description={description || title} type="article" alternates={alternates}>
   <div class="shell">
     <article class="post">
       <div class="post-meta reveal" style="--i:0">
         <a href={backHref} class="accent">{label}</a>
         <time datetime={date.toISOString()}>{dotDate(date)}</time>
-        <span>~ {readingMinutes(body)} min</span>
-        <span>{countWords(body)} 字</span>
+        <span>{t('post.min')(readingMinutes(body))}</span>
+        <span>{t('post.words')(countWords(body))}</span>
+        {foreign && <span class="marker">{contentLang === 'zh' ? t('marker.zh') : t('marker.en')}</span>}
       </div>
-      <h1 class="post-title reveal" style="--i:1">{title}</h1>
-      {description && <p class="post-subtitle reveal" style="--i:2">{description}</p>}
+      <h1 class="post-title reveal" style="--i:1" lang={htmlLang[contentLang]}>{title}</h1>
+      {description && <p class="post-subtitle reveal" style="--i:2" lang={htmlLang[contentLang]}>{description}</p>}
+      {foreign && lang === 'en' && <p class="notice meta reveal" style="--i:2">{t('post.fallback')}</p>}
 
       <div class="post-author reveal" style="--i:3">
         <img src={site.avatar} alt="" width="36" height="36" />
@@ -40,26 +49,26 @@ const label = kind === 'note' ? '手记' : tags[0] ?? '文章';
         </div>
       </div>
 
-      <div class="prose reveal" style="--i:4">
+      <div class="prose reveal" style="--i:4" lang={htmlLang[contentLang]}>
         <slot />
       </div>
 
       <footer class="post-footer">
         <div class="tags">
-          {tags.map((t) => <span class="tag">#{t}</span>)}
+          {tags.map((tag) => <span class="tag">#{tag}</span>)}
           {tags.length === 0 && <a class="back" href={backHref}>← {backLabel}</a>}
         </div>
-        <span>{countWords(body)} 字 · {dotDate(date)}</span>
+        <span>{t('post.words')(countWords(body))} · {dotDate(date)}</span>
       </footer>
 
       {(prev || next) && (
-        <nav class="pager" aria-label="上一篇 / 下一篇">
-          {prev ? <a href={prev.href}><span class="meta">← 上一篇</span><span class="pg">{prev.title}</span></a> : <span />}
-          {next ? <a href={next.href} class="r"><span class="meta">下一篇 →</span><span class="pg">{next.title}</span></a> : <span />}
+        <nav class="pager" aria-label={`${t('post.prev')} / ${t('post.next')}`}>
+          {prev ? <a href={prev.href}><span class="meta">{t('post.prev')}</span><span class="pg">{prev.title}</span></a> : <span />}
+          {next ? <a href={next.href} class="r"><span class="meta">{t('post.next')}</span><span class="pg">{next.title}</span></a> : <span />}
         </nav>
       )}
 
-      <Giscus />
+      <Giscus lang={lang} />
     </article>
   </div>
 </Base>
@@ -78,6 +87,19 @@ const label = kind === 'note' ? '手记' : tags[0] ?? '文章';
     font-size: 12px;
     letter-spacing: 0.04em;
     color: var(--n-7);
+  }
+  .marker {
+    padding: 0 6px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-size: 11px;
+  }
+  .notice {
+    margin: -12px 0 24px;
+    padding: 8px 12px;
+    border-left: 2px solid var(--accent);
+    background: var(--accent-8);
+    border-radius: 0 6px 6px 0;
   }
   .accent {
     color: var(--accent);

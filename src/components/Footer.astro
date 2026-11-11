@@ -1,18 +1,24 @@
 ---
-import { site } from '../site.config';
+import { site, type Lang } from '../site.config';
+import { localizePath, useT } from '../i18n';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const t = useT(lang);
 const year = new Date().getFullYear();
 const startYear = new Date(site.startDate).getFullYear();
 ---
 <footer class="footer">
-  <div class="shell inner">
-    <span>© {startYear === year ? year : `${startYear}–${year}`} {site.name}{site.nameCJK && <span class="cn"> · {site.nameCJK}</span>}</span>
-    <span class="links">
-      <a href="/rss.xml">rss</a>
-      <span aria-hidden="true">·</span>
-      <a href="/sitemap-index.xml">sitemap</a>
-      <span aria-hidden="true">·</span>
-      <span>built with astro</span>
-    </span>
+  <div class="shell">
+    <div class="inner">
+      <span>© {startYear === year ? year : `${startYear}–${year}`} {site.name}{site.nameCJK && <span class="cn"> · {site.nameCJK}</span>}</span>
+      <span class="links">
+        <a href={localizePath(lang, '/rss.xml')}>rss</a>
+        <span aria-hidden="true">·</span>
+        <a href="/sitemap-index.xml">sitemap</a>
+        <span aria-hidden="true">·</span>
+        <span>{t('footer.built')}</span>
+      </span>
+    </div>
   </div>
 </footer>
 
@@ -25,27 +31,12 @@ const startYear = new Date(site.startDate).getFullYear();
     justify-content: space-between;
     flex-wrap: wrap;
     gap: 8px 24px;
-    padding-top: 20px;
-    padding-bottom: 40px;
+    padding: 20px 0 40px;
     border-top: 1px solid var(--hair);
-    background-clip: content-box;
     font-family: var(--font-mono);
     font-size: 11px;
     color: var(--n-7);
     letter-spacing: 0.02em;
-  }
-  .shell.inner {
-    border-top: 0;
-    position: relative;
-  }
-  .shell.inner::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: var(--shell-pad);
-    right: var(--shell-pad);
-    height: 1px;
-    background: var(--hair);
   }
   .cn {
     color: var(--accent);

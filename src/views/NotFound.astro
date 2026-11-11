@@ -1,0 +1,44 @@
+---
+import Base from '../layouts/Base.astro';
+import type { Lang } from '../site.config';
+import { useT, localizePath } from '../i18n';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const t = useT(lang);
+---
+<Base title="404" description={t('nf.lede')}>
+  <div class="shell">
+    <header class="nf">
+      <p class="eyebrow reveal" style="--i:0"><span class="dot"></span><span>{t('nf.eyebrow')}</span></p>
+      <h1 class="reveal" style="--i:1">404<span class="cn-accent">{t('nf.cn')}</span></h1>
+      <p class="lede reveal" style="--i:2">{t('nf.lede')}</p>
+      <a href={localizePath(lang, '/')} class="btn btn--primary reveal" style="--i:3">{t('nf.home')}</a>
+    </header>
+  </div>
+</Base>
+
+<style>
+  .nf {
+    padding: 120px 0 40px;
+  }
+  h1 {
+    margin: 24px 0 18px;
+    font-size: clamp(72px, 12vw, 128px);
+    line-height: 1.02;
+    letter-spacing: -0.02em;
+  }
+  h1 .cn-accent {
+    margin-left: 18px;
+  }
+  .lede {
+    margin: 0 0 32px;
+    max-width: 40ch;
+    font-family: var(--font-serif);
+    font-size: 19px;
+    line-height: 1.55;
+    color: var(--n-7);
+  }
+  @media (max-width: 640px) {
+    .nf { padding-top: 64px; }
+  }
+</style>

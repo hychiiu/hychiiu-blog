@@ -1,0 +1,28 @@
+---
+import { render } from 'astro:content';
+import Article from '../../../layouts/Article.astro';
+import { entryPaths } from '../../../utils/routes';
+import { localizePath, useT } from '../../../i18n';
+
+export const getStaticPaths = () => entryPaths('notes', 'en');
+const { entry: note, lang, newer, older, alternates } = Astro.props;
+const t = useT(lang);
+const { Content } = await render(note);
+const extra = [note.data.mood && `${t('notes.mood')} ${note.data.mood}`, note.data.weather && `${t('notes.weather')} ${note.data.weather}`].filter(Boolean) as string[];
+---
+<Article
+  kind="note"
+  lang={lang}
+  contentLang={note.data.lang}
+  alternates={alternates}
+  title={note.data.title}
+  date={note.data.date}
+  body={note.body}
+  backHref={localizePath(lang, '/notes/')}
+  backLabel={t('nav.notes')}
+  extra={extra}
+  prev={older}
+  next={newer}
+>
+  <Content />
+</Article>

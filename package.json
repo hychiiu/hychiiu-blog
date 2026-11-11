@@ -4,10 +4,10 @@
   "description": "hychiiu 的个人主页与博客（Astro 静态站）",
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
+    "build": "astro build && node scripts/postbuild.mjs",
     "preview": "astro preview",
     "avatar": "node scripts/avatar.mjs",
-    "deploy": "astro build && npx wrangler pages deploy dist --project-name hychiiu-blog"
+    "deploy": "npm run build && npx wrangler pages deploy dist --project-name hychiiu-blog"
   },
   "type": "module",
   "dependencies": {

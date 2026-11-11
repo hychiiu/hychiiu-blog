@@ -130,10 +130,20 @@ npx wrangler pages deploy dist --project-name hychiiu-blog
 3. 打开 <https://giscus.app/zh-CN>，填仓库名，选一个分类（推荐 Announcements），页面下方会生成 `data-repo`、`data-repo-id`、`data-category`、`data-category-id`。
 4. 把这四个值填进 `src/site.config.ts` 的 `giscus` 里，重新部署，文章页底部就会出现评论区（会跟随深浅色切换）。
 
+## 中英文双语
+
+- 中文为默认语言，在根路径 `/`；英文在 `/en/`（Astro i18n 路由）。右上角 `中 | EN | 主题` 切换，会跳到当前页面的对应语言版本，并记住选择（localStorage）。
+- 界面文案（导航、按钮、区块标题、页脚、404……）在 `src/i18n.ts` 的字典里。
+- 首页介绍、第二行介绍、引言、关于页正文在 `src/site.config.ts`，每项都有 `zh` / `en` 两份。
+- 文章 / 手记可在 frontmatter 写 `lang: en`（默认 `zh`）：
+  - 中文站列出全部文章，英文文章带 `English` 小标记；
+  - 英文站只列英文文章；一篇英文都没有时，回退显示中文文章，并带 `Chinese` 小标记。
+- 每个页面都带 `hreflang` 互链；sitemap 也包含双语互链。RSS：中文 `/rss.xml`，英文 `/en/rss.xml`。
+
 ## 字体与设计
 
 - 标题与正文：Noto Serif SC（SIL OFL），按 unicode-range 分片自托管，浏览器只下载用到的字符分片（`src/styles/fonts.css`，由 `node scripts/gen-fonts.mjs` 生成）
-- 元信息 / 标签：JetBrains Mono（OFL），界面文字：Inter（OFL），均通过 Fontsource 自托管，不依赖 Google Fonts
+- 元信息 / 标签 / 代码：JetBrains Mono（OFL，全站唯一等宽字体），界面文字：Inter（OFL），均通过 Fontsource 自托管，不依赖 Google Fonts
 - 颜色：Yohaku 开源令牌——梅色强调 `#c56473`、暖色中性 n-1…10、亮色纸面 `#faf9f5`、暗色 `#18181a`
 
 ## 其他

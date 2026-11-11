@@ -3,7 +3,8 @@ import '@fontsource-variable/inter';
 import '@fontsource-variable/jetbrains-mono';
 import '../styles/fonts.css';
 import '../styles/global.css';
-import { site } from '../site.config';
+import { site, type Lang } from '../site.config';
+import { htmlLang, localizePath, stripLang, toLang } from '../i18n';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 
@@ -11,23 +12,42 @@ interface Props {
   title?: string;
   description?: string;
   type?: 'website' | 'article';
+  /** 另一语言的等价页面路径；不传则按前缀自动推导 */
+  alternates?: Partial<Record<Lang, string>>;
 }
-const { title, description = site.description, type = 'website' } = Astro.props;
+const lang = toLang(Astro.currentLocale);
+const path = Astro.url.pathname;
+const { title, description = site.description[lang], type = 'website' } = Astro.props;
+const alternates: Record<Lang, string> = {
+  zh: Astro.props.alternates?.zh ?? localizePath('zh', stripLang(path)),
+  en: Astro.props.alternates?.en ?? localizePath('en', stripLang(path)),
+};
+const base = Astro.site ?? site.url;
 const fullTitle = title ? `${title} · ${site.title}` : site.title;
-const canonical = new URL(Astro.url.pathname, Astro.site ?? site.url).href;
-const ogImage = new URL(site.avatarLarge, Astro.site ?? site.url).href;
+const canonical = new URL(path, base).href;
+const ogImage = new URL(site.avatarLarge, base).href;
+const rss = localizePath(lang, '/rss.xml');
 ---
 <!doctype html>
-<html lang={site.lang} style={`--accent-light:${site.accent.light};--accent-dark:${site.accent.dark}`}>
+<html
+  lang={htmlLang[lang]}
+  data-lang={lang}
+  data-alt-zh={alternates.zh}
+  data-alt-en={alternates.en}
+  style={`--accent-light:${site.accent.light};--accent-dark:${site.accent.dark}`}
+>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
+    <link rel="alternate" hreflang="zh-CN" href={new URL(alternates.zh, base).href} />
+    <link rel="alternate" hreflang="en" href={new URL(alternates.en, base).href} />
+    <link rel="alternate" hreflang="x-default" href={new URL(alternates.zh, base).href} />
     <link rel="icon" type="image/png" href="/favicon.png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-    <link rel="alternate" type="application/rss+xml" title={site.title} href="/rss.xml" />
+    <link rel="alternate" type="application/rss+xml" title={site.title} href={rss} />
     <link rel="sitemap" href="/sitemap-index.xml" />
     <meta name="theme-color" content="#faf9f5" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#18181a" media="(prefers-color-scheme: dark)" />
@@ -36,13 +56,25 @@ const ogImage = new URL(site.avatarLarge, Astro.site ?? site.url).href;
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
     <meta property="og:image" content={ogImage} />
+    <meta property="og:locale" content={lang === 'zh' ? 'zh_CN' : 'en_US'} />
     <meta name="twitter:card" content="summary" />
     <meta name="generator" content={Astro.generator} />
     <script is:inline>
       (() => {
+        const root = document.documentElement;
+        // 语言记忆：从站外进入时，若记住的语言与当前页不同，跳到对应语言的等价页面
+        try {
+          const want = localStorage.getItem('lang');
+          const cur = root.dataset.lang;
+          const fromOutside = !document.referrer || new URL(document.referrer).origin !== location.origin;
+          if (want && want !== cur && fromOutside) {
+            const alt = root.getAttribute('data-alt-' + want);
+            if (alt && alt !== location.pathname) location.replace(alt + location.search + location.hash);
+          }
+        } catch (e) {}
         const saved = localStorage.getItem('theme');
         const sys = window.matchMedia('(prefers-color-scheme: dark)');
-        const apply = (t) => (document.documentElement.dataset.theme = t);
+        const apply = (t) => (root.dataset.theme = t);
         apply(saved || (sys.matches ? 'dark' : 'light'));
         sys.addEventListener('change', (e) => {
           if (!localStorage.getItem('theme')) {
@@ -54,10 +86,10 @@ const ogImage = new URL(site.avatarLarge, Astro.site ?? site.url).href;
     </script>
   </head>
   <body>
-    <Header />
+    <Header lang={lang} alternates={alternates} />
     <main>
       <slot />
     </main>
-    <Footer />
+    <Footer lang={lang} />
   </body>
 </html>
