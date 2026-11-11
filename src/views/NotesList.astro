@@ -83,15 +83,15 @@ const excerpt = (s = '') => s.replace(/^>.*$/gm, '').replace(/[#*`>\[\]_]/g, '')
   .d {
     font-family: var(--font-serif);
     font-weight: 500;
-    font-size: 44px;
+    font-size: var(--fs-4xl);
     line-height: 1;
     color: var(--accent);
     font-variant-numeric: tabular-nums;
   }
   h2 {
-    font-size: 20px;
+    font-size: var(--fs-xl);
     line-height: 1.4;
-    transition: color 0.2s var(--ease);
+    transition: color var(--dur-2) var(--ease);
   }
   .note:hover h2 {
     color: var(--accent);
@@ -100,21 +100,21 @@ const excerpt = (s = '') => s.replace(/^>.*$/gm, '').replace(/[#*`>\[\]_]/g, '')
     margin: 8px 0 0;
     max-width: 60ch;
     font-family: var(--font-serif);
-    font-size: 15px;
+    font-size: var(--fs-ui);
     line-height: 1.8;
     color: var(--n-7);
   }
   .marker {
     padding: 0 6px;
     border: 1px solid var(--border);
-    border-radius: 4px;
-    font-size: 10.5px;
+    border-radius: var(--r-xs);
+    font-size: var(--fs-2xs);
   }
   .info {
     display: flex;
     gap: 14px;
     margin-top: 12px;
-    font-size: 11.5px;
+    font-size: var(--fs-xs);
   }
   @media (max-width: 640px) {
     .note {
@@ -123,10 +123,10 @@ const excerpt = (s = '') => s.replace(/^>.*$/gm, '').replace(/[#*`>\[\]_]/g, '')
       padding: 22px 0;
     }
     .d {
-      font-size: 32px;
+      font-size: var(--fs-3xl);
     }
     .day .meta {
-      font-size: 10.5px;
+      font-size: var(--fs-2xs);
     }
   }
 </style>

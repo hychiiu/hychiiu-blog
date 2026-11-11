@@ -103,9 +103,9 @@ const socials = site.social.map((s) => (s.icon === 'rss' ? { ...s, href: localiz
     place-items: center;
     width: 36px;
     height: 36px;
-    border-radius: 50%;
+    border-radius: var(--r-round);
     color: var(--n-6);
-    transition: color 0.2s var(--ease), background-color 0.2s var(--ease), transform 0.2s var(--ease);
+    transition: color var(--dur-2) var(--ease), background-color var(--dur-2) var(--ease), transform var(--dur-2) var(--ease);
   }
   .social a:hover,
   .social a:focus-visible {
@@ -121,19 +121,19 @@ const socials = site.social.map((s) => (s.icon === 'rss' ? { ...s, href: localiz
     top: calc(100% + 6px);
     left: 50%;
     padding: 3px 10px 4px;
-    border-radius: 999px;
+    border-radius: var(--r-pill);
     border: 0.5px solid var(--border);
     background: var(--paper);
     box-shadow: 0 6px 16px -8px rgb(0 0 0 / 0.25);
     font-family: var(--font-mono);
-    font-size: 10.5px;
+    font-size: var(--fs-2xs);
     letter-spacing: 0.04em;
     white-space: nowrap;
     color: var(--n-8);
     opacity: 0;
     pointer-events: none;
     transform: translate(-50%, -4px);
-    transition: opacity 0.18s var(--ease), transform 0.25s var(--ease);
+    transition: opacity var(--dur-2) var(--ease), transform var(--dur-3) var(--ease);
   }
   .social a:hover::after,
   .social a:focus-visible::after {
@@ -148,9 +148,9 @@ const socials = site.social.map((s) => (s.icon === 'rss' ? { ...s, href: localiz
   }
   .archive-link {
     font-family: var(--font-mono);
-    font-size: 12px;
+    font-size: var(--fs-sm);
     color: var(--n-6);
-    transition: color 0.2s var(--ease);
+    transition: color var(--dur-2) var(--ease);
   }
   .archive-link:hover {
     color: var(--accent);
@@ -196,13 +196,13 @@ const socials = site.social.map((s) => (s.icon === 'rss' ? { ...s, href: localiz
     margin: 0;
     max-width: 30em;
     font-family: var(--font-serif);
-    font-size: 21px;
+    font-size: var(--fs-xl);
     line-height: 1.5;
     color: var(--n-7);
   }
   .tagline.sub {
     margin-top: 6px;
-    font-size: 16px;
+    font-size: var(--fs-body);
   }
   .wave {
     font-family: var(--font-sans);
@@ -216,14 +216,14 @@ const socials = site.social.map((s) => (s.icon === 'rss' ? { ...s, href: localiz
   .avatar img {
     width: 168px;
     height: 168px;
-    border-radius: 50%;
+    border-radius: var(--r-round);
     object-fit: cover;
     border: 1px solid var(--border);
     padding: 5px;
     background: var(--paper);
   }
   .avatar figcaption {
-    font-size: 11px;
+    font-size: var(--fs-xs);
     letter-spacing: 0.08em;
   }
   .quote {
@@ -231,7 +231,7 @@ const socials = site.social.map((s) => (s.icon === 'rss' ? { ...s, href: localiz
     max-width: 30ch;
     font-family: var(--font-serif);
     font-weight: 500;
-    font-size: 28px;
+    font-size: var(--fs-2xl);
     line-height: 1.5;
     color: var(--n-10);
   }
@@ -240,7 +240,7 @@ const socials = site.social.map((s) => (s.icon === 'rss' ? { ...s, href: localiz
     margin-top: 8px;
     font-family: var(--font-mono);
     font-style: normal;
-    font-size: 12px;
+    font-size: var(--fs-sm);
     color: var(--n-7);
   }
 
@@ -272,10 +272,10 @@ const socials = site.social.map((s) => (s.icon === 'rss' ? { ...s, href: localiz
       font-size: clamp(48px, 15vw, 80px);
     }
     .tagline {
-      font-size: 18px;
+      font-size: var(--fs-lg);
     }
     .quote {
-      font-size: 22px;
+      font-size: var(--fs-xl);
     }
   }
   @media (max-width: 480px) {

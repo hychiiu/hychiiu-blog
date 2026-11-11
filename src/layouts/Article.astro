@@ -92,15 +92,15 @@ const foreign = contentLang !== lang;
     gap: 16px;
     margin-bottom: 22px;
     font-family: var(--font-mono);
-    font-size: 12px;
+    font-size: var(--fs-sm);
     letter-spacing: 0.04em;
     color: var(--n-7);
   }
   .marker {
     padding: 0 6px;
     border: 1px solid var(--border);
-    border-radius: 4px;
-    font-size: 11px;
+    border-radius: var(--r-xs);
+    font-size: var(--fs-xs);
   }
   .marker.archived {
     color: var(--n-6);
@@ -118,14 +118,14 @@ const foreign = contentLang !== lang;
   }
   .post-title {
     margin: 0 0 14px;
-    font-size: 44px;
+    font-size: var(--fs-4xl);
     line-height: 1.15;
     letter-spacing: -0.01em;
   }
   .post-subtitle {
     margin: 0 0 28px;
     font-family: var(--font-serif);
-    font-size: 17px;
+    font-size: var(--fs-lg);
     line-height: 1.6;
     color: var(--n-7);
   }
@@ -140,19 +140,19 @@ const foreign = contentLang !== lang;
   .post-author img {
     width: 36px;
     height: 36px;
-    border-radius: 50%;
+    border-radius: var(--r-round);
     object-fit: cover;
   }
   .author-name {
     font-family: var(--font-serif);
-    font-size: 14px;
+    font-size: var(--fs-md);
     font-weight: 500;
     color: var(--n-10);
   }
   .author-date {
     margin-top: 2px;
     font-family: var(--font-mono);
-    font-size: 11px;
+    font-size: var(--fs-xs);
     color: var(--n-7);
   }
   .post-footer {
@@ -165,7 +165,7 @@ const foreign = contentLang !== lang;
     padding-top: 16px;
     border-top: 1px solid var(--hair);
     font-family: var(--font-mono);
-    font-size: 11px;
+    font-size: var(--fs-xs);
     color: var(--n-7);
   }
   .tags {
@@ -173,7 +173,7 @@ const foreign = contentLang !== lang;
     gap: 12px;
   }
   .tags .tag {
-    font-size: 11px;
+    font-size: var(--fs-xs);
   }
   .back:hover {
     color: var(--accent);
@@ -189,8 +189,8 @@ const foreign = contentLang !== lang;
     gap: 6px;
     padding: 16px 18px;
     border: 1px solid var(--border);
-    border-radius: 10px;
-    transition: border-color 0.2s var(--ease), background 0.2s var(--ease);
+    border-radius: var(--r-md);
+    transition: border-color var(--dur-2) var(--ease), background var(--dur-2) var(--ease);
   }
   .pager a:hover {
     border-color: color-mix(in srgb, var(--n-10) 18%, transparent);
@@ -202,7 +202,7 @@ const foreign = contentLang !== lang;
   .pg {
     font-family: var(--font-serif);
     font-weight: 500;
-    font-size: 15px;
+    font-size: var(--fs-ui);
     color: var(--n-10);
   }
   @media (max-width: 640px) {
@@ -210,10 +210,10 @@ const foreign = contentLang !== lang;
       padding-top: 40px;
     }
     .post-title {
-      font-size: 32px;
+      font-size: var(--fs-3xl);
     }
     .post-subtitle {
-      font-size: 15.5px;
+      font-size: var(--fs-ui);
     }
     .pager {
       grid-template-columns: 1fr;

@@ -36,6 +36,63 @@
     'Noto Sans Mono CJK SC', monospace;
 
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* ===== 设计令牌（规范见 docs/DESIGN.md，组件只引用这些变量） ===== */
+  /* 语义色 */
+  --ink: var(--n-9);            /* 正文 */
+  --ink-strong: var(--n-10);    /* 标题 */
+  --ink-muted: var(--n-7);      /* 次要文字 / meta */
+  --ink-faint: var(--n-6);      /* 占位、辅助 */
+  --surface-1: color-mix(in srgb, var(--n-10) 2.6%, transparent); /* 代码、引用等极淡底 */
+  --surface-2: color-mix(in srgb, var(--n-10) 5%, transparent);   /* hover 底 */
+
+  /* 字号阶梯 */
+  --fs-2xs: 10.5px;  /* mono 角标 */
+  --fs-xs: 11.5px;   /* mono meta、徽标 */
+  --fs-sm: 12.5px;   /* 图注、提示气泡 */
+  --fs-meta: 13.5px; /* 返回链接、上下篇、按钮 */
+  --fs-md: 14px;     /* UI 正文、代码 */
+  --fs-ui: 15px;     /* 列表摘要 */
+  --fs-body: 16px;   /* 文章正文 */
+  --fs-lg: 18px;
+  --fs-xl: 21px;
+  --fs-2xl: 30px;
+  --fs-3xl: 32px;
+  --fs-4xl: 44px;
+  --lh-tight: 1.25;
+  --lh-ui: 1.5;
+  --lh-body: 1.85;
+  --lh-code: 1.7;
+
+  /* 间距（4px 基准） */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 24px;
+  --sp-6: 32px;
+  --sp-7: 48px;
+  --sp-8: 64px;
+  --sp-9: 96px;
+
+  /* 圆角 */
+  --r-xs: 4px;     /* 行内代码、kbd */
+  --r-sm: 8px;     /* 小块 */
+  --r-md: 12px;    /* 代码块、图片、卡片 */
+  --r-pill: 9999px; /* 胶囊：按钮、标签、Dock、提示 */
+  --r-round: 50%;  /* 头像、图标 */
+
+  /* 阴影：只用于浮层，内容区不用 */
+  --shadow-float: 0 1px 2px rgb(24 24 27 / 0.04), 0 6px 16px -6px rgb(24 24 27 / 0.1), 0 22px 44px -18px rgb(24 24 27 / 0.16);
+  --shadow-pop: 0 4px 14px -4px rgb(24 24 27 / 0.18);
+
+  /* 动效：只用减速曲线，无回弹 */
+  --dur-1: 80ms;   /* 按压、旧页淡出 */
+  --dur-2: 200ms;  /* hover、颜色、新页淡入 */
+  --dur-3: 300ms;  /* 展开、主题切换 */
+  --dur-4: 450ms;
+  --dur-5: 700ms;
+
   --shell: 1120px;
   --shell-pad: 64px;
   --measure: 720px;
@@ -61,6 +118,10 @@
   --border: rgb(255 255 255 / 0.1);
   --hair: rgb(255 255 255 / 0.07);
   --accent: var(--accent-dark, #c56473);
+  --surface-1: rgb(255 255 255 / 0.03);
+  --surface-2: rgb(255 255 255 / 0.06);
+  --shadow-float: 0 1px 2px rgb(0 0 0 / 0.3), 0 10px 24px -8px rgb(0 0 0 / 0.45), 0 28px 56px -20px rgb(0 0 0 / 0.55);
+  --shadow-pop: 0 4px 14px -4px rgb(0 0 0 / 0.5);
 
   color-scheme: dark;
 }
@@ -72,7 +133,7 @@
 }
 
 html {
-  font-size: 14px;
+  font-size: var(--fs-md);
   line-height: 1.5;
   letter-spacing: 0.01em;
   -webkit-text-size-adjust: 100%;
@@ -92,7 +153,7 @@ body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  transition: background-color 0.3s var(--ease), color 0.3s var(--ease);
+  transition: background-color var(--dur-3) var(--ease), color var(--dur-3) var(--ease);
 }
 
 main {
@@ -126,7 +187,7 @@ h4 {
 :focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 3px;
-  border-radius: 4px;
+  border-radius: var(--r-xs);
 }
 
 /* ---------- shell ---------- */
@@ -154,7 +215,7 @@ h4 {
   gap: 12px;
   margin: 0;
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: var(--fs-sm);
   font-weight: 500;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -164,7 +225,7 @@ h4 {
   flex: none;
   width: 6px;
   height: 6px;
-  border-radius: 50%;
+  border-radius: var(--r-round);
   background: var(--accent);
 }
 .mono {
@@ -172,7 +233,7 @@ h4 {
 }
 .meta {
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: var(--fs-sm);
   color: var(--n-7);
   font-variant-numeric: tabular-nums;
 }
@@ -200,7 +261,7 @@ h4 {
   margin: 0;
   max-width: 56ch;
   font-family: var(--font-serif);
-  font-size: 17px;
+  font-size: var(--fs-lg);
   line-height: 1.6;
   color: var(--n-7);
 }
@@ -210,7 +271,7 @@ h4 {
     margin-bottom: 36px;
   }
   .page-hero .lede {
-    font-size: 15.5px;
+    font-size: var(--fs-ui);
   }
 }
 
@@ -225,12 +286,12 @@ h4 {
   margin: 0 0 6px;
   font-family: var(--font-serif);
   font-weight: 500;
-  font-size: 14px;
+  font-size: var(--fs-md);
   letter-spacing: 0.04em;
   color: var(--accent);
 }
 .section-title {
-  font-size: 32px;
+  font-size: var(--fs-3xl);
   line-height: 1.2;
   letter-spacing: 0.02em;
 }
@@ -238,7 +299,7 @@ h4 {
   margin: 14px 0 0;
   max-width: 64ch;
   font-family: var(--font-serif);
-  font-size: 16px;
+  font-size: var(--fs-body);
   line-height: 1.6;
   color: var(--n-7);
 }
@@ -247,7 +308,7 @@ h4 {
     margin-bottom: 56px;
   }
   .section-title {
-    font-size: 28px;
+    font-size: var(--fs-2xl);
   }
 }
 
@@ -264,9 +325,9 @@ h4 {
   display: inline-flex;
   align-items: center;
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: var(--fs-sm);
   color: var(--accent);
-  transition: opacity 0.2s var(--ease);
+  transition: opacity var(--dur-2) var(--ease);
 }
 .tag:hover {
   opacity: 0.75;
@@ -279,13 +340,13 @@ h4 {
   justify-content: center;
   gap: 8px;
   padding: 8px;
-  border-radius: 8px;
+  border-radius: var(--r-sm);
   border: 1px solid var(--border);
   background: transparent;
   color: var(--n-9);
   line-height: 0;
   cursor: pointer;
-  transition: all 0.2s var(--ease);
+  transition: all var(--dur-2) var(--ease);
 }
 .icon-btn:hover {
   background: color-mix(in srgb, var(--n-10) 3%, transparent);
@@ -300,12 +361,30 @@ h4 {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 14px;
-  border-radius: 12px;
+  min-height: 34px;
+  padding: 0 var(--sp-4);
+  border-radius: var(--r-pill);
   border: 1px solid transparent;
-  font-size: 13px;
+  font-size: var(--fs-meta);
   font-weight: 500;
-  transition: all 0.2s var(--ease);
+  line-height: 1;
+  white-space: nowrap;
+  transition:
+    color var(--dur-2) var(--ease),
+    background-color var(--dur-2) var(--ease),
+    border-color var(--dur-2) var(--ease);
+}
+.btn:active {
+  transform: translateY(0.5px);
+}
+/* 幽灵按钮：发丝线描边，hover 极淡底（§7 按钮） */
+.btn--ghost {
+  border-color: var(--border);
+  color: var(--ink);
+}
+.btn--ghost:hover {
+  background: var(--surface-2);
+  color: var(--accent);
 }
 .btn--primary {
   background: var(--accent-8);
@@ -329,7 +408,7 @@ h4 {
   }
 }
 .reveal {
-  animation: rise 0.7s var(--ease) both;
+  animation: rise var(--dur-5) var(--ease) both;
   animation-delay: calc(var(--i, 0) * 70ms);
 }
 @media (prefers-reduced-motion: reduce) {
@@ -346,7 +425,7 @@ h4 {
 .prose {
   counter-reset: h2;
   font-family: var(--font-serif);
-  font-size: 16px;
+  font-size: var(--fs-body);
   line-height: 1.9;
   color: var(--n-9);
   overflow-wrap: break-word;
@@ -365,7 +444,7 @@ h4 {
 .prose h2 {
   counter-increment: h2;
   margin: 2.2em 0 0.7em;
-  font-size: 21px;
+  font-size: var(--fs-xl);
   line-height: 1.35;
   letter-spacing: -0.005em;
   scroll-margin-top: 80px;
@@ -378,13 +457,13 @@ h4 {
 }
 .prose h3 {
   margin: 1.8em 0 0.6em;
-  font-size: 17px;
+  font-size: var(--fs-lg);
   line-height: 1.45;
 }
 .prose a {
   color: var(--accent);
   border-bottom: 1px solid var(--accent-30);
-  transition: border-color 0.2s var(--ease);
+  transition: border-color var(--dur-2) var(--ease);
 }
 .prose a:hover {
   border-color: var(--accent);
@@ -445,18 +524,18 @@ h4 {
   font-family: var(--font-mono);
   font-size: 0.84em;
   padding: 1px 5px;
-  border-radius: 3px;
+  border-radius: var(--r-xs);
   background: color-mix(in srgb, var(--n-10) 6%, transparent);
   color: var(--n-9);
 }
 .prose img {
   display: block;
-  border-radius: 8px;
+  border-radius: var(--r-sm);
 }
 .prose table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 14px;
+  font-size: var(--fs-md);
 }
 .prose th,
 .prose td {
@@ -466,13 +545,13 @@ h4 {
 }
 .prose th {
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: var(--fs-sm);
   font-weight: 500;
   color: var(--n-7);
 }
 @media (max-width: 640px) {
   .prose {
-    font-size: 15.5px;
+    font-size: var(--fs-ui);
     line-height: 1.85;
   }
 }
@@ -481,13 +560,12 @@ h4 {
 @keyframes yh-page-out {
   to {
     opacity: 0;
-    transform: translateY(-4px);
   }
 }
 @keyframes yh-page-in {
   from {
     opacity: 0;
-    transform: translateY(6px);
+    transform: translateY(4px);
   }
 }
 ::view-transition-group(*) {
@@ -530,5 +608,5 @@ h4 {
   animation: 0.12s ease-out both yh-fade-out;
 }
 ::view-transition-new(*.yh-title) {
-  animation: 0.28s var(--ease) both yh-fade-in;
+  animation: var(--dur-3) var(--ease) both yh-fade-in;
 }

@@ -84,10 +84,10 @@ let idx = 3;
   .t {
     font-family: var(--font-serif);
     font-weight: 500;
-    font-size: 18px;
+    font-size: var(--fs-lg);
     line-height: 1.45;
     color: var(--n-10);
-    transition: color 0.2s var(--ease);
+    transition: color var(--dur-2) var(--ease);
   }
   .list a:hover .t {
     color: var(--accent);
@@ -95,13 +95,13 @@ let idx = 3;
   .right {
     display: flex;
     gap: 12px;
-    font-size: 11.5px;
+    font-size: var(--fs-xs);
   }
   .marker {
     padding: 0 6px;
     border: 1px solid var(--border);
-    border-radius: 4px;
-    font-size: 10.5px;
+    border-radius: var(--r-xs);
+    font-size: var(--fs-2xs);
   }
   .tg {
     color: var(--accent);

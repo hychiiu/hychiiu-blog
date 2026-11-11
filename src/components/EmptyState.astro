@@ -27,7 +27,7 @@ const { text, hint, class: cls = '', style } = Astro.props;
   }
   .mark {
     font-family: var(--font-serif);
-    font-size: 30px;
+    font-size: var(--fs-2xl);
     line-height: 1;
     color: var(--accent);
     opacity: 0.8;
@@ -36,14 +36,14 @@ const { text, hint, class: cls = '', style } = Astro.props;
     margin: 0;
     font-family: var(--font-serif);
     font-weight: 500;
-    font-size: 19px;
+    font-size: var(--fs-lg);
     line-height: 1.4;
     color: var(--n-8);
   }
   .hint {
     margin: 6px 0 0;
     font-family: var(--font-mono);
-    font-size: 11.5px;
+    font-size: var(--fs-xs);
     letter-spacing: 0.06em;
     color: var(--n-6);
   }
