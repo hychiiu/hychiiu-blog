@@ -25,7 +25,9 @@ function eagerIframe(slot: HTMLElement) {
 }
 
 function mount(slot: HTMLElement) {
-  if (!slot.isConnected || slot.querySelector('script')) return;
+  // 只挂载一次：client.js 执行后会移除 script、换成 .utterances，所以用标记而不是查 script
+  if (!slot.isConnected || 'mounted' in slot.dataset) return;
+  slot.dataset.mounted = '';
   const s = document.createElement('script');
   s.src = `${ORIGIN}/client.js`;
   s.async = true;
@@ -39,7 +41,7 @@ function mount(slot: HTMLElement) {
 
 function init() {
   const slot = document.querySelector<HTMLElement>('[data-utterances]');
-  if (slot?.dataset.mode !== 'auto' || slot.dataset.bound) return;
+  if (slot?.dataset.mode !== 'auto' || 'bound' in slot.dataset) return;
   slot.dataset.bound = '';
   idle(() => mount(slot), 1500);
 }
