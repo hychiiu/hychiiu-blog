@@ -12,9 +12,21 @@
       "tags": [],
       "url": "https://github.com/hychiiu/hychiiu-blog/issues/2",
       "createdAt": "2026-11-11T15:26:15Z",
-      "updatedAt": "2026-11-11T16:50:13Z",
+      "updatedAt": "2026-11-12T02:02:20Z",
       "closedAt": null,
-      "comments": []
+      "comments": [
+        {
+          "id": 6812188326,
+          "author": "hychiiu",
+          "avatar": "https://avatars.githubusercontent.com/u/27754907?v=4",
+          "authorUrl": "https://github.com/hychiiu",
+          "association": "OWNER",
+          "body": "测试",
+          "url": "https://github.com/hychiiu/hychiiu-blog/issues/2#issuecomment-6812188326",
+          "createdAt": "2026-11-12T02:02:20Z",
+          "updatedAt": "2026-11-12T02:02:20Z"
+        }
+      ]
     }
   ]
 }
