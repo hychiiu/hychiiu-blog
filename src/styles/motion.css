@@ -87,3 +87,48 @@
 ::view-transition {
   pointer-events: none;
 }
+
+/* 跨页保持不动的区块（列表页头、标签筛选行）：两页都有时不做淡入淡出、直接换成新内容；
+   只在一侧出现时（:only-child，没有配对）仍按页面过渡淡出 / 淡入。
+   注意用正向的 :only-child 覆盖，Chromium 里 :not(:only-child) 对过渡伪元素不生效 */
+.vt-static {
+  view-transition-class: yh-static;
+}
+::view-transition-old(*.yh-static) {
+  animation: none;
+  opacity: 0;
+}
+::view-transition-new(*.yh-static) {
+  animation: none;
+}
+::view-transition-old(*.yh-static):only-child {
+  opacity: 1;
+  animation: yh-page-out var(--dur-1) linear both;
+}
+::view-transition-new(*.yh-static):only-child {
+  animation: yh-page-in var(--dur-2) var(--ease) 60ms both;
+}
+/* 列表 ↔ 列表（切换筛选）：不做标题形变，否则同一篇在两份列表里的标题会滑来滑去 */
+:root[data-vt-list] .vt-title {
+  view-transition-name: none !important;
+}
+/* Dock（§10 常驻）：过渡名写在样式里而不是 transition:name。
+   transition:name 依赖每页 <head> 里按组件顺序编号的作用域样式；Dock 被 persist 保留时还带着旧页的编号，
+   新页编号一变（页面里多了别的命名区块）就失去过渡名，新状态里没有 Dock，会整块消失一瞬。 */
+.dock {
+  view-transition-name: dock;
+}
+::view-transition-group(dock) {
+  animation: none;
+}
+::view-transition-old(dock) {
+  animation: none;
+  opacity: 0;
+}
+::view-transition-new(dock) {
+  animation: none;
+}
+/* 页脚随页面淡出 / 淡入，但不从旧位置滑到新位置（两页长度不同时会扫过正文） */
+::view-transition-group(footer) {
+  animation: none;
+}

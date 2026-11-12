@@ -1,6 +1,8 @@
 ---
 import { site, icp, credits, type Lang } from '../config';
 import { localizePath, useT } from '../i18n';
+import { pageFade } from '../utils/transitions';
+import { fileLinkAttrs } from '../utils/view';
 interface Props {
   lang: Lang;
 }
@@ -11,7 +13,7 @@ const startYear = new Date(site.startDate).getFullYear();
 const years = startYear === year ? `${year}` : `${startYear}–${year}`;
 ---
 
-<footer class="footer" transition:name="footer" transition:animate="none">
+<footer class="footer" transition:name="footer" transition:animate={pageFade}>
   <div class="shell">
     <div class="inner">
       <div class="col left">
@@ -35,11 +37,15 @@ const years = startYear === year ? `${year}` : `${startYear}–${year}`;
       </div>
       <div class="col right">
         <nav class="meta-line links" aria-label={t('footer.feeds')}>
-          <a href={localizePath(lang, '/rss.xml')}>RSS</a>
+          <a href={localizePath(lang, '/rss.xml')} {...fileLinkAttrs('/rss.xml')}>
+            RSS
+          </a>
           <span class="dot" aria-hidden="true">
             ·
           </span>
-          <a href="/sitemap-index.xml">{t('footer.sitemap')}</a>
+          <a href="/sitemap-index.xml" {...fileLinkAttrs('/sitemap-index.xml')}>
+            {t('footer.sitemap')}
+          </a>
         </nav>
         {icp.number && (
           <p class="meta-line icp" id="icp-filing" hidden data-hosts={icp.hosts.join(',')}>

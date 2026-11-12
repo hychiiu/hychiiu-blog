@@ -107,7 +107,7 @@ const rss = localizePath(lang, '/rss.xml');
   </head>
   <body>
     <Dock lang={lang} alternates={alternates} />
-    <main transition:animate={pageFade}>
+    <main transition:name="page" transition:animate={pageFade}>
       <slot />
     </main>
     <Footer lang={lang} />

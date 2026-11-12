@@ -1,6 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
 import EmptyState from '../components/EmptyState.astro';
+import ListHero from '../components/ListHero.astro';
 import TagFilter from '../components/TagFilter.astro';
 import YearList from '../components/YearList.astro';
 import type { Lang } from '../config';
@@ -20,19 +21,12 @@ const entries = posts.map((p) => ({ ...p, kind: 'posts' as const }));
 
 <Base title={t('nav.posts')} description={t('posts.lede')}>
   <div class="shell">
-    <header class="page-hero">
-      <p class="eyebrow reveal" style="--i:0">
-        <span class="dot"></span>
-        <span>{t('posts.eyebrow')(posts.length)}</span>
-      </p>
-      <h1 class="reveal" style="--i:1">
-        {t('posts.title')}
-        <span class="cn-accent">{t('posts.cn')}</span>
-      </h1>
-      <p class="lede reveal" style="--i:2">
-        {t('posts.lede')}
-      </p>
-    </header>
+    <ListHero
+      eyebrow={t('posts.eyebrow')(posts.length)}
+      title={t('posts.title')}
+      cn={t('posts.cn')}
+      lede={t('posts.lede')}
+    />
 
     <TagFilter lang={lang} tags={tags} total={posts.length} class="reveal" style="--i:3" />
 

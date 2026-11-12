@@ -81,6 +81,6 @@ export default {
   'tags.more': 'All tags',
   'tags.filter': 'Browse by tag',
   'tags.count': (n: number) => `${n} ${n > 1 ? 'entries' : 'entry'}`,
-  'tag.eyebrow': (n: number) => `Tag · ${n}`,
+  'tag.eyebrow': (name: string, n: number) => `Posts · #${name} · ${n}`,
   'tag.lede': (name: string) => `Posts and notes tagged “${name}”.`,
 } as const satisfies { [K in keyof typeof zh]: unknown };

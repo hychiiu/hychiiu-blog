@@ -28,3 +28,13 @@ export const pad2 = (n: number) => String(n).padStart(2, '0');
 export function socialLinks(lang: Lang) {
   return social.map((s) => (s.icon === 'rss' ? { ...s, href: localizePath(lang, '/rss.xml') } : s));
 }
+
+/**
+ * 指向站内非页面资源（RSS、站点地图等）的链接属性：不走 ClientRouter、不预取，直接由浏览器打开。
+ * 页面链接返回空对象（照常走 ClientRouter 的无刷新跳转与预取）。
+ */
+export function fileLinkAttrs(href: string): Record<string, string> {
+  return /\.(xml|txt|json)$/i.test(href.split(/[?#]/)[0])
+    ? { 'data-astro-reload': '', 'data-astro-prefetch': 'false' }
+    : {};
+}

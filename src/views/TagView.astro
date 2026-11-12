@@ -1,8 +1,10 @@
 ---
 /**
- * 单个标签页：页头（#标签名）+ 与文章列表相同的筛选行（当前标签高亮）+ 按年份分组的文章与手记。
+ * 单个标签页 = 按标签筛选后的文章列表：与文章列表同一页头（eyebrow / lede 带上标签名）、
+ * 同一筛选行（当前标签高亮）+ 按年份分组的文章与手记。切换筛选时页头与筛选行不动，只有列表淡入。
  */
 import Base from '../layouts/Base.astro';
+import ListHero from '../components/ListHero.astro';
 import TagFilter from '../components/TagFilter.astro';
 import YearList from '../components/YearList.astro';
 import type { Lang } from '../config';
@@ -23,32 +25,15 @@ const mixed = tag.entries.some((e) => e.kind === 'notes');
 
 <Base title={`#${tag.name}`} description={t('tag.lede')(tag.name)} alternates={alternates}>
   <div class="shell">
-    <header class="page-hero">
-      <p class="eyebrow reveal" style="--i:0">
-        <span class="dot"></span>
-        <span>{t('tag.eyebrow')(tag.entries.length)}</span>
-      </p>
-      <h1 class="reveal" style="--i:1">
-        <span class="hash" aria-hidden="true">
-          #
-        </span>
-        {tag.name}
-      </h1>
-      <p class="lede reveal" style="--i:2">
-        {t('tag.lede')(tag.name)}
-      </p>
-    </header>
+    <ListHero
+      eyebrow={t('tag.eyebrow')(tag.name, tag.entries.length)}
+      title={t('posts.title')}
+      cn={t('posts.cn')}
+      lede={t('tag.lede')(tag.name)}
+    />
 
     <TagFilter lang={lang} tags={tags} total={posts.length} active={tag.slug} class="reveal" style="--i:3" />
 
     <YearList entries={tag.entries} lang={lang} startIndex={4} showKind={mixed} />
   </div>
 </Base>
-
-<style>
-  .hash {
-    margin-right: 0.06em;
-    font-weight: 400;
-    color: var(--accent);
-  }
-</style>

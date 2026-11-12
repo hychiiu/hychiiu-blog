@@ -1,0 +1,29 @@
+---
+/**
+ * 文章列表与标签页共用的页头。两页之间切换筛选时页头保持不动（view-transition-name 配对 +
+ * .vt-static，见 styles/motion.css），只有下方列表淡入；与其它页面之间仍按页面过渡淡入淡出。
+ */
+import { pageFade } from '../utils/transitions';
+
+interface Props {
+  eyebrow: string;
+  title: string;
+  cn: string;
+  lede: string;
+}
+const { eyebrow, title, cn, lede } = Astro.props;
+---
+
+<header class="page-hero vt-static" transition:name="list-hero" transition:animate={pageFade}>
+  <p class="eyebrow reveal" style="--i:0">
+    <span class="dot"></span>
+    <span>{eyebrow}</span>
+  </p>
+  <h1 class="reveal" style="--i:1">
+    {title}
+    <span class="cn-accent">{cn}</span>
+  </h1>
+  <p class="lede reveal" style="--i:2">
+    {lede}
+  </p>
+</header>

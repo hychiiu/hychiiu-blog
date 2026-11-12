@@ -2,11 +2,13 @@
 /**
  * 文章列表 / 标签页顶部的标签筛选行：「全部」+ 篇数最多的若干标签 +「全部标签」。
  * 胶囊（§4），弱色 mono；当前项为强调色 + 极淡强调底（§1 当前态）。窄屏单行横向滚动，两端渐隐。
- * 纯链接，无 JS：每个标签是一个静态页面（/tags/<slug>/）。
+ * 每个标签是一个静态页面（/tags/<slug>/），走 ClientRouter：点击即切换当前项，切换时筛选行与页头不动、
+ * 滚动位置以筛选行为锚点保持不变，只有列表淡入（scripts/tag-filter.ts、styles/motion.css）。无 JS 时就是普通链接。
  */
 import { taxonomy, type Lang } from '../config';
 import { useT, localizePath } from '../i18n';
 import { tagHref, tagsIndexHref, type Tag } from '../utils/tags';
+import { pageFade } from '../utils/transitions';
 
 interface Props {
   lang: Lang;
@@ -28,10 +30,17 @@ const hasMore = tags.length > shown.length;
 ---
 
 {tags.length > 0 && (
-  <nav class:list={['tag-filter', cls]} style={style} aria-label={t('tags.filter')}>
+  <nav
+    class:list={['tag-filter', 'vt-static', cls]}
+    style={style}
+    aria-label={t('tags.filter')}
+    data-tag-filter
+    transition:name="tag-filter"
+    transition:animate={pageFade}
+  >
     <ul>
       <li>
-        <a href={localizePath(lang, '/posts/')} aria-current={!active ? 'page' : undefined}>
+        <a href={localizePath(lang, '/posts/')} data-filter aria-current={!active ? 'page' : undefined}>
           {t('tags.all')}
           <span class="n">{total}</span>
         </a>
@@ -40,6 +49,7 @@ const hasMore = tags.length > shown.length;
         <li>
           <a
             href={tagHref(lang, tag.slug)}
+            data-filter
             aria-current={tag.slug === active ? 'page' : undefined}
             aria-label={`#${tag.name} · ${t('tags.count')(tag.entries.length)}`}
           >
@@ -63,6 +73,10 @@ const hasMore = tags.length > shown.length;
     </ul>
   </nav>
 )}
+
+<script>
+  import '../scripts/tag-filter';
+</script>
 
 <style>
   .tag-filter {

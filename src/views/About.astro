@@ -3,7 +3,7 @@ import Base from '../layouts/Base.astro';
 import Icon from '../components/Icon.astro';
 import { site, type Lang } from '../config';
 import { useT } from '../i18n';
-import { socialLinks } from '../utils/view';
+import { fileLinkAttrs, socialLinks } from '../utils/view';
 
 interface Props {
   lang: Lang;
@@ -50,7 +50,12 @@ const socials = socialLinks(lang);
             <div>
               <dt>{s.label}</dt>
               <dd>
-                <a href={s.href} target={s.href.startsWith('http') ? '_blank' : undefined} rel="noopener noreferrer">
+                <a
+                  href={s.href}
+                  target={s.href.startsWith('http') ? '_blank' : undefined}
+                  rel="noopener noreferrer"
+                  {...fileLinkAttrs(s.href)}
+                >
                   <Icon name={s.icon} size={12} /> {s.href.replace(/^https?:\/\//, '').replace(/^mailto:/, '')}
                 </a>
               </dd>

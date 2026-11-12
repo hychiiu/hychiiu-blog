@@ -79,6 +79,6 @@ export default {
   'tags.more': '全部标签',
   'tags.filter': '按标签浏览',
   'tags.count': (n: number) => `${n} 篇`,
-  'tag.eyebrow': (n: number) => `Tag · ${n} 篇`,
+  'tag.eyebrow': (name: string, n: number) => `Posts · #${name} · ${n} 篇`,
   'tag.lede': (name: string) => `标记为「${name}」的文章与手记。`,
 } as const;
