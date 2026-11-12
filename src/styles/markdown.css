@@ -1,5 +1,5 @@
 /*
- * Markdown 扩展语法的样式（余白风格，亮/暗色共用变量）
+ * Markdown 扩展语法的样式（亮/暗色共用变量）
  * 基础排版在 global.css 的 .prose 里，这里补充：标题锚点、任务列表、表格、
  * 提示块、脚注、图片说明、kbd/mark/sup/sub、details、KaTeX、Mermaid、代码块细节。
  */

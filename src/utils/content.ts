@@ -31,7 +31,7 @@ export function readingMinutes(text = ''): number {
   return Math.max(1, Math.round(countWords(text) / content.wordsPerMinute));
 }
 
-/** Yohaku 风格的点分日期：2026·11·11 */
+/** 点分日期：2026·11·11 */
 export function dotDate(d: Date): string {
   return `${d.getFullYear()}·${String(d.getMonth() + 1).padStart(2, '0')}·${String(d.getDate()).padStart(2, '0')}`;
 }

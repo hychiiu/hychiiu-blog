@@ -13,7 +13,7 @@ export const site = {
   url: env('SITE_URL', 'https://inbluemoon.com'),
 
   name: 'hychiiu',
-  /** 名字旁边的强调色中文（Yohaku 风格的「余白」位置）。留空字符串则不显示 */
+  /** 名字旁边的强调色中文。留空字符串则不显示 */
   nameCJK: '怀秋',
   /** 浏览器标签页标题 */
   title: 'hychiiu',
@@ -55,13 +55,13 @@ export const site = {
       paragraphs: [] as string[],
       now: [] as string[],
       colophon:
-        '本站使用 <a href="https://astro.build" target="_blank" rel="noopener">Astro</a> 构建，纯静态托管于 Cloudflare Pages；视觉语言参考了开源的 Yohaku 设计系统（MIT）。',
+        '本站使用 <a href="https://astro.build" target="_blank" rel="noopener">Astro</a> 构建，纯静态托管于 Cloudflare Pages，文章写在 GitHub Issues 里。',
     },
     en: {
       paragraphs: [] as string[],
       now: [] as string[],
       colophon:
-        'Built with <a href="https://astro.build" target="_blank" rel="noopener">Astro</a>, served as static files on Cloudflare Pages. The visual language follows the open-source Yohaku design system (MIT).',
+        'Built with <a href="https://astro.build" target="_blank" rel="noopener">Astro</a>, served as static files on Cloudflare Pages, with posts written as GitHub Issues.',
     },
   } satisfies Localized<{ paragraphs: string[]; now: string[]; colophon: string }>,
 
@@ -72,10 +72,10 @@ export const site = {
   /** 站点开始日期，用于首页「已运行 N 天」统计 */
   startDate: '2026-11-11',
 
-  /** 唯一强调色（Yohaku 梅色）。亮色 / 暗色分别设置 */
+  /** 唯一强调色（梅色）。亮色 / 暗色分别设置 */
   accent: {
     light: '#c56473',
-    dark: '#c56473', // 与 yohaku.innei.dev 暗色一致；想更亮可用 '#e095a4'
+    dark: '#c56473', // 想更亮可用 '#e095a4'
   },
 
   /** 浏览器地址栏颜色（与 tokens.css 的 --paper 一致） */
