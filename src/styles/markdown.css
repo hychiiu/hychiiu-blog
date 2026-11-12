@@ -198,32 +198,21 @@
   height: 14px;
   fill: currentColor;
 }
+/* 颜色来自 tokens.css 的语义色（--tone-*，随深浅色切换）；「注意」用红色系，不跟随强调色 */
 .prose .markdown-alert-note {
-  --c: #5b7fa6;
+  --c: var(--tone-note);
 }
 .prose .markdown-alert-tip {
-  --c: #5f8a63;
+  --c: var(--tone-tip);
 }
 .prose .markdown-alert-important {
-  --c: #8a6aa8;
+  --c: var(--tone-important);
 }
 .prose .markdown-alert-warning {
-  --c: #b08431;
+  --c: var(--tone-warning);
 }
 .prose .markdown-alert-caution {
-  --c: var(--accent);
-}
-:root[data-theme='dark'] .prose .markdown-alert-note {
-  --c: #86a5c8;
-}
-:root[data-theme='dark'] .prose .markdown-alert-tip {
-  --c: #8db591;
-}
-:root[data-theme='dark'] .prose .markdown-alert-important {
-  --c: #b29ccb;
-}
-:root[data-theme='dark'] .prose .markdown-alert-warning {
-  --c: #d2aa5e;
+  --c: var(--tone-caution);
 }
 
 /* ---------- tables ---------- */

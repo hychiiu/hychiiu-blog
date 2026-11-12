@@ -1,6 +1,6 @@
 /*
  * 设计令牌（规范见 docs/DESIGN.md）：
- * 单一强调色梅红 #c56473、暖色中性灰阶 n-1…10、衬线为主的排版、mono 元信息、发丝线分隔、
+ * 单一强调色松绿（浅色 #3a7350 / 深色 #7eb892，取值在 config/site.ts）、暖色中性灰阶 n-1…10、衬线为主的排版、mono 元信息、发丝线分隔、
  * 左对齐的编辑式版心，留白是主要材料。组件只引用这里定义的变量。
  */
 
@@ -21,7 +21,7 @@
   --paper-rgb: 250 249 245;
   --border: rgb(24 24 27 / 0.1);
   --hair: rgb(24 24 27 / 0.08);
-  --accent: var(--accent-light, #c56473);
+  --accent: var(--accent-light, #3a7350);
   --accent-8: color-mix(in srgb, var(--accent) 8%, transparent);
   --accent-12: color-mix(in srgb, var(--accent) 12%, transparent);
   --accent-30: color-mix(in srgb, var(--accent) 30%, transparent);
@@ -118,9 +118,15 @@
   /* 可横向滚动区域边缘的渐隐提示宽度 */
   --scroll-hint: var(--sp-5);
 
-  /* 代码 diff 标记（astro.config.mjs 的 Expressive Code 引用） */
-  --diff-ins: #5f8a63;
-  --diff-del: #c56473;
+  /* 语义色（与强调色无关）：提示块（markdown.css）与代码 diff 标记（astro.config.mjs 的 Expressive Code 引用） */
+  --tone-note: #5b7fa6;
+  --tone-tip: #5f8a63;
+  --tone-important: #8a6aa8;
+  --tone-warning: #b08431;
+  --tone-caution: #b4544c;
+  --diff-ins: var(--tone-tip);
+  --diff-del: var(--tone-caution);
+  /* 强调色底上的文字 */
   --on-accent: #fff;
 
   /* Mermaid 图表配色（scripts/mermaid.ts 读取；与中性色阶一致） */
@@ -172,7 +178,13 @@
   --paper-rgb: 24 24 26;
   --border: rgb(255 255 255 / 0.1);
   --hair: rgb(255 255 255 / 0.07);
-  --accent: var(--accent-dark, #c56473);
+  --accent: var(--accent-dark, #7eb892);
+  --on-accent: var(--paper);
+  --tone-note: #86a5c8;
+  --tone-tip: #8db591;
+  --tone-important: #b29ccb;
+  --tone-warning: #d2aa5e;
+  --tone-caution: #d98a82;
   --surface-1: rgb(255 255 255 / 0.03);
   --surface-2: rgb(255 255 255 / 0.06);
   --shadow-float: 0 1px 2px rgb(0 0 0 / 0.3), 0 10px 24px -8px rgb(0 0 0 / 0.45), 0 28px 56px -20px rgb(0 0 0 / 0.55);

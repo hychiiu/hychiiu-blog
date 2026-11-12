@@ -140,7 +140,7 @@ npm run check      # astro check + tsc
 
 常改的几项：
 
-- `site.ts`：名字、首页介绍与引言、关于页正文（`about`）、强调色 `accent`（默认 `#c56473`）、建站日期 `startDate`、正式域名 `url`
+- `site.ts`：名字、首页介绍与引言、关于页正文（`about`）、强调色 `accent`（松绿，浅色 `#3a7350` / 深色 `#7eb892`）、建站日期 `startDate`、正式域名 `url`
 - `social.ts`：首页 / 关于页的社交图标，取消注释即可启用
 - `content.ts`：文章来源仓库 `repo`（或 `GITHUB_REPO`）
 
@@ -190,5 +190,5 @@ functions/                ← Cloudflare Pages Function（让下线的文章及�
 
 视觉规范（颜色、字号、间距、圆角、动效、组件规则）见 [`docs/DESIGN.md`](docs/DESIGN.md)，改界面前先看。
 
-- 暖白纸面 `#faf9f5` / 深色 `#18181a`，暖色中性灰阶，单一强调色 `#c56473`
+- 暖白纸面 `#faf9f5` / 深色 `#18181a`，暖色中性灰阶，单一强调色松绿 `#3a7350` / `#7eb892`
 - 标题与正文 Noto Serif SC，界面 Inter，元信息与代码 JetBrains Mono，均为 OFL 字体并自托管
