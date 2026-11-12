@@ -3,7 +3,7 @@ import { env, envList } from './env.ts';
 
 /**
  * 本页留言（utterances）的加载方式：
- * - auto：评论区接近视口时自动加载，就绪后替换静态列表（默认）；
+ * - auto：页面加载后（浏览器空闲时）立即加载，就绪后替换静态列表（默认）；
  * - click：点「或在本页登录后留言」才加载；
  * - off：只有静态列表和「在 GitHub 上留言」。
  * 兼容旧变量：COMMENTS_INLINE=false 等同 off。
@@ -17,11 +17,15 @@ export const comments = {
   /** utterances：静态评论列表之外，可在本页登录后留言；需要在仓库安装 GitHub App */
   utterances: {
     mode,
-    /** auto 模式下提前多远开始加载（IntersectionObserver rootMargin） */
-    rootMargin: '600px 0px',
     origin: 'https://utteranc.es',
+    /** 文章页提前建立连接（iframe 页面与它调用的 GitHub API） */
+    preconnect: ['https://utteranc.es', 'https://api.github.com'],
     app: 'https://github.com/apps/utterances',
-    theme: { light: 'github-light', dark: 'github-dark' },
+    /**
+     * 随站点深浅色切换的主题（utterances 内置主题名）。
+     * 浅色用 boxy-light：评论框白底、描边少，在纸色底上最安静；深色用 github-dark：中性灰，没有彩色底。
+     */
+    theme: { light: 'boxy-light', dark: 'github-dark' },
   },
 };
 

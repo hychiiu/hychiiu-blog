@@ -101,6 +101,7 @@ const rss = localizePath(lang, '/rss.xml');
       })();
     </script>
     <ClientRouter />
+    <slot name="head" />
   </head>
   <body>
     <Dock lang={lang} alternates={alternates} />

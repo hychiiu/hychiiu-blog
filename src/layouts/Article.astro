@@ -4,7 +4,7 @@ import Comments from '../components/Comments.astro';
 import Mermaid from '../components/Mermaid.astro';
 import 'katex/dist/katex.min.css';
 import '../styles/markdown.css';
-import { site, type Lang } from '../config';
+import { site, comments, type Lang } from '../config';
 import { useT, htmlLang } from '../i18n';
 import { dotDate, readingMinutes, countWords } from '../utils/content';
 import { titleTransition } from '../utils/transitions';
@@ -49,9 +49,13 @@ const {
 const t = useT(lang);
 const label = kind === 'note' ? t('kind.note') : (tags[0] ?? t('kind.post'));
 const foreign = contentLang !== lang;
+// 本页留言启用时，提前连接 utterances 与 GitHub API（见 config/integrations.ts）
+const inlineComments = !!issue && !issue.locked && comments.utterances.mode !== 'off';
 ---
 
 <Base title={title} description={description || title} type="article" image={issue?.cover} alternates={alternates}>
+  {inlineComments &&
+    comments.utterances.preconnect.map((href) => <link rel="preconnect" href={href} crossorigin slot="head" />)}
   <div class="shell">
     <article class="post">
       <a class="back-link reveal" style="--i:0" href={backHref} data-back>

@@ -4,8 +4,9 @@
  * - 构建时把 issue 下的评论静态渲染成和文章一致的排版（同步由 GitHub Action 触发）；
  * - 底部胶囊按钮「在 GitHub 上留言 ↗」直接打开 issue；
  * - 本页留言用 utterances（同一个 issue，需在仓库安装 GitHub App），加载方式见 config/integrations.ts：
- *   auto 在评论区接近视口时自动加载，click 点按钮才加载，off 不加载。iframe 先透明叠在静态列表上，
- *   就绪（首次 resize 消息）后才替换静态列表并淡入，加载失败或无 JS 时静态列表照常可读。
+ *   auto 在页面加载后（空闲时）就加载，click 点按钮才加载，off 不加载。iframe 先透明叠在静态列表上，
+ *   就绪（首次 resize 消息）后才替换静态列表并淡入，同时收起构建时的评论数（utterances 自带实时计数），
+ *   只留一个标题；加载失败或无 JS 时静态列表照常可读。
  *   登录态由 utterances 自己保存在 localStorage，回访不用重新登录。
  */
 import { comments as commentsConfig, type Lang } from '../config';
@@ -103,7 +104,7 @@ const reactionsOf = (r?: Record<string, number>) => Object.entries(r ?? {}).filt
   {!locked && (
     <>
       <div class="c-actions">
-        <a class="btn btn--ghost" href={url} target="_blank" rel="noopener noreferrer">
+        <a class="c-link" href={url} target="_blank" rel="noopener noreferrer">
           {t('comments.onGitHub')} <span aria-hidden="true">↗</span>
         </a>
         {inline && mode === 'click' && (
@@ -118,8 +119,8 @@ const reactionsOf = (r?: Record<string, number>) => Object.entries(r ?? {}).filt
 
 <style>
   .comments {
-    margin-top: var(--sp-8);
-    padding-top: var(--sp-6);
+    margin-top: var(--sp-7);
+    padding-top: var(--sp-5);
     border-top: 1px solid var(--hair);
   }
   .c-title {
@@ -244,8 +245,13 @@ const reactionsOf = (r?: Record<string, number>) => Object.entries(r ?? {}).filt
     flex-wrap: wrap;
     align-items: center;
     gap: var(--sp-4);
-    margin-top: var(--sp-6);
+    margin-top: var(--sp-5);
   }
+  .comments:global([data-ready]) .c-actions {
+    justify-content: flex-end;
+    margin-top: var(--sp-2);
+  }
+  .c-link,
   .c-inline {
     padding: 0;
     border: 0;
@@ -259,6 +265,7 @@ const reactionsOf = (r?: Record<string, number>) => Object.entries(r ?? {}).filt
     text-underline-offset: 4px;
     transition: color var(--dur-2) var(--ease);
   }
+  .c-link:hover,
   .c-inline:hover {
     color: var(--accent);
   }
@@ -280,12 +287,18 @@ const reactionsOf = (r?: Record<string, number>) => Object.entries(r ?? {}).filt
     display: none;
   }
   /* 就绪后：替换静态列表并淡入 */
-  .c-stage:global([data-ready]) .utterances-slot {
+  .comments:global([data-ready]) .c-title {
+    margin-bottom: var(--sp-3);
+  }
+  .comments:global([data-ready]) .c-count {
+    display: none;
+  }
+  .comments:global([data-ready]) .utterances-slot {
     position: static;
     opacity: 1;
     pointer-events: auto;
   }
-  .c-stage:global([data-ready]) [data-static-comments] {
+  .comments:global([data-ready]) [data-static-comments] {
     display: none;
   }
   .utterances-slot :global(.utterances) {
