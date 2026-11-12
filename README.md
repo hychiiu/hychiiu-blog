@@ -57,7 +57,7 @@ npm run check      # astro check + tsc 类型检查
 | `config/nav.ts`          | Dock 导航项（顺序、路径、图标；「归档」仅在有归档内容时显示）                                      | —                                                                                            |
 | `config/social.ts`       | 首页 / 关于页的社交链接                                                                            | —                                                                                            |
 | `config/content.ts`      | 文章来源仓库、作者、特殊 label（`post` / `note` / `draft` / `en`）、数据文件、GitHub API、阅读速度 | `GITHUB_REPO`（其次 `GITHUB_REPOSITORY`）、`BLOG_AUTHOR`、`GITHUB_API_URL`、`YH_ISSUES_FILE` |
-| `config/integrations.ts` | 评论（utterances）、ICP 备案号与显示域名、页脚致谢链接                                             | `COMMENTS_INLINE`、`ICP_NUMBER`（设为空即关闭）、`ICP_HOSTS`                                 |
+| `config/integrations.ts` | 评论（utterances）、ICP 备案号与显示域名、页脚致谢链接                                             | `COMMENTS_MODE`（`auto` / `click` / `off`）、`ICP_NUMBER`（设为空即关闭）、`ICP_HOSTS`       |
 | `config/deploy.ts`       | Pages 项目名、交给 Function 的路径（生成 `dist/_routes.json`）、缓存键参数、构建号                 | `PAGES_PROJECT`                                                                              |
 | `config/motion.ts`       | Dock 放大 / 激活点动画参数                                                                         | —                                                                                            |
 | `config/env.ts`          | 读取环境变量的工具（浏览器 / Worker 中自动用默认值）                                               | —                                                                                            |
