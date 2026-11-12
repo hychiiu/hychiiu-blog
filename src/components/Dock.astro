@@ -5,7 +5,7 @@
  * transition:persist：跨 ClientRouter 跳转保留同一个 DOM 与放大状态；
  * 放大引擎与跳转后的同步见 scripts/dock.ts，主题 / 语言点击见 scripts/controls.ts 的事件委托。
  */
-import { site, nav, isNavActive, locales, otherLang, dockMotion, type Lang } from '../config';
+import { site, nav, isNavActive, navPaths, locales, otherLang, dockMotion, type Lang } from '../config';
 import { ui, localizePath, stripLang, useT } from '../i18n';
 import { getPosts, getNotes } from '../utils/content';
 import Icon from './Icon.astro';
@@ -20,7 +20,7 @@ const path = stripLang(Astro.url.pathname);
 const hasArchive = [...(await getPosts()), ...(await getNotes())].some((e) => e.data.archived);
 const items = nav.filter((item) => !item.onlyIfArchived || hasArchive);
 const label = (l: Lang, k: string) => (ui[l] as Record<string, unknown>)[k] as string;
-const isActive = (p: string) => isNavActive(p, path);
+const isActive = (item: (typeof items)[number]) => navPaths(item).some((p) => isNavActive(p, path));
 const other = otherLang(lang);
 ---
 
@@ -55,10 +55,10 @@ const other = otherLang(lang);
         <a
           href={localizePath(lang, item.path)}
           class="dock-btn"
-          aria-current={isActive(item.path) ? 'page' : undefined}
+          aria-current={isActive(item) ? 'page' : undefined}
           aria-label={label(lang, `nav.${item.key}`)}
           data-nav={item.key}
-          data-path={item.path}
+          data-paths={navPaths(item).join(' ')}
           data-href-zh={localizePath('zh', item.path)}
           data-href-en={localizePath('en', item.path)}
           data-label-zh={label('zh', `nav.${item.key}`)}

@@ -1,0 +1,9 @@
+---
+import View from '../../../views/TagView.astro';
+import { tagPaths } from '../../../utils/tag-routes';
+
+export const getStaticPaths = () => tagPaths('en');
+const { lang, tag, alternates } = Astro.props;
+---
+
+<View lang={lang} tag={tag} alternates={alternates} />

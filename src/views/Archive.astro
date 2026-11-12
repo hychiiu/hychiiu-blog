@@ -1,11 +1,10 @@
 ---
 import Base from '../layouts/Base.astro';
 import EmptyState from '../components/EmptyState.astro';
-import { titleTransition } from '../utils/transitions';
+import YearList from '../components/YearList.astro';
 import type { Lang } from '../config';
-import { useT, localizePath } from '../i18n';
-import { getPostsFor, getNotesFor, dotDate } from '../utils/content';
-import { groupByYear, langMarker, pad2 } from '../utils/view';
+import { useT } from '../i18n';
+import { getPostsFor, getNotesFor } from '../utils/content';
 
 interface Props {
   lang: Lang;
@@ -17,9 +16,6 @@ const posts = [
   ...ap.map((p) => ({ ...p, kind: 'posts' as const })),
   ...an.map((n) => ({ ...n, kind: 'notes' as const })),
 ].sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
-const mark = langMarker(lang);
-const byYear = groupByYear(posts);
-let idx = 3;
 ---
 
 <Base title={t('nav.archive')} description={t('archive.lede')}>
@@ -42,80 +38,6 @@ let idx = 3;
 
     {posts.length === 0 && <EmptyState text={t('archive.empty')} class="reveal" style="--i:3" />}
 
-    {[...byYear.entries()].map(([year, list], yi) => (
-      <section class="section year-block">
-        <div class="section-head reveal" style={`--i:${idx++}`}>
-          <p class="section-num">
-            {pad2(yi)} · {t('posts.entries')(list.length)}
-          </p>
-          <h2 class="section-title tabular">{year}</h2>
-        </div>
-        <ul class="list">
-          {list.map((p) => (
-            <li class="reveal" style={`--i:${idx++}`}>
-              <a href={localizePath(lang, `/${p.kind}/${p.id}/`)}>
-                <time class="meta" datetime={p.data.date.toISOString()}>
-                  {dotDate(p.data.date)}
-                </time>
-                <span class="t vt-title" transition:name={titleTransition(localizePath(lang, `/${p.kind}/${p.id}/`))}>
-                  {p.data.title}
-                </span>
-                <span class="meta right">
-                  {mark(p.data.lang) && <span class="badge">{mark(p.data.lang)}</span>}
-                  <span class="tg">{p.kind === 'notes' ? t('kind.note') : t('kind.post')}</span>
-                  {p.data.tags.slice(0, 2).map((tag) => (
-                    <span>#{tag}</span>
-                  ))}
-                </span>
-              </a>
-            </li>
-          ))}
-        </ul>
-      </section>
-    ))}
+    <YearList entries={posts} lang={lang} showKind showMinutes={false} thumbs={false} />
   </div>
 </Base>
-
-<style>
-  .list {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    border-top: 1px solid var(--hair);
-  }
-  .list li {
-    border-bottom: 1px solid var(--hair);
-  }
-  .list a {
-    display: grid;
-    grid-template-columns: 132px minmax(0, 1fr) auto;
-    gap: 24px;
-    align-items: baseline;
-    padding: 16px 0;
-  }
-  .t {
-    font-family: var(--font-serif);
-    font-weight: 500;
-    font-size: var(--fs-lg);
-    line-height: 1.45;
-    color: var(--n-10);
-    transition: color var(--dur-2) var(--ease);
-  }
-  .list a:hover .t {
-    color: var(--accent);
-  }
-  .right {
-    display: flex;
-    gap: 12px;
-    font-size: var(--fs-xs);
-  }
-  .tg {
-    color: var(--accent);
-  }
-  @media (max-width: 640px) {
-    .list a {
-      grid-template-columns: 1fr;
-      gap: 4px;
-    }
-  }
-</style>

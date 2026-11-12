@@ -1,0 +1,118 @@
+---
+/**
+ * 标签索引：每个标签一行——衬线标签名 · 最近一篇的标题（弱色）· mono 篇数。
+ * 与文章列表同一套发丝线行版式（§7），整行可点，hover 时标签名变强调色。
+ */
+import Base from '../layouts/Base.astro';
+import EmptyState from '../components/EmptyState.astro';
+import { langs, type Lang } from '../config';
+import { useT } from '../i18n';
+import { getTagsFor, tagHref, tagsIndexHref } from '../utils/tags';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = useT(lang);
+const tags = await getTagsFor(lang);
+const alternates = Object.fromEntries(langs.map((l) => [l, tagsIndexHref(l)]));
+---
+
+<Base title={t('tags.title')} description={t('tags.lede')} alternates={alternates}>
+  <div class="shell">
+    <header class="page-hero">
+      <p class="eyebrow reveal" style="--i:0">
+        <span class="dot"></span>
+        <span>{t('tags.eyebrow')(tags.length)}</span>
+      </p>
+      <h1 class="reveal" style="--i:1">
+        {t('tags.title')}
+        <span class="cn-accent">{t('tags.cn')}</span>
+      </h1>
+      <p class="lede reveal" style="--i:2">
+        {t('tags.lede')}
+      </p>
+    </header>
+
+    {tags.length === 0 && <EmptyState text={t('tags.empty')} class="reveal" style="--i:3" />}
+
+    {tags.length > 0 && (
+      <ul class="tag-index">
+        {tags.map((tag, i) => (
+          <li class="reveal" style={`--i:${3 + i}`}>
+            <a href={tagHref(lang, tag.slug)}>
+              <span class="name">
+                <span class="hash" aria-hidden="true">
+                  #
+                </span>
+                {tag.name}
+              </span>
+              <span class="latest">{tag.entries[0].data.title}</span>
+              <span class="meta count">{t('tags.count')(tag.entries.length)}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    )}
+  </div>
+</Base>
+
+<style>
+  .tag-index {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid var(--hair);
+  }
+  .tag-index li {
+    border-bottom: 1px solid var(--hair);
+  }
+  .tag-index a {
+    display: grid;
+    grid-template-columns: minmax(132px, max-content) minmax(0, 1fr) auto;
+    gap: var(--sp-5);
+    align-items: baseline;
+    padding: var(--sp-4) 0;
+  }
+  .name {
+    font-family: var(--font-serif);
+    font-weight: 500;
+    font-size: var(--fs-xl);
+    line-height: var(--lh-tight);
+    color: var(--ink-strong);
+    transition: color var(--dur-2) var(--ease);
+  }
+  .hash {
+    margin-right: 2px;
+    font-weight: 400;
+    color: var(--ink-faint);
+    transition: color var(--dur-2) var(--ease);
+  }
+  .tag-index a:hover .name,
+  .tag-index a:hover .hash {
+    color: var(--accent);
+  }
+  .latest {
+    overflow: hidden;
+    font-family: var(--font-serif);
+    font-size: var(--fs-ui);
+    line-height: var(--lh-ui);
+    color: var(--ink-muted);
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  .count {
+    font-size: var(--fs-xs);
+    color: var(--ink-faint);
+  }
+  @media (max-width: 640px) {
+    .tag-index a {
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: var(--sp-1) var(--sp-4);
+    }
+    .latest {
+      grid-row: 2;
+      grid-column: 1 / -1;
+    }
+  }
+</style>

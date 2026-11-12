@@ -8,6 +8,7 @@ import { site, comments, type Lang } from '../config';
 import { useT, htmlLang } from '../i18n';
 import { dotDate, readingMinutes, countWords } from '../utils/content';
 import { titleTransition } from '../utils/transitions';
+import { tagHref, tagSlug } from '../utils/tags';
 import type { EntryData } from '../utils/issue-schema';
 
 interface Props {
@@ -47,7 +48,10 @@ const {
   issue,
 } = Astro.props;
 const t = useT(lang);
-const label = kind === 'note' ? t('kind.note') : (tags[0] ?? t('kind.post'));
+// meta 里的强调色那一项：手记显示「手记」；文章显示第一个标签（主分类），链接到该标签页
+const primary = kind === 'post' ? tags.find((x) => tagSlug(x)) : undefined;
+const label = kind === 'note' ? t('kind.note') : (primary ?? t('kind.post'));
+const labelHref = primary ? tagHref(lang, tagSlug(primary)) : backHref;
 const foreign = contentLang !== lang;
 // 本页留言启用时，提前连接 utterances 与 GitHub API（见 config/integrations.ts）
 const inlineComments = !!issue && !issue.locked && comments.utterances.mode !== 'off';
@@ -62,7 +66,7 @@ const inlineComments = !!issue && !issue.locked && comments.utterances.mode !== 
         <span aria-hidden="true">←</span> {backLabel}
       </a>
       <div class="post-meta reveal" style="--i:0">
-        <a href={backHref} class="accent">
+        <a href={labelHref} class="accent">
           {label}
         </a>
         <time datetime={date.toISOString()}>{dotDate(date)}</time>
@@ -106,11 +110,18 @@ const inlineComments = !!issue && !issue.locked && comments.utterances.mode !== 
       </div>
 
       <footer class="post-footer">
-        <div class="tags">
-          {tags.map((tag) => (
-            <span class="tag">#{tag}</span>
-          ))}
-        </div>
+        <ul class="tags">
+          {tags
+            .filter((tag) => tagSlug(tag))
+            .map((tag) => (
+              <li>
+                <a class="tag" href={tagHref(lang, tagSlug(tag))}>
+                  <span aria-hidden="true">#</span>
+                  {tag}
+                </a>
+              </li>
+            ))}
+        </ul>
         <span>
           {t('post.words')(countWords(body))} · {dotDate(date)}
         </span>
@@ -275,12 +286,36 @@ const inlineComments = !!issue && !issue.locked && comments.utterances.mode !== 
     font-size: var(--fs-xs);
     color: var(--n-7);
   }
+  /* 文末标签：胶囊（§4），弱色 mono，hover 极淡底 + 墨色，链接到标签页 */
   .tags {
     display: flex;
-    gap: 12px;
+    flex-wrap: wrap;
+    gap: var(--sp-1);
+    margin: 0 0 0 calc(var(--sp-3) * -1);
+    padding: 0;
+    list-style: none;
   }
   .tags .tag {
+    display: inline-flex;
+    align-items: center;
+    height: 32px;
+    padding: 0 var(--sp-3);
+    border-radius: var(--r-pill);
     font-size: var(--fs-xs);
+    color: var(--ink-muted);
+    transition:
+      color var(--dur-2) var(--ease),
+      background-color var(--dur-2) var(--ease);
+  }
+  .tags .tag span {
+    color: var(--ink-faint);
+  }
+  .tags .tag:hover {
+    color: var(--ink-strong);
+    background: var(--surface-2);
+  }
+  .tags .tag:hover span {
+    color: var(--accent);
   }
   /* 上一篇 / 下一篇（§7）：无卡片，两栏，mono 小标签 + 衬线标题 */
   .pager {

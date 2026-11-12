@@ -181,7 +181,7 @@ const kick = () => {
 function navKeyFor(pathname: string): string | null {
   const path = stripLang(pathname);
   const hit = [...(dock()?.querySelectorAll<HTMLElement>('[data-nav]') ?? [])].find((a) =>
-    isNavActive(a.dataset.path!, path),
+    (a.dataset.paths ?? '').split(' ').some((p) => p && isNavActive(p, path)),
   );
   return hit?.dataset.nav ?? null;
 }

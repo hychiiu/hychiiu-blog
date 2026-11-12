@@ -23,7 +23,7 @@ hychiiu（怀秋）的个人主页与博客：文章写在 GitHub Issues 里，A
 2. 加标签：
    - `post` → 文章，`note` → 手记（二选一）
    - `en` → 英文文章（不加默认中文）
-   - 其他任意标签 → 文章的 tag
+   - 其他任意标签 → 文章的 tag（即分类）：每个 tag 有自己的页面 `/tags/<tag>/`，文章列表顶部可按 tag 筛选；第一个 tag 作为这篇的主分类显示在文章页 meta 里
 3. 提交。`.github/workflows/sync-issues.yml` 会在 1 分钟左右同步并提交，Cloudflare Pages 随后自动发布。
 
 只有**仓库主人本人**发的、带 `post` / `note` 标签的 issue 才会被收录。

@@ -1,0 +1,142 @@
+---
+/**
+ * 按年份分组的条目列表（文章列表、归档、标签页共用）：日期 · 标题 · meta（· 缩略图）。
+ * 版式见 docs/DESIGN.md §7 图片（缩略图 16:10，窄屏通栏置顶）与 §3 间距。
+ * 行本身是链接，所以行内的标签只作文字展示（不能嵌套链接）；按标签浏览走筛选行 / 标签页。
+ */
+import Thumb from './Thumb.astro';
+import type { Lang } from '../config';
+import { useT, localizePath } from '../i18n';
+import { dotDate, readingMinutes, type Post, type Note } from '../utils/content';
+import { titleTransition } from '../utils/transitions';
+import { groupByYear, langMarker, pad2 } from '../utils/view';
+
+type Entry = (Post | Note) & { kind: 'posts' | 'notes' };
+interface Props {
+  entries: Entry[];
+  lang: Lang;
+  /** 第一个 reveal 的序号（接在页头之后） */
+  startIndex?: number;
+  /** 混排文章与手记时显示类型 */
+  showKind?: boolean;
+  /** 显示阅读时长 */
+  showMinutes?: boolean;
+  /** 有封面时显示缩略图 */
+  thumbs?: boolean;
+  /** 行内最多显示几个标签 */
+  maxTags?: number;
+}
+const { entries, lang, startIndex = 3, showKind = false, showMinutes = true, thumbs = true, maxTags = 2 } = Astro.props;
+const t = useT(lang);
+const mark = langMarker(lang);
+const byYear = groupByYear(entries);
+let idx = startIndex;
+// 有任意一篇带图时，整列都留出缩略图位，保证右侧 meta 对齐
+const withThumbs = thumbs && entries.some((e) => e.data.cover);
+// 列表最上面那张图在首屏内，不懒加载
+const firstId = entries[0]?.id;
+const href = (e: Entry) => localizePath(lang, `/${e.kind}/${e.id}/`);
+---
+
+{[...byYear.entries()].map(([year, list], yi) => (
+  <section class="section year-block">
+    <div class="section-head reveal" style={`--i:${idx++}`}>
+      <p class="section-num">
+        {pad2(yi)} · {t('posts.entries')(list.length)}
+      </p>
+      <h2 class="section-title tabular">{year}</h2>
+    </div>
+    <ul class:list={['list', { 'with-thumbs': withThumbs }]}>
+      {list.map((e) => (
+        <li class="reveal" style={`--i:${idx++}`}>
+          <a href={href(e)}>
+            <time class="meta" datetime={e.data.date.toISOString()}>
+              {dotDate(e.data.date)}
+            </time>
+            <span class="t vt-title" transition:name={titleTransition(href(e))}>
+              {e.data.title}
+            </span>
+            <span class="meta right">
+              {mark(e.data.lang) && <span class="badge">{mark(e.data.lang)}</span>}
+              {showKind && <span class="tg">{e.kind === 'notes' ? t('kind.note') : t('kind.post')}</span>}
+              {e.data.tags.slice(0, maxTags).map((tag) => (
+                <span class:list={{ tg: !showKind }}>#{tag}</span>
+              ))}
+              {showMinutes && e.kind === 'posts' && <span>{t('post.min')(readingMinutes(e.body))}</span>}
+            </span>
+            {withThumbs &&
+              (e.data.cover ? (
+                <Thumb src={e.data.cover} width={120} class="list-thumb" eager={e.id === firstId} />
+              ) : (
+                <span class="list-thumb" />
+              ))}
+          </a>
+        </li>
+      ))}
+    </ul>
+  </section>
+))}
+
+<style>
+  .list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid var(--hair);
+  }
+  .list li {
+    border-bottom: 1px solid var(--hair);
+  }
+  .list a {
+    display: grid;
+    grid-template-columns: 132px minmax(0, 1fr) auto;
+    gap: 24px;
+    align-items: baseline;
+    padding: 16px 0;
+  }
+  .with-thumbs a {
+    grid-template-columns: 132px minmax(0, 1fr) auto var(--thumb-w-list);
+    align-items: center;
+  }
+  .list :global(.list-thumb) {
+    width: var(--thumb-w-list);
+  }
+  .t {
+    font-family: var(--font-serif);
+    font-weight: 500;
+    font-size: var(--fs-lg);
+    line-height: 1.45;
+    color: var(--n-10);
+    transition: color var(--dur-2) var(--ease);
+  }
+  .list a:hover .t {
+    color: var(--accent);
+  }
+  .right {
+    display: flex;
+    gap: 12px;
+    font-size: var(--fs-xs);
+  }
+  .tg {
+    color: var(--accent);
+  }
+  @media (max-width: 640px) {
+    .list a {
+      grid-template-columns: 1fr;
+      gap: 4px;
+    }
+    /* 窄屏：缩略图通栏置于日期 / 标题 / meta 之上（§7 图片）；无图条目不留空位 */
+    .with-thumbs a {
+      grid-template-columns: minmax(0, 1fr);
+      align-items: start;
+    }
+    .list :global(.list-thumb) {
+      order: -1;
+      width: 100%;
+      margin-bottom: var(--sp-2);
+    }
+    .list :global(span.list-thumb:empty) {
+      display: none;
+    }
+  }
+</style>

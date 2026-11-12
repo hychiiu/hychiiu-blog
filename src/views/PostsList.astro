@@ -1,27 +1,21 @@
 ---
 import Base from '../layouts/Base.astro';
 import EmptyState from '../components/EmptyState.astro';
-import Thumb from '../components/Thumb.astro';
-import { titleTransition } from '../utils/transitions';
+import TagFilter from '../components/TagFilter.astro';
+import YearList from '../components/YearList.astro';
 import type { Lang } from '../config';
 import { useT, localizePath } from '../i18n';
-import { getPostsFor, dotDate, readingMinutes } from '../utils/content';
-import { groupByYear, langMarker, pad2 } from '../utils/view';
+import { getPostsFor } from '../utils/content';
+import { getTagsFor } from '../utils/tags';
 
 interface Props {
   lang: Lang;
 }
-const archivedCount = (await getPostsFor(Astro.props.lang, 'archived')).length;
 const { lang } = Astro.props;
 const t = useT(lang);
-const posts = await getPostsFor(lang);
-const mark = langMarker(lang);
-const byYear = groupByYear(posts);
-let idx = 3;
-// 有任意一篇带图时，整列都留出缩略图位，保证右侧 meta 对齐
-const withThumbs = posts.some((p) => p.data.cover);
-// 列表最上面那张图在首屏内，不懒加载
-const firstPostId = posts[0]?.id;
+const [posts, archived, tags] = await Promise.all([getPostsFor(lang), getPostsFor(lang, 'archived'), getTagsFor(lang)]);
+const archivedCount = archived.length;
+const entries = posts.map((p) => ({ ...p, kind: 'posts' as const }));
 ---
 
 <Base title={t('nav.posts')} description={t('posts.lede')}>
@@ -40,45 +34,11 @@ const firstPostId = posts[0]?.id;
       </p>
     </header>
 
+    <TagFilter lang={lang} tags={tags} total={posts.length} class="reveal" style="--i:3" />
+
     {posts.length === 0 && <EmptyState text={t('posts.empty')} class="reveal" style="--i:3" />}
 
-    {[...byYear.entries()].map(([year, list], yi) => (
-      <section class="section year-block">
-        <div class="section-head reveal" style={`--i:${idx++}`}>
-          <p class="section-num">
-            {pad2(yi)} · {t('posts.entries')(list.length)}
-          </p>
-          <h2 class="section-title tabular">{year}</h2>
-        </div>
-        <ul class:list={['list', { 'with-thumbs': withThumbs }]}>
-          {list.map((p) => (
-            <li class="reveal" style={`--i:${idx++}`}>
-              <a href={localizePath(lang, `/posts/${p.id}/`)}>
-                <time class="meta" datetime={p.data.date.toISOString()}>
-                  {dotDate(p.data.date)}
-                </time>
-                <span class="t vt-title" transition:name={titleTransition(localizePath(lang, `/posts/${p.id}/`))}>
-                  {p.data.title}
-                </span>
-                <span class="meta right">
-                  {mark(p.data.lang) && <span class="badge">{mark(p.data.lang)}</span>}
-                  {p.data.tags.slice(0, 2).map((tag) => (
-                    <span class="tg">#{tag}</span>
-                  ))}
-                  <span>{t('post.min')(readingMinutes(p.body))}</span>
-                </span>
-                {withThumbs &&
-                  (p.data.cover ? (
-                    <Thumb src={p.data.cover} width={120} class="list-thumb" eager={p.id === firstPostId} />
-                  ) : (
-                    <span class="list-thumb" />
-                  ))}
-              </a>
-            </li>
-          ))}
-        </ul>
-      </section>
-    ))}
+    <YearList entries={entries} lang={lang} startIndex={4} />
     {archivedCount > 0 && (
       <p class="to-archive meta">
         <a href={localizePath(lang, '/archive/')}>
@@ -95,66 +55,5 @@ const firstPostId = posts[0]?.id;
   }
   .to-archive a:hover {
     color: var(--accent);
-  }
-  .list {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    border-top: 1px solid var(--hair);
-  }
-  .list li {
-    border-bottom: 1px solid var(--hair);
-  }
-  .list a {
-    display: grid;
-    grid-template-columns: 132px minmax(0, 1fr) auto;
-    gap: 24px;
-    align-items: baseline;
-    padding: 16px 0;
-  }
-  .with-thumbs a {
-    grid-template-columns: 132px minmax(0, 1fr) auto var(--thumb-w-list);
-    align-items: center;
-  }
-  .list :global(.list-thumb) {
-    width: var(--thumb-w-list);
-  }
-  .t {
-    font-family: var(--font-serif);
-    font-weight: 500;
-    font-size: var(--fs-lg);
-    line-height: 1.45;
-    color: var(--n-10);
-    transition: color var(--dur-2) var(--ease);
-  }
-  .list a:hover .t {
-    color: var(--accent);
-  }
-  .right {
-    display: flex;
-    gap: 12px;
-    font-size: var(--fs-xs);
-  }
-  .tg {
-    color: var(--accent);
-  }
-  @media (max-width: 640px) {
-    .list a {
-      grid-template-columns: 1fr;
-      gap: 4px;
-    }
-    /* 窄屏：缩略图通栏置于日期 / 标题 / meta 之上（§7 图片）；无图条目不留空位 */
-    .with-thumbs a {
-      grid-template-columns: minmax(0, 1fr);
-      align-items: start;
-    }
-    .list :global(.list-thumb) {
-      order: -1;
-      width: 100%;
-      margin-bottom: var(--sp-2);
-    }
-    .list :global(span.list-thumb:empty) {
-      display: none;
-    }
   }
 </style>

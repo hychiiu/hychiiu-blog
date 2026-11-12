@@ -23,4 +23,15 @@ export const content = {
   wordsPerMinute: 400,
 };
 
+/**
+ * 分类 = 标签（单一维度，见 README「标签」）：issue 上除 post / note / draft / en 以外的 label，
+ * 加上正文 front block 的 tags。第一个标签视作这篇的主分类（文章页 meta 里的强调色那一项）。
+ */
+export const taxonomy = {
+  /** 标签页根路径（不带语言前缀）；单个标签为 {base}{slug}/ */
+  base: '/tags/',
+  /** 文章列表筛选行最多直接列出的标签数（按篇数排序），其余收进「全部标签」 */
+  filterLimit: 8,
+};
+
 export const systemLabels = new Set(Object.values(content.labels));

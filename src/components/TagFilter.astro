@@ -1,0 +1,155 @@
+---
+/**
+ * 文章列表 / 标签页顶部的标签筛选行：「全部」+ 篇数最多的若干标签 +「全部标签」。
+ * 胶囊（§4），弱色 mono；当前项为强调色 + 极淡强调底（§1 当前态）。窄屏单行横向滚动，两端渐隐。
+ * 纯链接，无 JS：每个标签是一个静态页面（/tags/<slug>/）。
+ */
+import { taxonomy, type Lang } from '../config';
+import { useT, localizePath } from '../i18n';
+import { tagHref, tagsIndexHref, type Tag } from '../utils/tags';
+
+interface Props {
+  lang: Lang;
+  tags: Tag[];
+  /** 「全部」的篇数 */
+  total: number;
+  /** 当前标签 slug；不传表示「全部」 */
+  active?: string;
+  class?: string;
+  style?: string;
+}
+const { lang, tags, total, active, class: cls, style } = Astro.props;
+const t = useT(lang);
+const shown = tags.slice(0, taxonomy.filterLimit);
+// 当前标签不在前几名时也要出现在筛选行里
+const current = active ? tags.find((x) => x.slug === active) : undefined;
+if (current && !shown.includes(current)) shown.push(current);
+const hasMore = tags.length > shown.length;
+---
+
+{tags.length > 0 && (
+  <nav class:list={['tag-filter', cls]} style={style} aria-label={t('tags.filter')}>
+    <ul>
+      <li>
+        <a href={localizePath(lang, '/posts/')} aria-current={!active ? 'page' : undefined}>
+          {t('tags.all')}
+          <span class="n">{total}</span>
+        </a>
+      </li>
+      {shown.map((tag) => (
+        <li>
+          <a
+            href={tagHref(lang, tag.slug)}
+            aria-current={tag.slug === active ? 'page' : undefined}
+            aria-label={`#${tag.name} · ${t('tags.count')(tag.entries.length)}`}
+          >
+            <span class="hash" aria-hidden="true">
+              #
+            </span>
+            {tag.name}
+            <span class="n" aria-hidden="true">
+              {tag.entries.length}
+            </span>
+          </a>
+        </li>
+      ))}
+      {hasMore && (
+        <li>
+          <a href={tagsIndexHref(lang)} class="more">
+            {t('tags.more')} <span aria-hidden="true">→</span>
+          </a>
+        </li>
+      )}
+    </ul>
+  </nav>
+)}
+
+<style>
+  .tag-filter {
+    margin: calc(var(--sp-5) * -1) 0 var(--sp-7);
+  }
+  ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-1) var(--sp-1);
+    margin: 0 calc(var(--sp-3) * -1);
+    padding: 0;
+    list-style: none;
+  }
+  a {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 2px;
+    height: 32px;
+    padding: 0 var(--sp-3);
+    border-radius: var(--r-pill);
+    font-family: var(--font-mono);
+    font-size: var(--fs-sm);
+    line-height: 32px;
+    letter-spacing: 0.02em;
+    color: var(--ink-muted);
+    white-space: nowrap;
+    transition:
+      color var(--dur-2) var(--ease),
+      background-color var(--dur-2) var(--ease);
+  }
+  a:hover {
+    color: var(--ink-strong);
+    background: var(--surface-2);
+  }
+  a:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  a[aria-current='page'] {
+    color: var(--accent);
+    background: var(--accent-8);
+  }
+  .hash {
+    color: var(--ink-faint);
+  }
+  a[aria-current='page'] .hash {
+    color: inherit;
+    opacity: 0.6;
+  }
+  .n {
+    margin-left: 5px;
+    font-size: var(--fs-2xs);
+    font-variant-numeric: tabular-nums;
+    color: var(--ink-faint);
+  }
+  a[aria-current='page'] .n {
+    color: inherit;
+    opacity: 0.7;
+  }
+  .more {
+    color: var(--ink-faint);
+    font-family: var(--font-serif);
+    font-size: var(--fs-meta);
+  }
+  /* 窄屏：单行横向滚动，两端渐隐（纯 CSS） */
+  @media (max-width: 640px) {
+    .tag-filter {
+      margin: calc(var(--sp-3) * -1) calc(var(--shell-pad) * -1) var(--sp-6);
+      overflow-x: auto;
+      scrollbar-width: none;
+      -webkit-mask-image: linear-gradient(
+        90deg,
+        transparent,
+        #000 var(--sp-4),
+        #000 calc(100% - var(--sp-6)),
+        transparent
+      );
+      mask-image: linear-gradient(90deg, transparent, #000 var(--sp-4), #000 calc(100% - var(--sp-6)), transparent);
+    }
+    .tag-filter::-webkit-scrollbar {
+      display: none;
+    }
+    ul {
+      flex-wrap: nowrap;
+      width: max-content;
+      margin: 0;
+      padding: 0 var(--shell-pad);
+    }
+  }
+</style>
