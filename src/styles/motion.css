@@ -15,6 +15,10 @@
   animation: rise var(--dur-5) var(--ease) both;
   animation-delay: calc(var(--i, 0) * 70ms);
 }
+/* 只在首次整页加载时逐项浮现；站内跳转只用页面过渡，避免新页先空白再逐行出现（像刷新了一次） */
+:root[data-soft-nav] .reveal {
+  animation: none;
+}
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -78,4 +82,8 @@
 }
 ::view-transition-new(*.yh-title) {
   animation: var(--dur-3) var(--ease) both yh-fade-in;
+}
+/* 过渡层不拦截指针：过渡期间仍可继续点击 Dock，事件直达页面 */
+::view-transition {
+  pointer-events: none;
 }

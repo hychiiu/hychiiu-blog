@@ -90,9 +90,11 @@ const rss = localizePath(lang, '/rss.xml');
             window.dispatchEvent(new CustomEvent('themechange'));
           }
         });
-        // 站内跳转：新页面替换前先带上当前主题，避免闪烁
+        // 站内跳转：新页面替换前先带上当前主题，避免闪烁；并标记为站内跳转（入场动画只在首次加载播放，见 motion.css）
         document.addEventListener('astro:before-swap', (e) => {
-          e.newDocument.documentElement.dataset.theme = root.dataset.theme;
+          const next = e.newDocument.documentElement;
+          next.dataset.theme = root.dataset.theme;
+          next.toggleAttribute('data-soft-nav', true);
         });
         // 记录「发生过站内跳转」，文章页返回链接据此决定用 history.back()
         document.addEventListener('astro:after-swap', () => {

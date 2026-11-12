@@ -24,7 +24,8 @@ type State = {
   raf: number;
   last: number;
   navigating: boolean;
-  leftDuringNav: boolean;
+  /** 跳转期间最后一次指针位置（视口坐标），过渡结束后据此校正悬停 */
+  lastXY: [number, number] | null;
   bgSize: number;
 };
 
@@ -50,7 +51,7 @@ const S: State = (w.__yhDock ??= {
   raf: 0,
   last: 0,
   navigating: false,
-  leftDuringNav: false,
+  lastXY: null,
   bgSize: 0,
 });
 
@@ -176,6 +177,26 @@ const kick = () => {
   if (!S.raf) S.raf = requestAnimationFrame(frame);
 };
 
+/** 某路径（含语言前缀）对应的导航项 key；不属于任何导航项时为 null */
+function navKeyFor(pathname: string): string | null {
+  const path = stripLang(pathname);
+  const hit = [...(dock()?.querySelectorAll<HTMLElement>('[data-nav]') ?? [])].find((a) =>
+    isNavActive(a.dataset.path!, path),
+  );
+  return hit?.dataset.nav ?? null;
+}
+
+/** 切换激活项（aria-current）；已是当前状态时不触碰 DOM，避免多余的样式重算 */
+function setActive(d: HTMLElement, key: string | null) {
+  d.querySelectorAll<HTMLElement>('[data-nav]').forEach((a) => {
+    const on = a.dataset.nav === key;
+    if (on === (a.getAttribute('aria-current') === 'page')) return;
+    if (on) a.setAttribute('aria-current', 'page');
+    else a.removeAttribute('aria-current');
+  });
+  kick();
+}
+
 /** 跳转后按新页面同步：激活项、文案、语言链接 */
 function syncDock() {
   const d = dock();
@@ -185,15 +206,10 @@ function syncDock() {
     ? (root.dataset.lang as Lang)
     : defaultLang;
   const key = lang[0].toUpperCase() + lang.slice(1); // data-href-zh → dataset.hrefZh
-  const path = stripLang(location.pathname);
   const lbl = (el: HTMLElement) => el.dataset[`label${key}`];
   if (lbl(d)) d.setAttribute('aria-label', lbl(d)!);
   d.querySelectorAll<HTMLAnchorElement>('[data-href-zh]').forEach((a) => (a.href = a.dataset[`href${key}`]!));
-  d.querySelectorAll<HTMLAnchorElement>('[data-nav]').forEach((a) => {
-    const p = a.dataset.path!;
-    if (isNavActive(p, path)) a.setAttribute('aria-current', 'page');
-    else a.removeAttribute('aria-current');
-  });
+  setActive(d, navKeyFor(location.pathname));
   const other = otherLang(lang);
   const langLink = d.querySelector<HTMLAnchorElement>('[data-dock-lang]');
   if (langLink) {
@@ -212,6 +228,31 @@ function syncDock() {
   kick();
 }
 
+/**
+ * 悬停态由 JS 镜像成 .is-hover（样式见 dock.css）。
+ * 原因：视图过渡期间浏览器暂停命中测试，真实的 :hover 会被清空，
+ * 底板与提示会先消失再淡入，看起来像 Dock「失焦」闪了一下。跳转期间保持镜像不变，
+ * 过渡结束后按最后的指针位置校正一次。
+ */
+function setHover(d: HTMLElement, item: Element | null) {
+  d.querySelectorAll('.dock-item.is-hover').forEach((x) => x !== item && x.classList.remove('is-hover'));
+  item?.classList.add('is-hover');
+}
+
+/** 跳转（含视图过渡）结束：按最后的指针位置同步悬停与放大 */
+function endNavigation(d: HTMLElement) {
+  S.navigating = false;
+  const xy = S.lastXY;
+  S.lastXY = null;
+  if (xy) {
+    const hit = document.elementFromPoint(xy[0], xy[1]);
+    const inDock = !!hit && d.contains(hit);
+    setHover(d, inDock ? hit.closest('.dock-item') : null);
+    if (!inDock) S.rawPointer = null;
+  }
+  kick();
+}
+
 function bind(d: HTMLElement) {
   d.addEventListener('pointermove', (e) => {
     if (e.pointerType !== 'mouse' || !S.vertical) return;
@@ -219,39 +260,47 @@ function bind(d: HTMLElement) {
     S.rawPointer = e.clientY - list.getBoundingClientRect().top;
     kick();
   });
-  d.addEventListener('pointerleave', () => {
-    // 视图过渡期间浏览器会短暂接管指针，忽略这期间的 leave，保持放大连续
-    if (S.navigating) {
-      S.leftDuringNav = true;
-      return;
-    }
+  d.addEventListener('pointerover', (e) => {
+    if (e.pointerType !== 'mouse' || S.navigating) return;
+    setHover(d, (e.target as Element).closest('.dock-item'));
+  });
+  d.addEventListener('pointerleave', (e) => {
+    // 视图过渡期间浏览器会短暂接管指针，忽略这期间的 leave，保持悬停与放大连续
+    if (e.pointerType !== 'mouse' || S.navigating) return;
+    setHover(d, null);
     S.rawPointer = null;
     kick();
   });
-  // 点击后立即把激活点移向新项（不等新页面）
+  // 点击后立即切换激活项（不等新页面），激活点随即开始滑动
   d.addEventListener('click', (e) => {
     const a = (e.target as Element).closest<HTMLAnchorElement>('a[data-nav], a[data-home]');
-    if (!a || e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
-    const key = a.dataset.nav ?? 'home';
-    d.querySelectorAll('[data-nav]').forEach((x) => x.removeAttribute('aria-current'));
-    d.querySelector(`[data-nav="${key}"]`)?.setAttribute('aria-current', 'page');
-    kick();
+    if (!a || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+    setActive(d, a.dataset.nav ?? 'home');
   });
-  document.addEventListener('astro:before-preparation', () => (S.navigating = true));
-  document.addEventListener('astro:page-load', () => {
-    setTimeout(() => {
-      S.navigating = false;
-      if (S.leftDuringNav && !d.matches(':hover')) S.rawPointer = null;
-      S.leftDuringNav = false;
-      kick();
-    }, 60);
+  document.addEventListener('astro:before-preparation', (e) => {
+    S.navigating = true;
+    // 前进 / 后退等非点击跳转：同样在加载前就切换激活项
+    const key = navKeyFor((e as Event & { to: URL }).to.pathname);
+    if (key) setActive(d, key);
+  });
+  document.addEventListener('astro:before-swap', (e) => {
+    const vt = (e as Event & { viewTransition?: ViewTransition }).viewTransition;
+    const done = () => endNavigation(d);
+    if (vt) vt.finished.then(done, done);
+    else requestAnimationFrame(done);
   });
   // 兜底：指针已在 Dock 外移动时收回
   document.addEventListener(
     'pointermove',
     (e) => {
-      if (S.rawPointer == null || S.navigating || e.pointerType !== 'mouse') return;
+      if (e.pointerType !== 'mouse') return;
+      if (S.navigating) {
+        S.lastXY = [e.clientX, e.clientY];
+        return;
+      }
+      if (S.rawPointer == null && !d.querySelector('.is-hover')) return;
       if (!(e.target as Element | null)?.closest?.('[data-dock]')) {
+        setHover(d, null);
         S.rawPointer = null;
         kick();
       }

@@ -3,6 +3,7 @@
  * ≥1024px：左侧竖向胶囊，悬停放大（JS 写入 --ty / --s / --dx，只动 transform）；
  * <1024px：底部居中横向胶囊，不放大，按压轻微缩小。
  * 颜色、圆角、阴影、时长全部来自 tokens.css。
+ * 悬停样式同时匹配 .is-hover（scripts/dock.ts 镜像的悬停态），视图过渡期间 :hover 被浏览器清空时保持不变。
  */
 .dock {
   --slot: var(--dock-slot);
@@ -60,7 +61,8 @@
 .dock-btn svg {
   display: block;
 }
-.dock-btn:hover {
+.dock-btn:hover,
+.dock-item.is-hover .dock-btn {
   color: var(--ink-strong);
   background: var(--surface-2);
 }
@@ -99,7 +101,8 @@
   box-shadow: 0 0 0 1px var(--hair);
   transition: opacity var(--dur-2) var(--ease);
 }
-.dock-avatar:hover img {
+.dock-avatar:hover img,
+.dock-item.is-hover .dock-avatar img {
   opacity: 0.88;
 }
 .dock-avatar:focus-visible {
@@ -182,6 +185,7 @@
     transform: translate(-4px, -50%);
   }
   .dock-item:hover .dock-tip,
+  .dock-item.is-hover .dock-tip,
   .dock-item:focus-within .dock-tip {
     opacity: 1;
     transform: translate(0, -50%);
@@ -242,6 +246,7 @@
       transform: translate(-50%, 4px);
     }
     .dock-item:hover .dock-tip,
+    .dock-item.is-hover .dock-tip,
     .dock-item:focus-within .dock-tip {
       opacity: 1;
       transform: translate(-50%, 0);
