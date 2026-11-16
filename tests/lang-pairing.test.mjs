@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { readFileSync, existsSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
 import { entriesForLang, entryPath, entrySlug, issueEntryKeys, slugOk } from '../src/utils/entry-lang.ts';
 
@@ -81,12 +81,16 @@ test('路由与列表使用 slug 而不是内部 id，避免 /posts/claude-vm-vp
   }
 });
 
-test('英文预览稿与中文共用 slug，并保留关键命令与占位符', () => {
-  const enPath = new URL('../.local/claude-vm-vps.en.md', import.meta.url);
-  assert.ok(existsSync(enPath), '本地英文稿 .local/claude-vm-vps.en.md 应存在');
-  const zh = readFileSync(new URL('../src/data/issues.json', import.meta.url), 'utf8');
-  const zhBody = JSON.parse(zh).issues.find((i) => i.number === 2).body;
-  const en = readFileSync(enPath, 'utf8');
+test('英文稿与中文共用 slug，并保留关键命令与占位符', () => {
+  const data = JSON.parse(readFileSync(new URL('../src/data/issues.json', import.meta.url), 'utf8'));
+  const zhIssue = data.issues.find((i) => i.lang === 'zh' && i.body.includes('slug: claude-vm-vps'));
+  const enIssue = data.issues.find((i) => i.lang === 'en' && i.body.includes('slug: claude-vm-vps'));
+  assert.ok(zhIssue, 'issues.json 应含中文 claude-vm-vps');
+  assert.ok(enIssue, 'issues.json 应含英文 claude-vm-vps，而不是本地预览号');
+  assert.notEqual(enIssue.number, 10002);
+  assert.notEqual(zhIssue.number, 10002);
+  const zhBody = zhIssue.body;
+  const en = enIssue.body;
   assert.match(en, /^<!--[\s\S]*slug:\s*claude-vm-vps/m);
   assert.match(en, /description:\s*.+/);
   assert.doesNotMatch(en, /给 Claude 一条干净的线路：一台 VPS 和两台虚拟机/);
