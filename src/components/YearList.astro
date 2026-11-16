@@ -8,6 +8,7 @@ import Thumb from './Thumb.astro';
 import type { Lang } from '../config';
 import { useT, localizePath } from '../i18n';
 import { dotDate, readingMinutes, type Post, type Note } from '../utils/content';
+import { entryPath } from '../utils/entry-lang';
 import { titleTransition } from '../utils/transitions';
 import { groupByYear, langMarker, pad2 } from '../utils/view';
 
@@ -35,7 +36,7 @@ let idx = startIndex;
 const withThumbs = thumbs && entries.some((e) => e.data.cover);
 // 列表最上面那张图在首屏内，不懒加载
 const firstId = entries[0]?.id;
-const href = (e: Entry) => localizePath(lang, `/${e.kind}/${e.id}/`);
+const href = (e: Entry) => localizePath(lang, entryPath(e.kind, e));
 ---
 
 {[...byYear.entries()].map(([year, list], yi) => (

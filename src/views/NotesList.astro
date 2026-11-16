@@ -5,6 +5,7 @@ import { titleTransition } from '../utils/transitions';
 import type { Lang } from '../config';
 import { useT, localizePath } from '../i18n';
 import { getNotesFor, dotDate } from '../utils/content';
+import { entryPath } from '../utils/entry-lang';
 import { langMarker } from '../utils/view';
 
 interface Props {
@@ -44,7 +45,7 @@ const excerpt = (s = '') =>
     <ol class="notes">
       {notes.map((n, i) => (
         <li class="reveal" style={`--i:${i + 3}`}>
-          <a href={localizePath(lang, `/notes/${n.id}/`)} class="note">
+          <a href={localizePath(lang, entryPath('notes', n))} class="note">
             <div class="day">
               <span class="d">{String(n.data.date.getDate()).padStart(2, '0')}</span>
               <span class="meta">
@@ -52,7 +53,7 @@ const excerpt = (s = '') =>
               </span>
             </div>
             <div>
-              <h2 class="vt-title" transition:name={titleTransition(localizePath(lang, `/notes/${n.id}/`))}>
+              <h2 class="vt-title" transition:name={titleTransition(localizePath(lang, entryPath('notes', n)))}>
                 {n.data.title}
               </h2>
               <p>{excerpt(n.body)}…</p>

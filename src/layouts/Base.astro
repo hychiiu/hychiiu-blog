@@ -70,16 +70,8 @@ const rss = localizePath(lang, '/rss.xml');
         if (window.__yhBoot) return;
         window.__yhBoot = true;
         const root = document.documentElement;
-        // 语言记忆：从站外进入时，若记住的语言与当前页不同，跳到对应语言的等价页面
-        try {
-          const want = localStorage.getItem('lang');
-          const cur = root.dataset.lang;
-          const fromOutside = !document.referrer || new URL(document.referrer).origin !== location.origin;
-          if (want && want !== cur && fromOutside) {
-            const alt = root.getAttribute('data-alt-' + want);
-            if (alt && alt !== location.pathname) location.replace(alt + location.search + location.hash);
-          }
-        } catch {}
+        // 语言记忆只由 Dock 点击写入。直接打开的语言路径（如 /en/posts/…）优先于
+        // localStorage 里的旧偏好，不会把英文永久链接改写到中文页。
         const saved = localStorage.getItem('theme');
         const sys = window.matchMedia('(prefers-color-scheme: dark)');
         const apply = (t) => (root.dataset.theme = t);

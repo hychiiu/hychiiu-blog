@@ -7,6 +7,7 @@ import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { content } from '../config/content';
 import type { IssuesFile, IssueKind } from '../types/issues';
+import { issueEntryKeys } from './entry-lang';
 
 /** 正文里第一张图片（Markdown 或 <img>，忽略代码块），用作列表缩略图 / og:image */
 export function firstImage(md: string): string | undefined {
@@ -51,7 +52,6 @@ export function splitFront(body: string): { meta: Record<string, string | string
 }
 
 const str = (v: unknown) => (typeof v === 'string' && v.trim() ? v.trim() : undefined);
-const slugOk = (s?: string) => (s && /^[\p{L}\p{N}][\p{L}\p{N}_-]*$/u.test(s) ? s : undefined);
 
 export function issuesLoader(kind: IssueKind): Loader {
   return {
@@ -70,9 +70,7 @@ export function issuesLoader(kind: IssueKind): Loader {
         const used = new Set<string>();
         for (const issue of data.issues.filter((i) => i.kind === kind)) {
           const { meta, content } = splitFront(issue.body);
-          let id = slugOk(str(meta.slug)) ?? String(issue.number);
-          if (used.has(id)) id = String(issue.number);
-          used.add(id);
+          const { id, slug } = issueEntryKeys(issue, str(meta.slug), used);
           const comments = await Promise.all(
             issue.comments.map(async (c) => ({ ...c, html: (await renderMarkdown(c.body)).html })),
           );
@@ -80,6 +78,7 @@ export function issuesLoader(kind: IssueKind): Loader {
           const metaTags = Array.isArray(meta.tags) ? meta.tags : str(meta.tags) ? [str(meta.tags)!] : [];
           const entryData = {
             title: issue.title,
+            slug,
             date: str(meta.date) ?? issue.createdAt,
             updated: issue.updatedAt,
             description: str(meta.description) ?? '',

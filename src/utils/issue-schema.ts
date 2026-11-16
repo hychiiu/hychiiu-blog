@@ -24,6 +24,8 @@ export const commentSchema = z.object({
 /** 文章与手记共有的字段 */
 export const entrySchema = z.object({
   title: z.string(),
+  /** 用于 URL 与中英配对；缺省时 loader 会写入 issue 号 */
+  slug: z.string().optional(),
   date: z.coerce.date(),
   updated: z.coerce.date(),
   description: z.string().optional().default(''),

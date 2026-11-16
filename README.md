@@ -163,8 +163,9 @@ npm run check      # astro check + tsc
 - 中文为默认语言，在根路径 `/`；英文在 `/en/`（Astro i18n 路由）。Dock 底部的 `EN` / `中` 按钮切换，会跳到当前页面的对应语言版本，并记住选择（localStorage）。
 - 界面文案（导航、按钮、区块标题、页脚、404、Mermaid 控件……）在 `src/i18n/zh.ts` / `en.ts`（`en` 缺键时类型检查会报错）。
 - 首页介绍、第二行介绍、引言、关于页正文在 `src/config/site.ts`，每项都有 `zh` / `en` 两份。
-- 文章 / 手记可在 frontmatter 写 `lang: en`（默认 `zh`）：
-  - 中文站列出全部文章，英文文章带 `English` 小标记；
+- 文章 / 手记用 label `en` 标记英文（默认中文），frontmatter 的 `slug` 在两种语言间配对：
+  - 同一 `slug` 的中英文是同一篇的两个版本，语言切换走 `/posts/{slug}/` 与 `/en/posts/{slug}/`，不会因为集合内部 id 冲突而拆成两篇；
+  - 中文站列出中文版本，以及尚无中文配对的英文文章（带 `English` 小标记）；
   - 英文站只列英文文章；一篇英文都没有时，回退显示中文文章，并带 `Chinese` 小标记。
 - 每个页面都带 `hreflang` 互链；sitemap 也包含双语互链。RSS：中文 `/rss.xml`，英文 `/en/rss.xml`。
 

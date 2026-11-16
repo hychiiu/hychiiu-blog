@@ -1,5 +1,6 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
 import { content, type Lang } from '../config';
+import { entriesForLang } from './entry-lang';
 
 const isProd = import.meta.env.PROD;
 
@@ -40,14 +41,12 @@ export type Post = CollectionEntry<'posts'>;
 export type Note = CollectionEntry<'notes'>;
 
 /**
- * 某语言站点要展示的条目：
- * - zh：全部条目（英文条目带 English 标记）
+ * 某语言站点要展示的条目（同一 slug 的中英文视为一篇的两个版本，不并列列出）：
+ * - zh：中文条目，以及尚无中文配对的英文条目（带 English 标记）
  * - en：英文条目；若一篇都没有，则回退展示中文条目（带 Chinese 标记）
  */
-function forLang<T extends { data: { lang: Lang } }>(all: T[], lang: Lang): T[] {
-  if (lang === 'zh') return all;
-  const own = all.filter((e) => e.data.lang === lang);
-  return own.length ? own : all;
+function forLang<T extends { id: string; data: { lang: Lang; slug?: string } }>(all: T[], lang: Lang): T[] {
+  return entriesForLang(all, lang);
 }
 
 type Scope = 'published' | 'archived' | 'all';

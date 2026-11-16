@@ -2,6 +2,7 @@ import type { CollectionEntry } from 'astro:content';
 import type { Lang } from '../config';
 import { localizePath } from '../i18n';
 import { getPostsFor, getNotesFor } from './content';
+import { entryPath, entrySlug } from './entry-lang';
 
 type Kind = 'posts' | 'notes';
 
@@ -12,19 +13,22 @@ export async function entryPaths<K extends Kind>(kind: K, lang: Lang) {
     scope: 'all',
   ) => Promise<CollectionEntry<K>[]>;
   const [list, zhList, enList] = await Promise.all([get(lang, 'all'), get('zh', 'all'), get('en', 'all')]);
-  const has = { zh: new Set(zhList.map((e) => e.id)), en: new Set(enList.map((e) => e.id)) };
-  const href = (id: string) => localizePath(lang, `/${kind}/${id}/`);
-  return list.map((entry, i) => ({
-    params: { id: entry.id },
-    props: {
-      entry,
-      lang,
-      newer: list[i - 1] ? { href: href(list[i - 1].id), title: list[i - 1].data.title } : undefined,
-      older: list[i + 1] ? { href: href(list[i + 1].id), title: list[i + 1].data.title } : undefined,
-      alternates: {
-        zh: has.zh.has(entry.id) ? localizePath('zh', `/${kind}/${entry.id}/`) : localizePath('zh', `/${kind}/`),
-        en: has.en.has(entry.id) ? localizePath('en', `/${kind}/${entry.id}/`) : localizePath('en', `/${kind}/`),
+  const has = { zh: new Set(zhList.map(entrySlug)), en: new Set(enList.map(entrySlug)) };
+  const href = (entry: (typeof list)[number]) => localizePath(lang, entryPath(kind, entry));
+  return list.map((entry, i) => {
+    const slug = entrySlug(entry);
+    return {
+      params: { id: slug },
+      props: {
+        entry,
+        lang,
+        newer: list[i - 1] ? { href: href(list[i - 1]), title: list[i - 1].data.title } : undefined,
+        older: list[i + 1] ? { href: href(list[i + 1]), title: list[i + 1].data.title } : undefined,
+        alternates: {
+          zh: has.zh.has(slug) ? localizePath('zh', `/${kind}/${slug}/`) : localizePath('zh', `/${kind}/`),
+          en: has.en.has(slug) ? localizePath('en', `/${kind}/${slug}/`) : localizePath('en', `/${kind}/`),
+        },
       },
-    },
-  }));
+    };
+  });
 }

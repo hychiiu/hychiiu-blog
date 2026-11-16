@@ -6,3 +6,6 @@ dist/
 *.log
 .env*
 !.env.example
+
+# 本地预览数据（不提交）
+.local/
