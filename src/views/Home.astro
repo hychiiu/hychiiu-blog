@@ -350,10 +350,14 @@ const socials = socialLinks(lang);
     }
   }
   @media (max-width: 480px) {
+    .nm {
+      line-height: 1.15;
+    }
     .cn {
       display: block;
-      margin: 6px 0 0;
+      margin: var(--sp-3) 0 0; /* 12px：与英文名拉开明确垂直间距，避免贴住 y 等下行字母 */
       font-size: 0.6em;
+      line-height: 1.2;
     }
   }
 </style>

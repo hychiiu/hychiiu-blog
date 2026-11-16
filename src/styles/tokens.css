@@ -112,6 +112,8 @@
   --code-toolbar-h: 32px;
   --code-copy-size: 32px;
   --code-copy-icon: 13px;
+  /* 工具栏上/右内边距，与代码左右 pad 相同（桌面 20px，≤640px 为 16px） */
+  --code-toolbar-inset: var(--code-pad-x);
   /* 表格单元格在窄屏横向滚动时的最小宽度，避免文字被挤成一两个字一行 */
   --cell-min: 0;
   /* 列表缩略图（§7 图片）：比例与各列表中的宽度；窄屏改为通栏置顶 */
