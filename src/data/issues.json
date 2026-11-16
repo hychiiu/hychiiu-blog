@@ -12,9 +12,21 @@
       "tags": [],
       "url": "https://github.com/hychiiu/hychiiu-blog/issues/2",
       "createdAt": "2026-11-11T15:26:15Z",
-      "updatedAt": "2026-11-12T02:16:24Z",
+      "updatedAt": "2026-11-16T08:59:03Z",
       "closedAt": null,
-      "comments": []
+      "comments": [
+        {
+          "id": 6911939910,
+          "author": "hychiiu",
+          "avatar": "https://avatars.githubusercontent.com/u/27754907?v=4",
+          "authorUrl": "https://github.com/hychiiu",
+          "association": "OWNER",
+          "body": "那次断网的排查过程很典型：sing-box 和 dnsmasq 都是 active，到节点的 TCP 也是通的，就是隧道建不起来。我先停掉 sing-box 测直连，确认 VMware NAT 本身没问题；再看 VPS 那头的日志，发现握手被判无效；最后才追到 Mac 上的 TUN。从里往外，一层一层排除，比一上来就换端口、换节点有效得多。\n\nTIP\n\n排查时最有用的一条命令：先在网关上停掉 sing-box，curl -s https://api.ipify.org 看直连能不能通。能通，就说明问题在隧道或节点；不通，就是 Fusion、Mac 或者上游的问题。测完记得 systemctl start sing-box 拉回来，否则 kill switch 的保护也没了。\n\n",
+          "url": "https://github.com/hychiiu/hychiiu-blog/issues/2#issuecomment-6911939910",
+          "createdAt": "2026-11-16T08:59:03Z",
+          "updatedAt": "2026-11-16T08:59:03Z"
+        }
+      ]
     }
   ]
 }
