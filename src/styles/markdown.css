@@ -375,50 +375,128 @@
 .prose .expressive-code pre {
   font-family: var(--font-mono);
 }
-/* 文件名：标签栏退化为代码上方一行弱色小字（§7 代码块） */
-.prose .expressive-code .frame.has-title:not(.is-terminal) .header {
-  padding: var(--sp-3) var(--code-pad-x) 0;
+/* 方案 A：紧凑单行工具栏（§7 代码块）——左标题、右语言 + 复制 */
+.prose .expressive-code .frame.has-toolbar {
+  --button-spacing: 0;
+}
+.prose .expressive-code .frame.has-toolbar .header {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  min-height: var(--code-toolbar-h);
+  padding: 0 var(--code-pad-x);
   border: 0;
   background: var(--surface-1);
   border-radius: var(--r-md) var(--r-md) 0 0;
 }
-.prose .expressive-code .frame.has-title:not(.is-terminal) .header::before,
-.prose .expressive-code .frame.has-title:not(.is-terminal) .header::after {
+.prose .expressive-code .frame.has-toolbar .header::before,
+.prose .expressive-code .frame.has-toolbar .header::after,
+.prose .expressive-code .frame.has-toolbar.is-terminal .header::before,
+.prose .expressive-code .frame.has-toolbar.is-terminal .header::after {
   display: none;
 }
-.prose .expressive-code .frame.has-title:not(.is-terminal) .title {
+.prose .expressive-code .frame.has-toolbar .title {
+  flex: 1 1 auto;
+  min-width: 0;
   padding: 0;
   border: 0;
   background: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   font-size: var(--fs-xs);
   letter-spacing: 0.02em;
-  color: var(--ink-faint);
+  color: var(--ink-muted);
 }
-.prose .expressive-code .frame.has-title:not(.is-terminal) .title::after {
+.prose .expressive-code .frame.has-toolbar .title::after {
   display: none;
 }
-.prose .expressive-code .frame.has-title:not(.is-terminal) pre {
+.prose .expressive-code .frame.has-toolbar .lang {
+  margin-left: auto;
+  flex: 0 0 auto;
+  font-size: var(--fs-2xs);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+}
+.prose .expressive-code .frame.has-toolbar .copy {
+  position: relative;
+  inset: auto;
+  flex: 0 0 auto;
+  opacity: 1;
+}
+.prose .expressive-code .frame.has-toolbar .copy button {
+  width: var(--code-copy-size);
+  height: var(--code-copy-size);
+  min-width: var(--code-copy-size);
+  min-height: var(--code-copy-size);
+  border-radius: var(--r-round);
+  opacity: 1;
+  background: transparent;
+}
+.prose .expressive-code .frame.has-toolbar .copy button::after {
+  width: var(--code-copy-icon);
+  height: var(--code-copy-icon);
+  margin: auto;
+  inset: 0;
+}
+.prose .expressive-code .frame.has-toolbar .copy button:hover,
+.prose .expressive-code .frame.has-toolbar .copy button:focus-visible {
+  background: var(--surface-2);
+}
+.prose .expressive-code .frame.has-toolbar .copy button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.prose .expressive-code .frame.has-toolbar .copy [aria-live] {
+  position: absolute;
+  inset: 50% auto auto 0;
+  width: 0;
+  height: 0;
+  overflow: visible;
+  pointer-events: none;
+}
+.prose .expressive-code .frame.has-toolbar .copy .feedback {
+  position: absolute;
+  inset-inline-end: calc(100% + var(--sp-2));
+  inset-block-start: 50%;
+  margin: 0;
+  transform: translateY(-50%);
+  white-space: nowrap;
+}
+.prose .expressive-code .frame.has-toolbar .copy .feedback.show {
+  transform: translateY(-50%);
+}
+.prose .expressive-code .frame.has-toolbar.has-title pre {
   padding-top: 0;
   border-top: 0;
   border-radius: 0 0 var(--r-md) var(--r-md);
 }
-.prose .expressive-code .frame.has-title:not(.is-terminal) pre > code {
-  padding-top: 8px;
+.prose .expressive-code .frame.has-toolbar.has-title pre > code {
+  padding-top: var(--sp-1);
 }
-/* 复制按钮：小号幽灵图标，指针悬停代码块时才淡入 */
-.prose .expressive-code .copy button {
-  width: 28px;
-  height: 28px;
+/* 无标题：仍用文档流中的紧凑单行工具栏（32px），右侧放语言+复制。
+   不为 .ec-line .code 加固定右侧大内边距——Expressive Code 用 grid + content-box，
+   加在 pre>code 上的 gutter 不会挤开首行文本，反而把 pre（overflow-x:auto）撑出横滚。 */
+.prose .expressive-code .frame.has-toolbar:not(.has-title) .header {
+  position: relative;
+  min-height: var(--code-toolbar-h);
+  padding: 0 var(--code-pad-x);
+  background: var(--surface-1);
+  border-radius: var(--r-md) var(--r-md) 0 0;
 }
-.prose .expressive-code .copy button::after {
-  opacity: 0.8;
+.prose .expressive-code .frame.has-toolbar:not(.has-title) pre {
+  padding-top: 0;
+  border-top: 0;
+  border-radius: 0 0 var(--r-md) var(--r-md);
 }
+.prose .expressive-code .frame.has-toolbar:not(.has-title) pre > code {
+  padding-top: var(--sp-1);
+}
+/* 工具栏内的复制按钮始终可见，不再hover才从代码区淡入 */
 @media (hover: hover) {
-  .prose .expressive-code .copy {
-    opacity: 0;
-    transition: opacity var(--dur-2) var(--ease);
-  }
-  .prose .expressive-code .frame:is(:hover, :focus-within) .copy {
+  .prose .expressive-code .frame.has-toolbar .copy,
+  .prose .expressive-code .frame.has-toolbar .copy button {
     opacity: 1;
   }
 }

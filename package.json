@@ -11,6 +11,7 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
+    "test": "node --test src/markdown/*.test.mjs tests/*.test.mjs",
     "check": "astro check && tsc --noEmit",
     "sync": "node --env-file-if-exists=.env scripts/sync-issues.mjs"
   },

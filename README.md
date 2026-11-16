@@ -74,7 +74,7 @@ issue 正文和评论用同一套管线在构建时渲染。
 | 数学公式       | 行内 `$E=mc^2$`，块级 `$$ … $$`                                               | remark-math + rehype-katex（KaTeX 样式和字体打包在站内，不走 CDN） |
 | Mermaid 图     | ` ```mermaid ` 代码块                                                         | mermaid，只在有图的页面按需加载，跟随深浅色切换                    |
 | 提示块         | `> [!NOTE]` / `[!TIP]` / `[!IMPORTANT]` / `[!WARNING]` / `[!CAUTION]`         | remark-github-blockquote-alert                                     |
-| 代码块         | 语法高亮、文件名、行高亮、diff、行号、复制按钮                                | Expressive Code（Shiki 双主题）                                    |
+| 代码块         | 语法高亮、标题、语言标签、行高亮、diff、行号、复制按钮                        | Expressive Code（Shiki 双主题）+ 单行工具栏                        |
 | 标题锚点       | 自动生成，鼠标悬停标题时出现 `#`                                              | rehype-slug + rehype-autolink-headings                             |
 | 外链           | 站外链接自动新标签页打开，并带 ↗ 标记                                         | rehype-external-links                                              |
 | Emoji          | `:tada:` `:rocket:`                                                           | remark-emoji                                                       |
@@ -99,6 +99,8 @@ const d = 4; // del 标记为删除
 print("显示行号")
 ```
 ````
+
+语言标签由围栏标识（如 `bash`、`ts`）自动显示，不必另写属性。`title="…"` 仍是文件名/标题的写法。
 
 > 改过 `astro.config.mjs` 之后，如果本地构建出来的代码块样式不对，删掉 `.astro/` 目录再构建一次（这是 Astro 的内容缓存）。
 

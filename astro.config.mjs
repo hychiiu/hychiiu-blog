@@ -13,6 +13,7 @@ import rehypeSlug from 'rehype-slug';
 import rehypeAutolinkHeadings from 'rehype-autolink-headings';
 import rehypeExternalLinks from 'rehype-external-links';
 import { remarkMermaid, rehypeFigure, rehypeImageDefaults, rehypeTableWrap } from './src/markdown/plugins.mjs';
+import { pluginCodeToolbar } from './src/markdown/code-toolbar.mjs';
 import { loadEnv } from 'vite';
 
 // 先把 .env / .env.local 合并进 process.env（已有的环境变量优先），配置层 src/config 统一从这里读取
@@ -35,13 +36,13 @@ export default defineConfig({
     routing: { prefixDefaultLocale: false },
   },
   integrations: [
-    // 代码块（docs/DESIGN.md §7 代码块）：极简——无窗口外框/阴影/标签栏，极淡底色，
-    // 文件名为弱色小标签，复制按钮 hover 才出现；终端框仅在显式写 frame="terminal" 时出现。
+    // 代码块（docs/DESIGN.md §7）：极简单行工具栏——无窗口外框/阴影/圆点，极淡底色，
+    // 左标题、右语言 + 复制；终端框仅在显式写 frame="terminal" 时出现。
     expressiveCode({
       themes: ['github-light', 'github-dark-dimmed'],
       themeCssSelector: (theme) => `[data-theme='${theme.type}']`,
       useDarkModeMediaQuery: false,
-      plugins: [pluginLineNumbers(), pluginCollapsibleSections()],
+      plugins: [pluginLineNumbers(), pluginCollapsibleSections(), pluginCodeToolbar()],
       defaultProps: { showLineNumbers: false, wrap: true, frame: 'code' },
       styleOverrides: {
         borderRadius: 'var(--r-md)',

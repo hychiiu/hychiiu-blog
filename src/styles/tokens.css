@@ -109,6 +109,9 @@
   --fs-code: var(--fs-meta);
   --code-pad-y: var(--sp-4);
   --code-pad-x: 20px;
+  --code-toolbar-h: 32px;
+  --code-copy-size: 32px;
+  --code-copy-icon: 13px;
   /* 表格单元格在窄屏横向滚动时的最小宽度，避免文字被挤成一两个字一行 */
   --cell-min: 0;
   /* 列表缩略图（§7 图片）：比例与各列表中的宽度；窄屏改为通栏置顶 */
