@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="450" viewBox="0 0 800 450">
+<rect width="800" height="450" fill="#faf9f5"/>
+
+<defs>
+  <radialGradient id="grain" cx="78%" cy="50%" r="70%">
+    <stop offset="0%" stop-color="#c56473" stop-opacity="0.06"/>
+    <stop offset="100%" stop-color="#c56473" stop-opacity="0"/>
+  </radialGradient>
+</defs>
+<rect width="800" height="450" fill="url(#grain)"/>
+<text x="56" y="76" font-family="JetBrains Mono, ui-monospace, monospace" font-size="11" fill="#8a8780" letter-spacing="1.54">NOTES · NETWORK · 2026</text>
+
+<text x="56" y="128" font-family="Noto Serif, Noto Serif CJK SC, serif" font-size="38" font-weight="700" fill="#141312">A <tspan fill="#c56473">clean</tspan> path</text>
+<text x="56" y="176" font-family="Noto Serif, Noto Serif CJK SC, serif" font-size="38" fill="#141312" font-weight="700">to Claude</text>
+<text x="56" y="206" font-family="Noto Serif, Noto Serif CJK SC, serif" font-size="15" fill="#5c5a55">A US VPS, two virtual machines, and a network that</text><text x="56" y="233" font-family="Noto Serif, Noto Serif CJK SC, serif" font-size="15" fill="#5c5a55">goes dark if the link breaks.</text><rect x="56" y="378" width="28" height="1" fill="#c56473"/><text x="56" y="412" font-family="JetBrains Mono, ui-monospace, monospace" font-size="11" fill="#8a8780" letter-spacing="0.88">VPS · SING-BOX · CPA · VMWARE FUSION · KILL SWITCH</text>
+<g transform="translate(-14,26)">
+  <rect x="470" y="70" width="250" height="250" rx="26" fill="none" stroke="rgba(24,24,27,.14)"/>
+  <text x="490" y="96" font-family="JetBrains Mono, ui-monospace, monospace" font-size="10" fill="#8a8780" letter-spacing="1.4">MAC · VMWARE FUSION</text>
+  <rect x="498" y="122" width="88" height="62" rx="14" fill="#faf9f5" stroke="rgba(24,24,27,.22)"/>
+  <rect x="512" y="136" width="13" height="13" rx="1.5" fill="none" stroke="#2b2a27" stroke-width="1.3"/><rect x="527" y="136" width="13" height="13" rx="1.5" fill="none" stroke="#2b2a27" stroke-width="1.3"/><rect x="512" y="151" width="13" height="13" rx="1.5" fill="none" stroke="#2b2a27" stroke-width="1.3"/><rect x="527" y="151" width="13" height="13" rx="1.5" fill="none" stroke="#2b2a27" stroke-width="1.3"/>
+  <text x="548" y="148" font-family="JetBrains Mono, ui-monospace, monospace" font-size="10" fill="#2b2a27">WIN 11</text>
+  <text x="548" y="163" font-family="JetBrains Mono, ui-monospace, monospace" font-size="9" fill="#8a8780">.125</text>
+  <rect x="604" y="212" width="94" height="62" rx="14" fill="#faf9f5" stroke="#c56473" stroke-width="1.2"/>
+  <circle cx="626" cy="243" r="10" fill="none" stroke="#c56473" stroke-width="1.3"/>
+  <circle cx="626" cy="243" r="3" fill="#c56473"/>
+  <text x="644" y="239" font-family="JetBrains Mono, ui-monospace, monospace" font-size="10" fill="#2b2a27">GATEWAY</text>
+  <text x="644" y="254" font-family="JetBrains Mono, ui-monospace, monospace" font-size="9" fill="#8a8780">sing-box</text>
+  <path d="M542 184 C542 222 572 243 604 243" fill="none" stroke="#2b2a27" stroke-width="1.1" stroke-dasharray="1 4" stroke-linecap="round"/>
+  <text x="498" y="296" font-family="JetBrains Mono, ui-monospace, monospace" font-size="9" fill="#8a8780">AI Agent Internet</text>
+  <text x="498" y="309" font-family="JetBrains Mono, ui-monospace, monospace" font-size="9" fill="#8a8780">10.10.10.0/24</text>
+  <path d="M698 243 C760 243 760 160 742 120" fill="none" stroke="#c56473" stroke-width="1.3"/>
+  <path d="M742 120 C730 92 712 78 690 60" fill="none" stroke="#c56473" stroke-width="1.3" stroke-dasharray="3 5"/>
+  <g transform="translate(668,40)" opacity="1.0"><circle r="22" fill="#faf9f5" stroke="#2b2a27" stroke-width="1.1"/><ellipse rx="9.2" ry="22" fill="none" stroke="#2b2a27" stroke-width="0.8"/><line x1="-22" x2="22" stroke="#2b2a27" stroke-width="0.8"/><path d="M-18.9 -11.0 H18.9 M-18.9 11.0 H18.9" stroke="#2b2a27" stroke-width="0.7"/><circle cx="5.5" cy="9.2" r="3.1" fill="#c56473"/></g>
+  <text x="600" y="44" font-family="JetBrains Mono, ui-monospace, monospace" font-size="9.5" fill="#8a8780" text-anchor="end">US WEST</text>
+  <text x="600" y="57" font-family="JetBrains Mono, ui-monospace, monospace" font-size="9" fill="#8a8780" text-anchor="end">UTC−08:00</text>
+  <line x1="651" y1="274" x2="651" y2="336" stroke="rgba(24,24,27,.18)" stroke-dasharray="2 4"/>
+  <g transform="translate(630,346)">
+    <rect x="0" y="0" width="42" height="22" rx="11" fill="none" stroke="rgba(24,24,27,.24)"/>
+    <circle cx="31" cy="11" r="7" fill="#c56473"/>
+  </g>
+  <text x="682" y="361" font-family="JetBrains Mono, ui-monospace, monospace" font-size="10" fill="#5c5a55" letter-spacing="0.6">kill switch</text>
+</g>
+
+</svg>

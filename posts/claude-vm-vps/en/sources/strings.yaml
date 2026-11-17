@@ -1,0 +1,250 @@
+# Maintainable English copy for the 10 claude-vm-vps figures.
+# Chinese is the published original (v2) for verification only.
+# Do not invent topology, security boundaries, IPs, or features.
+# Placeholders (<VPS_IP>, <PORT>, <API_KEY>, <your-domain>) stay as in the original.
+# Brand "hychiiu" is kept. No new secrets, emails, or real IPs.
+
+meta:
+  article_en: "https://hychiiu.com/en/posts/claude-vm-vps/"
+  issue_en: "https://github.com/hychiiu/hychiiu-blog/issues/3"
+  issue_zh: "https://github.com/hychiiu/hychiiu-blog/issues/2"
+  assets_branch: "https://github.com/hychiiu/hychiiu-blog/tree/assets/posts/claude-vm-vps"
+  palette_note: >
+    Site chrome uses pine green, but these figures were drawn with a warm-paper
+    plus dusty-rose accent. English assets keep that original figure palette
+    so they pair with the Chinese set and preserve color semantics (paths,
+    highlights, kill-switch state).
+
+cover-v2:
+  role: Cover
+  kicker: {zh: "NOTES · NETWORK · 2026", en: "NOTES · NETWORK · 2026"}
+  title_line1_before: {zh: "给 Claude", en: "A "}
+  title_line1_accent: {zh: "干净", en: "clean"}
+  title_line1_after: {zh: "", en: " path"}
+  title_line2: {zh: "一条干净的线路", en: "to Claude"}
+  # Original accents only 干净 on line 2 in the Chinese layout ("一条干净的线路").
+  # English moves the accented word to "clean" on line 1, same meaning.
+  subtitle: {zh: "一台美国的 VPS，两台虚拟机，一条断了就不通的网。",
+             en: "A US VPS, two virtual machines, and a network that goes dark if the link breaks."}
+  footer: {zh: "VPS · SING-BOX · CPA · VMWARE FUSION · KILL SWITCH",
+           en: "VPS · SING-BOX · CPA · VMWARE FUSION · KILL SWITCH"}
+  # Diagram labels already English in the original; kept unchanged:
+  already_english: ["MAC · VMWARE FUSION", "WIN 11", ".125", "GATEWAY", "sing-box",
+                    "AI Agent Internet", "10.10.10.0/24", "US WEST", "UTC−08:00", "kill switch"]
+
+topology-v2:
+  role: "Fig. 1 · Overall topology"
+  kicker: {zh: "FIG. 1 · TOPOLOGY", en: "FIG. 1 · TOPOLOGY"}
+  badge: {zh: "示意图", en: "Diagram"}
+  mac_title: {zh: "Mac", en: "Mac"}
+  mac_sub: {zh: "宿主机", en: "host"}
+  fusion: {zh: "VMWARE FUSION", en: "VMWARE FUSION"}
+  win_title: {zh: "Windows 11 ARM", en: "Windows 11 ARM"}
+  win_meta: {zh: "一张网卡 · 不配代理", en: "One NIC · no proxy"}
+  isolated: {zh: "隔离网 · 无 NAT/DHCP", en: "Isolated net · no NAT/DHCP"}
+  isolated_name: {zh: "AI Agent Internet", en: "AI Agent Internet"}
+  gw_title: {zh: "AIAgentGateway", en: "AIAgentGateway"}
+  gw_os: {zh: "Debian 13", en: "Debian 13"}
+  if_lan: {zh: "LAN · DHCP", en: "LAN · DHCP"}
+  if_tun: {zh: "sing-box TUN", en: "sing-box TUN"}
+  if_wan: {zh: "WAN · NAT", en: "WAN · NAT"}
+  vmware_nat: {zh: "VMware NAT", en: "VMware NAT"}
+  encrypted: {zh: "已是加密隧道", en: "Already an encrypted tunnel"}
+  egern_title: {zh: "Mac 网卡 · Egern（TUN）", en: "Mac NIC · Egern (TUN)"}
+  egern_note: {zh: "Mac 自己的流量照常走 Egern", en: "The Mac's own traffic still goes through Egern"}
+  direct: {zh: "<VPS_IP>/32 → 直连", en: "<VPS_IP>/32 → direct"}
+  public: {zh: "公网", en: "Public net"}
+  vps_title: {zh: "VPS · 美国西部", en: "VPS · US West"}
+  vps_cloud: {zh: "Oracle Cloud · Ubuntu", en: "Oracle Cloud · Ubuntu"}
+  vps_sb: {zh: "sing-box · VLESS + REALITY", en: "sing-box · VLESS + REALITY"}
+  vps_cpa: {zh: "CLIProxyAPI · Docker", en: "CLIProxyAPI · Docker"}
+  vps_tz: {zh: "UTC−08:00 · Los_Angeles", en: "UTC−08:00 · Los_Angeles"}
+  claude_title: {zh: "Claude", en: "Claude"}
+  claude_note: {zh: "只看到一个出口：这台 VPS", en: "Sees only one egress: this VPS"}
+  other: {zh: "其他设备", en: "Other devices"}
+  other_meta: {zh: "API Key → CPA", en: "API Key → CPA"}
+  https: {zh: "HTTPS", en: "HTTPS"}
+  legend_win: {zh: "Windows 的流量路径", en: "Windows traffic path"}
+  legend_cpa: {zh: "经 CPA 的 API 调用", en: "API calls via CPA"}
+  legend_virt: {zh: "虚拟化边界", en: "Virtualization boundary"}
+
+vmware-network:
+  role: "Fig. 2 · How the two networks are wired (diagram, not a screenshot of the app)"
+  kicker: {zh: "FIG. 2 · VMWARE FUSION 网络", en: "FIG. 2 · VMWARE FUSION NETWORK"}
+  badge: {zh: "示意图 · 非软件截图", en: "Diagram · not a screenshot"}
+  custom_title: {zh: "自定义网络「AI Agent Internet」", en: "Custom network “AI Agent Internet”"}
+  custom_path: {zh: "Fusion 设置 → Network → 「+」", en: "Fusion Settings → Network → “+”"}
+  use_nat: {zh: "使用 NAT", en: "Use NAT"}
+  connect_mac: {zh: "连接这台 Mac", en: "Connect to this Mac"}
+  dhcp: {zh: "DHCP", en: "DHCP"}
+  subnet: {zh: "子网", en: "Subnet"}
+  subnet_note: {zh: "交给网关", en: "Leave to the gateway"}
+  gw_title: {zh: "AIAgentGateway", en: "AIAgentGateway"}
+  gw_nics: {zh: "两张网卡", en: "Two NICs"}
+  static: {zh: "静态", en: "static"}
+  win_title: {zh: "Windows 11 ARM", en: "Windows 11 ARM"}
+  win_nics: {zh: "只有一张网卡", en: "One NIC only"}
+  no_second: {zh: "不加第二张", en: "No second NIC"}
+  nat_bridged: {zh: "NAT / 桥接", en: "NAT / Bridged"}
+  neither: {zh: "都不要", en: "Neither"}
+  footer: {zh: "三项全关以后，这张网就是一根“空网线”：里面只有两台虚拟机，地址和网关都由 Debian 来发。",
+           en: "With all three options off, this network is just a bare cable: only the two VMs are on it, and Debian issues the addresses and the gateway."}
+
+term-gateway:
+  role: "Fig. 3 · The gateway routing table and Windows ipconfig (real output, redacted)"
+  kind: real_terminal
+  kicker: {zh: "FIG. 3 · 两台虚拟机看到的网络", en: "FIG. 3 · THE NETWORK EACH VM SEES"}
+  badge: {zh: "真实输出 · 有删节", en: "Real output · redacted"}
+  gw_head: {zh: "AIAgentGateway · bash", en: "AIAgentGateway · bash"}
+  gw_os: {zh: "Debian 13", en: "Debian 13"}
+  win_head: {zh: "Windows 11 · PowerShell", en: "Windows 11 · PowerShell"}
+  win_redaction: {zh: "已删去主机名、MAC、DUID", en: "Hostname, MAC, and DUID removed"}
+  caption: {zh: "网关多出来一条 tun0，那是 sing-box 建的。Windows 只有一张网卡，默认路由只有一条，指向网关。",
+            en: "The gateway has an extra tun0, created by sing-box. Windows has a single NIC and a single default route, pointing at the gateway."}
+  output_note: >
+    Command output is already English. Keep it verbatim, including the
+    hychiiu username, redacted typography, and highlighted addresses.
+    Do not invent, restore, or relabel it as a translated transcript.
+
+killswitch-v2:
+  role: "Fig. 4 · When the gateway stops, Windows is offline"
+  kicker: {zh: "FIG. 4 · KILL SWITCH", en: "FIG. 4 · KILL SWITCH"}
+  badge: {zh: "示意图", en: "Diagram"}
+  up_title: {zh: "网关在线", en: "Gateway up"}
+  tunnel: {zh: "隧道", en: "Tunnel"}
+  us_egress: {zh: "美国出口", en: "US egress"}
+  up_body: {zh: "所有流量都进 sing-box 的 TUN，从美国那台 VPS 出去。",
+            en: "All traffic enters sing-box's TUN and leaves through the US VPS."}
+  up_expect: {zh: "预期：curl api.ipify.org → <VPS_IP>",
+              en: "Expected: curl api.ipify.org → <VPS_IP>"}
+  down_title: {zh: "网关关机 / 挂起", en: "Gateway off / suspended"}
+  no_second: {zh: "没有第二张网卡", en: "No second NIC"}
+  down_body: {zh: "Windows 只连着隔离网，没路可退。网关一停就断网，不会换成本机出口。",
+              en: "Windows has no other way out. When the gateway stops, the network is simply gone — it will not fall back to the host egress."}
+  down_expect: {zh: "预期：ping 8.8.8.8 不通",
+                en: "Expected: ping 8.8.8.8 fails"}
+
+timezone-v2:
+  role: "Fig. 5 · The clock follows the egress"
+  kicker: {zh: "FIG. 5 · 出口在哪，时间就在哪", en: "FIG. 5 · THE CLOCK FOLLOWS THE EGRESS"}
+  badge: {zh: "示意图", en: "Diagram"}
+  col1_lab: {zh: "出口 IP", en: "Egress IP"}
+  vps_lab: {zh: "VPS", en: "VPS"}
+  sys_tz: {zh: "系统时区", en: "System timezone"}
+  col2_lab: {zh: "WINDOWS 时区", en: "WINDOWS TIMEZONE"}
+  check: {zh: "查看", en: "Check"}
+  auto_tz: {zh: "自动设置时区", en: "Set time zone automatically"}
+  auto_rec: {zh: "建议关掉", en: "Turn this off"}
+  col3_lab: {zh: "语言与输入", en: "Language & input"}
+  ime_big: {zh: "+ 中文输入法", en: "+ Chinese IME"}
+  display_lang: {zh: "显示语言", en: "Display language"}
+  input_method: {zh: "输入法", en: "Input method"}
+  ime_value: {zh: "中文（简体）", en: "Chinese (Simplified)"}
+  footer: {zh: "时区只管显示。TLS 和 REALITY 看的是 UTC 时钟准不准，跟你把时区设成哪里没关系。",
+           en: "The timezone only affects display. TLS and REALITY care whether the UTC clock is accurate, not which zone you set."}
+  fact_note: >
+    "Chinese IME" / "Chinese (Simplified)" are facts about the setup
+    (English UI, Chinese input), not leftover untranslated chrome.
+
+cpa-flow:
+  role: "Fig. 6 · Sign in once, call it from anywhere"
+  kicker: {zh: "FIG. 6 · CLIPROXYAPI", en: "FIG. 6 · CLIPROXYAPI"}
+  badge: {zh: "示意图", en: "Diagram"}
+  win_browser: {zh: "浏览器 · 干净线路", en: "Browser · clean path"}
+  win_path: {zh: "经网关 → VPS 出口", en: "Via gateway → VPS egress"}
+  other_title: {zh: "其他设备", en: "Other devices"}
+  other_clients: {zh: "别的电脑 / 客户端", en: "Other computers / clients"}
+  only_key: {zh: "只有一个 <API_KEY>", en: "Only an <API_KEY>"}
+  vps_title: {zh: "VPS · 美国西部", en: "VPS · US West"}
+  domain: {zh: "<你的域名>", en: "<your-domain>"}
+  keys: {zh: "api-keys 校验", en: "api-keys checked"}
+  auth: {zh: "auth/ · OAuth 凭证", en: "auth/ · OAuth credentials"}
+  auth_note: {zh: "留在 VPS，自动刷新", en: "Stay on the VPS, refresh automatically"}
+  once: {zh: "① 一次", en: "① Once"}
+  daily: {zh: "② 日常", en: "② Daily"}
+  sees: {zh: "看到的出口", en: "Egress it sees"}
+  equals: {zh: "= 这台 VPS", en: "= this VPS"}
+  note1: {zh: "在 Windows 浏览器里走 OAuth，把账号授权给 CPA，只做一次。",
+          en: "In the Windows browser, complete OAuth once and authorize the account to CPA."}
+  note2: {zh: "其他设备带 API Key 请求 CPA，由 VPS 去请求 Claude。",
+          en: "Other devices call CPA with an API key; the VPS then requests Claude."}
+
+egern-bypass-v2:
+  role: "Fig. 7 · Before and after the bypass"
+  kicker: {zh: "FIG. 7 · MAC 上的 TUN 和网关抢路", en: "FIG. 7 · THE TUN AND THE GATEWAY COMPETE"}
+  badge: {zh: "示意图", en: "Diagram"}
+  before: {zh: "之前", en: "Before"}
+  before_sub: {zh: "网关连 VPS 的流量也被 Egern 的 TUN 收了进去",
+               en: "Traffic from the gateway to the VPS was also swallowed by Egern's TUN"}
+  other_node: {zh: "别的节点", en: "Another node"}
+  other_path: {zh: "另一条线路", en: "A different path"}
+  hs_fail: {zh: "握手失败", en: "Handshake failed"}
+  log_gw: {zh: "网关", en: "Gateway"}
+  log_vps: {zh: "VPS", en: "VPS"}
+  after: {zh: "之后", en: "After"}
+  after_sub: {zh: "把 VPS 的 IP 从隧道里排除，这一段直连",
+              en: "Exclude the VPS IP from the tunnel; this hop goes direct"}
+  phys_nic: {zh: "Mac 物理网卡", en: "Mac physical NIC"}
+  bypass_utun: {zh: "不经过 utun", en: "Bypasses utun"}
+  hs_ok: {zh: "握手成功", en: "Handshake succeeded"}
+  footer: {zh: "改完要在 Egern 里断开再连接一次，只点“重新加载”路由不会刷新。",
+           en: "After the change, disconnect and reconnect in Egern; tapping “Reload” alone will not refresh the routes."}
+
+checklist-v2:
+  role: "Fig. 8 · Checklist"
+  kicker: {zh: "FIG. 8 · CHECKLIST", en: "FIG. 8 · CHECKLIST"}
+  badge: {zh: "每次换节点、改配置后过一遍", en: "Walk this after every node or config change"}
+  title: {zh: "改完之后的八项检查", en: "Eight checks after a change"}
+  sub: {zh: "从网关到浏览器再到 CPA，一层一层确认没有漏。",
+        en: "From the gateway to the browser to CPA, confirm layer by layer that nothing leaks."}
+  items:
+    - n: "01"
+      title: {zh: "网关出口", en: "Gateway egress"}
+      how: {zh: "curl -s https://api.ipify.org", en: "curl -s https://api.ipify.org"}
+      pass: {zh: "= <VPS_IP>", en: "= <VPS_IP>"}
+    - n: "02"
+      title: {zh: "Windows 的地址", en: "Windows address"}
+      how: {zh: "ipconfig /all", en: "ipconfig /all"}
+      pass: {zh: "10.10.10.1xx · GW/DNS .1", en: "10.10.10.1xx · GW/DNS .1"}
+    - n: "03"
+      title: {zh: "浏览器看到的 IP", en: "IP in the browser"}
+      how: {zh: "任意 IP 查询页", en: "Any IP lookup page"}
+      pass: {zh: "美国 · 和 VPS 一致", en: "US · matches the VPS"}
+    - n: "04"
+      title: {zh: "DNS 泄漏", en: "DNS leak"}
+      how: {zh: "DNS leak test · 扩展测试", en: "DNS leak test · extended"}
+      pass: {zh: "不出现国内运营商", en: "No domestic ISP"}
+    - n: "05"
+      title: {zh: "WebRTC", en: "WebRTC"}
+      how: {zh: "WebRTC leak test", en: "WebRTC leak test"}
+      pass: {zh: "没有真实公网 IP", en: "No real public IP"}
+    - n: "06"
+      title: {zh: "时区与语言", en: "Timezone & language"}
+      how: {zh: "Intl…timeZone · tzutil /g", en: "Intl…timeZone · tzutil /g"}
+      pass: {zh: "America/Los_Angeles", en: "America/Los_Angeles"}
+    - n: "07"
+      title: {zh: "Kill switch", en: "Kill switch"}
+      how: {zh: "挂起网关 → Windows 里 ping", en: "Suspend gateway → ping in Windows"}
+      pass: {zh: "不通才对", en: "Failure is correct"}
+    - n: "08"
+      title: {zh: "CPA 接口", en: "CPA API"}
+      how: {zh: "curl /v1/models + API Key", en: "curl /v1/models + API Key"}
+      pass: {zh: "返回模型列表", en: "Returns the model list"}
+
+term-debug-v2:
+  role: "Fig. 9 · Services are up, but nothing gets out (real output, redacted)"
+  kind: real_terminal
+  kicker: {zh: "FIG. 9 · 那次断网", en: "FIG. 9 · THE OUTAGE"}
+  badge: {zh: "真实输出 · 有删节 · IP 和端口已替换", en: "Real output · redacted · IPs and ports replaced"}
+  gw_head: {zh: "AIAgentGateway · root", en: "AIAgentGateway · root"}
+  gw_note: {zh: "服务都在，就是出不去", en: "Services are up, but nothing gets out"}
+  vps_head: {zh: "VPS · sing-box 日志", en: "VPS · sing-box log"}
+  vps_when: {zh: "同一天", en: "Same day"}
+  caption: {zh: "端口是通的，隧道却建不起来；服务端说握手无效。问题不在节点，而在中间：Mac 上的 TUN 把这段流量截走又转了一道。",
+            en: "The port is reachable, but the tunnel will not come up; the server reports an invalid handshake. The problem is not the node. It is in the middle: the TUN on the Mac intercepts this traffic and forwards it again."}
+  output_note: >
+    Command output and the VPS log line are already English, including the
+    published placeholder <VPS_IP>/<PORT> and the destination 95.101.31.36
+    from the original. Keep them verbatim. Do not forge a screenshot or
+    restore redacted values. No translated-transcript label is needed
+    because the output itself is not being rewritten.

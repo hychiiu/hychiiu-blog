@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="652" viewBox="0 0 720 652">
+<rect width="720" height="652" fill="#faf9f5"/>
+
+<defs>
+  <marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+    <path d="M1 1 L8 5 L1 9" fill="none" stroke="#c56473" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+  </marker>
+  <marker id="arg" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+    <path d="M1 1 L8 5 L1 9" fill="none" stroke="#5c5a55" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+  </marker>
+  <marker id="arg2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+    <path d="M1 1 L8 5 L1 9" fill="none" stroke="#8a8780" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+  </marker>
+</defs><text x="16" y="30" font-family="JetBrains Mono, ui-monospace, monospace" font-size="10.5" fill="#8a8780" letter-spacing="1.6">FIG. 1 · TOPOLOGY</text><text x="704" y="30" font-family="JetBrains Mono, ui-monospace, monospace" font-size="10.5" fill="#8a8780" text-anchor="end">Diagram</text>
+<rect x="16" y="48" width="392" height="588" rx="22" fill="none" stroke="rgba(24,24,27,.16)"/>
+<text x="36" y="76" font-family="Noto Serif, Noto Serif CJK SC, serif" font-size="14" fill="#141312" font-weight="600">Mac</text>
+<text x="72" y="76" font-family="JetBrains Mono, ui-monospace, monospace" font-size="10" fill="#8a8780">host</text>
+<rect x="30" y="92" width="364" height="362" rx="16" fill="none" stroke="rgba(24,24,27,.16)" stroke-dasharray="4 4"/>
+<text x="48" y="116" font-family="JetBrains Mono, ui-monospace, monospace" font-size="10" fill="#8a8780" letter-spacing="1.4">VMWARE FUSION</text>
+
+<rect x="46" y="130" width="332" height="72" rx="14" fill="#faf9f5" stroke="rgba(24,24,27,.24)"/>
+<rect x="64" y="152" width="12" height="12" rx="1.5" fill="none" stroke="#2b2a27" stroke-width="1.3"/><rect x="78" y="152" width="12" height="12" rx="1.5" fill="none" stroke="#2b2a27" stroke-width="1.3"/><rect x="64" y="166" width="12" height="12" rx="1.5" fill="none" stroke="#2b2a27" stroke-width="1.3"/><rect x="78" y="166" width="12" height="12" rx="1.5" fill="none" stroke="#2b2a27" stroke-width="1.3"/>
+<text x="102" y="161" font-family="Noto Serif, Noto Serif CJK SC, serif" font-size="15" fill="#141312" font-weight="600">Windows 11 ARM</text>
+<text x="102" y="183" font-family="JetBrains Mono, ui-monospace, monospace" font-size="10.5" fill="#5c5a55">One NIC · no proxy</text>
+<text x="362" y="161" font-family="JetBrains Mono, ui-monospace, monospace" font-size="11" fill="#2b2a27" text-anchor="end">10.10.10.125</text>
+<text x="362" y="183" font-family="JetBrains Mono, ui-monospace, monospace" font-size="10" fill="#8a8780" text-anchor="end">DHCP</text>
+
+<line x1="212" y1="202" x2="212" y2="244" stroke="#c56473" stroke-width="1.4" marker-end="url(#ar)"/>
+<rect x="224" y="212" width="154" height="22" rx="11" fill="rgba(197,100,115,.08)"/>
+<text x="301" y="227" font-family="JetBrains Mono, ui-monospace, monospace" font-size="10.5" fill="#c56473" text-anchor="middle">AI Agent Internet</text>
+<text x="202" y="227" font-family="JetBrains Mono, ui-monospace, monospace" font-size="10" fill="#8a8780" text-anchor="end">Isolated net · no NAT/DHCP</text>
+
+<rect x="46" y="248" width="332" height="150" rx="14" fill="#faf9f5" stroke="#c56473" stroke-width="1.2"/>
+<text x="64" y="276" font-family="Noto Serif, Noto Serif CJK SC, serif" font-size="15" fill="#141312" font-weight="600">AIAgentGateway</text>
+<text x="362" y="276" font-family="JetBrains Mono, ui-monospace, monospace" font-size="10.5" fill="#8a8780" text-anchor="end">Debian 13</text>
+<line x1="64" y1="290" x2="362" y2="290" stroke="rgba(24,24,27,.08)"/>
+<text x="64" y="314" font-family="JetBrains Mono, ui-monospace, monospace" font-size="11" fill="#2b2a27">enp10s0</text>
+<text x="136" y="314" font-family="JetBrains Mono, ui-monospace, monospace" font-size="11" fill="#2b2a27">10.10.10.1/24</text>
+<text x="362" y="314" font-family="JetBrains Mono, ui-monospace, monospace" font-size="11" fill="#8a8780" text-anchor="end">LAN · DHCP</text>
+<text x="64" y="342" font-family="JetBrains Mono, ui-monospace, monospace" font-size="11" fill="#c56473">tun0</text>
+<text x="136" y="342" font-family="JetBrains Mono, ui-monospace, monospace" font-size="11" fill="#c56473">172.19.0.1/30</text>
+<text x="362" y="342" font-family="JetBrains Mono, ui-monospace, monospace" font-size="11" fill="#8a8780" text-anchor="end">sing-box TUN</text>
+<text x="64" y="370" font-family="JetBrains Mono, ui-monospace, monospace" font-size="11" fill="#2b2a27">enp2s0</text>
+<text x="136" y="370" font-family="JetBrains Mono, ui-monospace, monospace" font-size="11" fill="#2b2a27">172.16.236.x</text>
+<text x="362" y="370" font-family="JetBrains Mono, ui-monospace, monospace" font-size="11" fill="#8a8780" text-anchor="end">WAN · NAT</text>
+
+<line x1="212" y1="398" x2="212" y2="488" stroke="#c56473" stroke-width="1.4" marker-end="url(#ar)"/>
+<text x="224" y="424" font-family="JetBrains Mono, ui-monospace, monospace" font-size="10" fill="#8a8780">VMware NAT</text>
+<text x="224" y="474" font-family="JetBrains Mono, ui-monospace, monospace" font-size="10" fill="#8a8780">Already an encrypted tunnel</text>
+
+<rect x="46" y="492" width="332" height="124" rx="14" fill="#faf9f5" stroke="rgba(24,24,27,.24)"/>
+<text x="64" y="520" font-family="Noto Serif, Noto Serif CJK SC, serif" font-size="15" fill="#141312" font-weight="600">Mac NIC · Egern (TUN)</text>
+<text x="64" y="544" font-family="JetBrains Mono, ui-monospace, monospace" font-size="10.5" fill="#5c5a55">The Mac's own traffic still goes through Egern</text>
+<rect x="64" y="562" width="226" height="24" rx="12" fill="none" stroke="#c56473"/>
+<text x="177" y="578" font-family="JetBrains Mono, ui-monospace, monospace" font-size="10.5" fill="#c56473" text-anchor="middle">&lt;VPS_IP&gt;/32 → direct</text>
+
+<path d="M378 554 H 566 V 430" fill="none" stroke="#c56473" stroke-width="1.6" marker-end="url(#ar)"/>
+<text x="472" y="546" font-family="JetBrains Mono, ui-monospace, monospace" font-size="10.5" fill="#c56473" text-anchor="middle">Public net</text>
+
+<rect x="432" y="262" width="272" height="164" rx="14" fill="#faf9f5" stroke="rgba(24,24,27,.24)"/>
+<g transform="translate(462,294)" opacity="1.0"><circle r="12" fill="#faf9f5" stroke="#2b2a27" stroke-width="1.1"/><ellipse rx="5.0" ry="12" fill="none" stroke="#2b2a27" stroke-width="0.8"/><line x1="-12" x2="12" stroke="#2b2a27" stroke-width="0.8"/><circle cx="3.0" cy="5.0" r="2.2" fill="#c56473"/></g>
+<text x="484" y="299" font-family="Noto Serif, Noto Serif CJK SC, serif" font-size="15" fill="#141312" font-weight="600">VPS · US West</text>
+<line x1="452" y1="316" x2="684" y2="316" stroke="rgba(24,24,27,.08)"/>
+<text x="452" y="340" font-family="JetBrains Mono, ui-monospace, monospace" font-size="10.5" fill="#2b2a27">Oracle Cloud · Ubuntu</text>
+<text x="452" y="362" font-family="JetBrains Mono, ui-monospace, monospace" font-size="10.5" fill="#c56473">sing-box · VLESS + REALITY</text>
+<text x="452" y="384" font-family="JetBrains Mono, ui-monospace, monospace" font-size="10.5" fill="#c56473">CLIProxyAPI · Docker</text>
+<text x="452" y="406" font-family="JetBrains Mono, ui-monospace, monospace" font-size="10.5" fill="#8a8780">UTC−08:00 · Los_Angeles</text>
+
+<line x1="566" y1="262" x2="566" y2="200" stroke="#c56473" stroke-width="1.4" marker-end="url(#ar)"/>
+<text x="578" y="236" font-family="JetBrains Mono, ui-monospace, monospace" font-size="10" fill="#8a8780">HTTPS</text>
+<rect x="432" y="112" width="272" height="84" rx="14" fill="rgba(197,100,115,.06)" stroke="rgba(197,100,115,.5)"/>
+<text x="452" y="146" font-family="Noto Serif, Noto Serif CJK SC, serif" font-size="17" fill="#141312" font-weight="600">Claude</text>
+<text x="452" y="172" font-family="JetBrains Mono, ui-monospace, monospace" font-size="10.5" fill="#5c5a55">Sees only one egress: this VPS</text>
+
+<rect x="596" y="452" width="108" height="46" rx="12" fill="#faf9f5" stroke="rgba(197,100,115,.6)" stroke-dasharray="3 3"/>
+<text x="650" y="472" font-family="JetBrains Mono, ui-monospace, monospace" font-size="10.5" fill="#2b2a27" text-anchor="middle">Other devices</text>
+<text x="650" y="488" font-family="JetBrains Mono, ui-monospace, monospace" font-size="9.5" fill="#8a8780" text-anchor="middle">API Key → CPA</text>
+<line x1="650" y1="452" x2="650" y2="432" stroke="#c56473" stroke-width="1.3" stroke-dasharray="3 3" marker-end="url(#ar)"/>
+
+<text x="468" y="584" font-family="JetBrains Mono, ui-monospace, monospace" font-size="10" fill="#5c5a55">Windows traffic path</text>
+<line x1="432" y1="580" x2="458" y2="580" stroke="#c56473" stroke-width="1.6"/>
+<text x="468" y="604" font-family="JetBrains Mono, ui-monospace, monospace" font-size="10" fill="#5c5a55">API calls via CPA</text>
+<line x1="432" y1="600" x2="458" y2="600" stroke="#c56473" stroke-width="1.3" stroke-dasharray="3 3"/>
+<text x="468" y="624" font-family="JetBrains Mono, ui-monospace, monospace" font-size="10" fill="#5c5a55">Virtualization boundary</text>
+<line x1="432" y1="620" x2="458" y2="620" stroke="rgba(24,24,27,.4)" stroke-dasharray="4 4"/>
+
+</svg>
