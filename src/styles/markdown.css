@@ -379,17 +379,24 @@
 .prose .expressive-code .frame.has-toolbar {
   --button-spacing: 0;
 }
+/* 单一布局：32px 行内用 align-items:center 一次对齐标题、语言、复制按钮的视觉中心。
+   不用 baseline（不同字号/盒高的基线 ≠ 水平中线），也不再给按钮单独 align-self。 */
 .prose .expressive-code .frame.has-toolbar .header {
   display: flex;
-  align-items: baseline;
+  align-items: center;
+  justify-content: flex-start;
   gap: var(--sp-2);
   box-sizing: border-box;
   height: var(--code-toolbar-h);
   min-height: var(--code-toolbar-h);
+  margin: 0;
   padding: 0 0 0 var(--code-pad-x);
   border: 0;
   background: var(--surface-1);
   border-radius: var(--r-md) var(--r-md) 0 0;
+  font-family: var(--font-mono);
+  font-weight: 400;
+  line-height: 1;
 }
 .prose .expressive-code .frame.has-toolbar .header::before,
 .prose .expressive-code .frame.has-toolbar .header::after,
@@ -400,13 +407,16 @@
 .prose .expressive-code .frame.has-toolbar .title {
   flex: 1 1 auto;
   min-width: 0;
+  margin: 0;
   padding: 0;
   border: 0;
   background: none;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  font-family: inherit;
   font-size: var(--fs-xs);
+  font-weight: 400;
   line-height: 1;
   letter-spacing: 0.02em;
   color: var(--ink-muted);
@@ -415,9 +425,12 @@
   display: none;
 }
 .prose .expressive-code .frame.has-toolbar .lang {
-  margin-left: auto;
+  margin: 0 0 0 auto;
+  padding: 0;
   flex: 0 0 auto;
+  font-family: inherit;
   font-size: var(--fs-2xs);
+  font-weight: 400;
   line-height: 1;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -426,14 +439,21 @@
 .prose .expressive-code .frame.has-toolbar .copy {
   position: relative;
   inset: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex: 0 0 auto;
-  align-self: center;
   width: var(--code-copy-size);
   height: var(--code-copy-size);
+  gap: 0;
 }
 .prose .expressive-code .frame.has-toolbar .copy button {
   appearance: none;
   -webkit-appearance: none;
+  position: relative;
+  display: grid;
+  place-items: center;
+  align-self: auto;
   width: var(--code-copy-size);
   height: var(--code-copy-size);
   min-width: var(--code-copy-size);
@@ -444,6 +464,7 @@
   border-radius: var(--r-round);
   box-shadow: none;
   background: transparent;
+  line-height: 0;
 }
 .prose .expressive-code .frame.has-toolbar .copy button div,
 .prose .expressive-code .frame.has-toolbar .copy button::before {
@@ -453,6 +474,8 @@
   opacity: 0;
 }
 .prose .expressive-code .frame.has-toolbar .copy button::after {
+  content: '';
+  position: absolute;
   width: var(--code-copy-icon);
   height: var(--code-copy-icon);
   margin: auto;
