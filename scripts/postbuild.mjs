@@ -11,7 +11,7 @@ for (const l of langs.filter((l) => l !== defaultLang)) {
   if (existsSync(`dist/${l}/404/index.html`)) copyFileSync(`dist/${l}/404/index.html`, `dist/${l}/404.html`);
 }
 
-// 只把文章 / 手记路径交给 Pages Function
+// 精确生成内容缓存与已实现天气接口的 Functions 调用边界
 writeFileSync('dist/_routes.json', JSON.stringify({ version: 1, include: pages.functionRoutes, exclude: [] }) + '\n');
 
 // 只在 Pages 构建环境里写入构建号（functions/_middleware.js 用它让缓存键随部署变化）

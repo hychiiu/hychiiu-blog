@@ -135,7 +135,6 @@ npm run check      # astro check + tsc
 | `config/content.ts`      | 文章来源仓库、作者、特殊 label（`post` / `note` / `draft` / `en`）、数据文件、GitHub API、阅读速度 | `GITHUB_REPO`（其次 `GITHUB_REPOSITORY`）、`BLOG_AUTHOR`、`GITHUB_API_URL`、`YH_ISSUES_FILE` |
 | `config/integrations.ts` | 评论（utterances）、ICP 备案号与显示域名、页脚致谢链接                                             | `COMMENTS_MODE`（`auto` / `click` / `off`）、`ICP_NUMBER`（设为空即关闭）、`ICP_HOSTS`       |
 | `config/deploy.ts`       | Pages 项目名、交给 Function 的路径（生成 `dist/_routes.json`）、缓存键参数、构建号                 | `PAGES_PROJECT`                                                                              |
-| `config/location.ts`     | 定位配置 API 的固定路径与两个获准生产源；无构建期凭据，运行时默认关闭                              | Pages 运行时 `BLOG_AMAP_LOCATION_ENABLED` / `BLOG_AMAP_JS_API_KEY`；接入门槛见下方设计文档   |
 | `config/motion.ts`       | Dock 放大 / 激活点动画参数                                                                         | —                                                                                            |
 | `config/env.ts`          | 读取环境变量的工具（浏览器 / Worker 中自动用默认值）                                               | —                                                                                            |
 
@@ -159,19 +158,19 @@ npm run check      # astro check + tsc
 4. **严格模块结构与项目规范**：沿用配置层、设计令牌、双语字典及测试组织；UI 变更以 UI 设计师交付为依据，不由开发自行设计。主题、语言导航、文章返回等无关行为不得顺手重构。
 5. **保证页面高性能，丝滑**：第三方 SDK 仅在明确操作后按需加载，不进入首屏或普通切页依赖；首次访问/切页不自动定位或请求天气；持久组件不重复绑定事件；取消、竞态与既有缓存有回归覆盖；动画避免布局读写抖动并遵循 reduced-motion。记录同工具链构建前后的 JS/CSS 原始与 gzip 大小及增长原因，并做桌面/窄屏真实交互验收，不能把 bundle 对比或单元测试称为浏览器性能验收。
 
-提交/发布证据包含 `npm test`、`npm run format:check`、`npm run lint`、`npm run check`、`npm run build`、`git diff --check`、分支/HEAD/实时远端状态、性能对比和未验收项。凭据不进入源码、前端产物或日志；新第三方代理必须先核实端点白名单、限流、运行时 Secret、隐私及错误处理。定位接入的当前边界与阻断条件见 [2026-11-20 非 UI 设计](docs/superpowers/specs/2026-11-20-weather-boundaries-design.md)；视觉与性能规范见 [DESIGN](docs/DESIGN.md)。
+提交/发布证据包含 `npm test`、`npm run format:check`、`npm run lint`、`npm run check`、`npm run build`、`git diff --check`、分支/HEAD/实时远端状态、性能对比和未验收项。凭据不进入源码、前端产物或日志；新第三方代理必须先核实端点白名单、限流、运行时 Secret、隐私及错误处理。天气接入的当前契约与发布门禁见 [WeatherAPI 服务端设计](docs/superpowers/specs/2026-11-20-weatherapi-server.md)；视觉与性能规范见 [DESIGN](docs/DESIGN.md)。
 
 ## 部署
 
 托管在 **Cloudflare Pages**，通过 Git 集成部署：push 到 `main` 即自动构建发布。
 
 - 构建命令 `npm run build`，输出目录 `dist`，环境变量 `NODE_VERSION=24`
-- `functions/` 是 Pages Function：让下线的文章及时返回 404
+- `functions/` 承载 Pages Functions：内容构建版本缓存与下线 404、精确路由的天气搜索和预报接口
 - 内容更新由 `sync-issues.yml` 提交到 `main`，同样触发构建
 - 也可以命令行直接上传：`npx wrangler login` 后 `npm run deploy`（项目名见 `config/deploy.ts`，`PAGES_PROJECT` 可覆盖）
 - 自定义域名在 Cloudflare 控制台 → Workers & Pages → 项目 → 自定义域中添加；正式域名由 `site.ts` 的 `url`（或 `SITE_URL`）决定
 
-定位配置接口及当前 SDK 坐标兼容性、父级限流/绑定步骤见 [服务端接入设计](docs/superpowers/specs/2026-11-20-weather-location-server.md)。配置接口默认不可用；没有开放高德转发代理，不应在坐标来源、可靠限流和隐私验收之前启用。安全码不属于公开配置，不能作为普通明文变量或构建输入。
+天气服务端使用固定 WeatherAPI 搜索与预报接口，运行时加密绑定 `BLOG_WEATHERAPI_KEY`；密钥不进入前端或构建。接口契约、部署绑定与限流验收见 [天气服务端设计](docs/superpowers/specs/2026-11-20-weatherapi-server.md)。旧高德配置占位接口已移除，没有开放 SDK 代理；设备定位超时仍需独立排查。
 
 ## 中英文双语
 

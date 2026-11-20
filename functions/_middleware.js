@@ -1,5 +1,5 @@
 /**
- * Cloudflare Pages Function（只作用于 _routes.json 里列出的文章 / 手记路径，见 src/config/deploy.ts）。
+ * Cloudflare Pages 根中间件（内容前缀使用构建号缓存；精确天气 API 路由交回 next，见 src/config/deploy.ts）。
  *
  * 为什么需要：Pages 的资源服务按「主机名 + URL」在数据中心缓存 HTML，并且跨部署复用。
  * 已删除的 issue 页面在新部署后仍会被原样返回（zone 的 purge 清不掉，pages.dev 上同样如此）。

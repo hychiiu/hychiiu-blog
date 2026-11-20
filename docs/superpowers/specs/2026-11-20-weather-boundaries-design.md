@@ -1,6 +1,6 @@
 # Weather integration boundaries — 2026-11-20
 
-> Subsequent server status: [runtime configuration API and audited SDK coordinate boundary](2026-11-20-weather-location-server.md). The configuration route is now implemented but default-off; the forwarding proxy remains absent. Earlier batch-state statements below are retained as historical handoff context.
+> Historical investigation/handoff only. The AMap configuration proposal was removed; current production API design is [WeatherAPI server](2026-11-20-weatherapi-server.md). The old Open-Meteo/WGS84 integration constraints below are not an immutable provider choice.
 
 ## Authorization and scope
 
@@ -62,12 +62,4 @@ Scope is split into independently reviewable configuration/middleware and Dock-l
 
 On t25 the parent assigned frontend work to the frontend engineer. Stop editing `src/scripts/dock.ts`, `src/scripts/dock-navigation.ts` and `tests/dock-navigation.test.mjs`; these three files already have local, uncommitted lifecycle changes. They are handed over intact, not reverted, included in a server commit or claimed as reviewed frontend delivery. Controller, tooltip renderer, CSS and UI were not modified. Server ownership remains `functions/`, `src/config/deploy.ts`, server/configuration tests and shared project documents.
 
-The following contract is a proposal for coordinated implementation, **not an available endpoint**. The parent/frontend engineer must acknowledge it before activation:
-
-- Following explicit informed location action only, request `GET /api/weather/location-config` from the current origin. Success is JSON `{jsApiKey: string, serviceHost: string}`. `serviceHost` must be the validated current production origin plus `/_AMapService`; return no security code, internal upstream URL or provider debug data. The public JS Key is the only intentionally browser-visible credential identifier. Unavailable configuration returns HTTP 503 with machine code `{code: 'LOCATION_UNAVAILABLE'}`; the frontend maps that code to zh/en dictionary text. Config responses are `private, no-store`.
-- The frontend sets `_AMapSecurityConfig.serviceHost` before loading the official JSAPI with the public key. It does not set `securityJsCode`, create a Map, run an IP-city fallback, poll or load on page initialization/navigation. The device-only/WGS84 requirements above apply; cancellation and old-result guards remain owned by the frontend.
-- SDK calls may use `GET /_AMapService/<verified path>` only after the exact SDK endpoint/parameter manifest is recorded and a reliable limiter is confirmed. This is a routing prefix, never permission for arbitrary nested paths. Approved upstream SDK response formats must be preserved; do not wrap successful JSON/JSONP in an application object. Unknown paths/methods are rejected; use fixed, non-sensitive machine errors for unavailable/limited requests. Actual SDK method/response compatibility remains subject to the manifest; no wildcard forwarding is approved.
-- Neither route is currently included in production `_routes.json`. Existing content routes are unchanged. No placeholder handler is installed while SDK path, limiter, preview-host policy and runtime bindings are unverified.
-- Parent arranges encrypted Pages runtime `BLOG_AMAP_SECURITY_JS_CODE` and the public JS Key configuration after acceptance. GitHub Actions/Environment **Secrets**, not plaintext Variables, are required if the security code is transported through CI. GitHub values do not automatically become Pages runtime bindings. No credentials have been read or written during this work.
-
-Before continuing server proxy implementation, obtain the frontend's chosen pinned JSAPI loading/Geolocation mode and exact required request manifest without logging the sensitive upstream query. The parent must coordinate a safe evidence collection method; this batch made no authenticated high-level SDK requests and cannot invent that evidence.
+The proposed AMap runtime-configuration/forwarding contract has been withdrawn and its unused handler/config/tests removed. Do not provision its old flags or activate an SDK proxy. The accepted current contract is [WeatherAPI server](2026-11-20-weatherapi-server.md); native WGS84 location and provider search IDs remain distinct from unconverted GCJ02. No new AMap integration is implemented in this batch.
