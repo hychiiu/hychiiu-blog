@@ -462,3 +462,21 @@ for (const mode of ['utf8', 'declared-length', 'mime']) {
     assert.equal(canceled, true);
   });
 }
+
+test('forecast follows validated provider-local date when request crosses midnight', async () => {
+  const started = Date.parse('2026-11-20T15:59:59Z');
+  const data = forecast();
+  data.location = { tz_id: 'Asia/Shanghai', localtime: '2026-11-21 00:00', localtime_epoch: started / 1000 + 2 };
+  data.current.last_updated_epoch = started / 1000 - 899;
+  data.current.last_updated = '2026-11-20 23:45';
+  data.forecast.forecastday[0].date = '2026-11-21';
+  const api = createWeatherApi({ now: () => started, fetch: async () => Response.json(data) });
+  assert.equal((await api(request('/forecast?cityId=458816'), env)).status, 200);
+});
+test('provider-local clock older than the allowed skew cannot legitimize a stale forecast date', async () => {
+  const data = forecast();
+  data.location.localtime_epoch = now / 1000 - 301;
+  data.location.localtime = '2026-11-20 18:24';
+  const { api } = setup(async () => Response.json(data));
+  await error(await api(request('/forecast?cityId=458816'), env), 502, 'UPSTREAM_INVALID');
+});

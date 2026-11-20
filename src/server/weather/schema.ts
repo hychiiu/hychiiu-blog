@@ -93,7 +93,9 @@ export function parseForecast(data: unknown, now: number): WeatherData {
   const root = record(data);
   const location = record(root.location);
   const timezone = text(location.tz_id);
-  const locationEpoch = integer(location.localtime_epoch, 0, now / 1000 + 300);
+  // The provider clock may cross midnight while this request is in flight.
+  // Keep it within the existing five-minute skew budget before trusting its local day.
+  const locationEpoch = integer(location.localtime_epoch, Math.max(0, now / 1000 - 300), now / 1000 + 300);
   if (text(location.localtime) !== localTime(locationEpoch, timezone)) return invalid();
   const current = record(root.current);
   const observed = integer(current.last_updated_epoch, 0, now / 1000 + 300);
@@ -101,7 +103,7 @@ export function parseForecast(data: unknown, now: number): WeatherData {
   const days = record(root.forecast).forecastday;
   if (!Array.isArray(days) || days.length !== 1) return invalid();
   const first = record(days[0]);
-  if (first.date !== localTime(now / 1000, timezone).slice(0, 10)) return invalid();
+  if (first.date !== localTime(locationEpoch, timezone).slice(0, 10)) return invalid();
   const daily = record(first.day);
   const high = number(daily.maxtemp_c, -150, 100);
   const low = number(daily.mintemp_c, -150, 100);
