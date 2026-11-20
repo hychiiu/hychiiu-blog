@@ -141,7 +141,8 @@
 .dock-dot.on {
   opacity: 1;
 }
-.dock-tip {
+.dock-tip,
+.dock-floating-tip {
   position: absolute;
   z-index: 1;
   padding: 3px 10px 4px;
@@ -161,6 +162,10 @@
   transition:
     opacity var(--dur-tip) var(--ease),
     transform var(--dur-tip) var(--ease);
+}
+
+.dock-floating-tip {
+  display: none;
 }
 
 /* ---------- 竖向（≥1024px） ---------- */
@@ -259,15 +264,13 @@
     display: none;
   }
   @media (hover: hover) and (pointer: fine) {
-    .dock-tip {
+    /* A direct Dock child, not a descendant of the clipped .dock-list. */
+    .dock-floating-tip {
       display: block;
       bottom: calc(100% + var(--sp-1));
-      left: 50%;
       transform: translate(-50%, 4px);
     }
-    .dock-item:hover .dock-tip,
-    .dock-item.is-hover .dock-tip,
-    .dock-item:focus-within .dock-tip {
+    .dock-floating-tip.on {
       opacity: 1;
       transform: translate(-50%, 0);
     }
@@ -285,6 +288,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .dock-tip,
+  .dock-floating-tip,
   .dock-btn {
     transition:
       color var(--dur-2) var(--ease),

@@ -8,6 +8,7 @@
  * Dock 被 transition:persist 保留，状态挂在 window 上，站内跳转不重置、不重复绑定。
  */
 import { dockDotPosition } from './dock-geometry';
+import { refreshDockTooltip } from './dock-tooltip';
 import { isNavActive } from '../config/nav';
 import { defaultLang, langs, locales, otherLang, type Lang } from '../config/locales';
 import { dockMotion } from '../config/motion';
@@ -228,6 +229,7 @@ function syncDock() {
     const tip = b.parentElement?.querySelector('.dock-tip');
     if (tip && tip.textContent !== text) tip.textContent = text;
   });
+  refreshDockTooltip(d);
   kick();
 }
 
@@ -240,6 +242,7 @@ function syncDock() {
 function setHover(d: HTMLElement, item: Element | null) {
   d.querySelectorAll('.dock-item.is-hover').forEach((x) => x !== item && x.classList.remove('is-hover'));
   item?.classList.add('is-hover');
+  refreshDockTooltip(d);
 }
 
 /** 跳转（含视图过渡）结束：按最后的指针位置同步悬停与放大 */
@@ -257,7 +260,19 @@ function endNavigation(d: HTMLElement) {
 }
 
 function bind(d: HTMLElement) {
-  d.querySelector('[data-dock-list]')?.addEventListener('scroll', kick, { passive: true });
+  const refreshTip = () => refreshDockTooltip(d);
+  d.querySelector('[data-dock-list]')?.addEventListener(
+    'scroll',
+    () => {
+      kick();
+      refreshTip();
+    },
+    { passive: true },
+  );
+  d.addEventListener('focusin', refreshTip);
+  d.addEventListener('focusout', () => queueMicrotask(refreshTip));
+  // Controls update aria-expanded at document level, after the Dock click handler.
+  d.addEventListener('click', () => queueMicrotask(refreshTip));
   d.addEventListener('pointermove', (e) => {
     if (e.pointerType !== 'mouse' || !S.vertical) return;
     const list = d.querySelector<HTMLElement>('[data-dock-list]')!;
@@ -313,6 +328,7 @@ function bind(d: HTMLElement) {
   );
   const remeasure = () => {
     measure();
+    refreshTip();
     kick();
   };
   window.addEventListener('resize', remeasure);
