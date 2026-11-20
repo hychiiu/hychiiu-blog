@@ -15,7 +15,7 @@
 - No push, deployment, online configuration/secrets, purchase or account changes. Key only runtime env; real local checks read the protected 600 file, never the link-valued shell env.
 - Five release gates: elegant logic; no temporary patches/dead interfaces; complete lifecycle/security comments; focused project modules; verifiable performance/no background traffic.
 - Explicit production origin allowlist; source headers are defense in depth, not authentication. Local integration invokes production-origin Requests in memory, not a production-only bypass flag.
-- Fixed provider HTTPS host and two endpoints, redirect:error, no callback/IP/alternate query modes; timeout covers response body and parsing; bounded JSON input/output, no sensitive logs.
+- Fixed provider HTTPS host and two endpoints, redirect:manual with explicit 3xx rejection, no callback/IP/alternate query modes; timeout covers response body and parsing; bounded JSON input/output, no sensitive logs.
 
 ---
 
@@ -94,3 +94,7 @@ Evidence directory: `/workspace/weather-boundaries-evidence-20261120/`.
 - Before scoped commit, live remote main remained `e33a00c6b76ba8daa6b756c83a52888fcdc11ed7`, local starting HEAD `c5fb8e6fda0e1b85e7ee78688e664c1c166fef6d`, branch `feat/dynamic-weather-icons`, shared index empty. Frontend WIP is preserved. Protected file mode 600 and parent directory 700 were verified; the directory mode was corrected locally without reading other credentials.
 - Self-review: input/orchestration/schema/transport responsibilities are separate; fixed routes replace the dead scaffold rather than hiding it; abort/reader/timer cleanup has failure regressions; comments document security/namespace/lifecycle decisions; server code adds no client dependency, SDK, polling, background traffic, shared coordinate cache or pretend global limiter.
 - Parent gates remain: frontend fixes/full green rerun, independent five-gate review, real UI acceptance, runtime binding, both-zone WAF/rule behavior and no-store/observability checks, exact deployment CI/Pages and both-domain smoke evidence. Native geolocation code3, China network reachability and actual account/trial status are not claimed fixed or verified.
+
+### Actual Workers runtime compatibility
+
+The local Pages/workerd integration found that Workers rejects Fetch `redirect: "error"` with TypeError before any upstream request. Official Request documentation and a credential-free data-URL runtime probe confirm `manual` is supported. The server now uses `redirect: "manual"` and rejects every 3xx response before parsing; it never follows or forwards a redirect. A red/green regression covers Workers-style rejection and one-call 307 denial. This is a real runtime fix, not a mock or a production host exception. Reference: https://developers.cloudflare.com/workers/runtime-apis/request/

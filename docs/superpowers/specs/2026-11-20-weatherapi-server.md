@@ -18,7 +18,7 @@ Unknown paths return 404; unsupported methods return 405 plus Allow; malformed i
 
 ## Transport, validation and lifecycle
 
-Only `https://api.weatherapi.com/v1/search.json` and `/v1/forecast.json` are constructed in server code. Forecast parameters are fixed days=1/aqi=no/alerts=no. Secret is added only to the trusted HTTPS provider query. Fetch uses redirect:error; no redirect or arbitrary-host forwarding. No account/payment/upgrade API is called.
+Only `https://api.weatherapi.com/v1/search.json` and `/v1/forecast.json` are constructed in server code. Forecast parameters are fixed days=1/aqi=no/alerts=no. Secret is added only to the trusted HTTPS provider query. Fetch uses redirect:manual with explicit 3xx rejection; no redirect or arbitrary-host forwarding. No account/payment/upgrade API is called.
 
 An 8-second deadline covers fetch, complete response stream, UTF-8/JSON decoding and pure schema validation; incoming body has at most 2 seconds. Responses are capped at 524288 bytes, declared length and streaming length are checked, malformed UTF-8/JSON fail closed. Reader cancellation and locks are cleaned on oversize/abort/early MIME/status rejection. Plain HTML/provider error details cannot be reflected into app output. No raw URL/body/coordinate logging. Before enabling production, verify platform automatic traces/Logpush do not retain complete outgoing credential-bearing URLs; use supported redaction or disable that sensitive capture. This task does not silently enable such tracing or claim the online logging configuration has been audited.
 
@@ -67,3 +67,7 @@ Before publish: independent five-gate code review, frontend/provider integration
 - https://developers.cloudflare.com/pages/functions/routing/
 - https://developers.cloudflare.com/workers/wrangler/commands/pages/
 - https://developers.cloudflare.com/waf/rate-limiting-rules/
+
+### Actual Workers runtime compatibility
+
+The local Pages/workerd integration found that Workers rejects Fetch `redirect: "error"` with TypeError before any upstream request. Official Request documentation and a credential-free data-URL runtime probe confirm `manual` is supported. The server now uses `redirect: "manual"` and rejects every 3xx response before parsing; it never follows or forwards a redirect. A red/green regression covers Workers-style rejection and one-call 307 denial. This is a real runtime fix, not a mock or a production host exception. Reference: https://developers.cloudflare.com/workers/runtime-apis/request/

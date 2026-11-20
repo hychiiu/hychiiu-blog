@@ -144,8 +144,9 @@ export function createWeatherApi(dependencies: Dependencies = {}) {
             upstream.searchParams.set('aqi', 'no');
             upstream.searchParams.set('alerts', 'no');
           }
+          // Workers does not support redirect:error; manual plus the 3xx rejection below never follows it.
           const response = await fetcher(upstream, {
-            redirect: 'error',
+            redirect: 'manual',
             signal,
             headers: { accept: 'application/json' },
           });

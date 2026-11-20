@@ -73,7 +73,7 @@ test('search returns bounded provider-namespaced places with real file-route exp
   assert.equal(url.origin, 'https://api.weatherapi.com');
   assert.equal(url.pathname, '/v1/search.json');
   assert.deepEqual(Object.fromEntries(url.searchParams), { key, q: 'Shanghai' });
-  assert.equal(options.redirect, 'error');
+  assert.equal(options.redirect, 'manual');
   assert.equal(typeof searchRoute, 'function');
   assert.equal(typeof forecastRoute, 'function');
 });
@@ -479,4 +479,16 @@ test('provider-local clock older than the allowed skew cannot legitimize a stale
   data.location.localtime = '2026-11-20 18:24';
   const { api } = setup(async () => Response.json(data));
   await error(await api(request('/forecast?cityId=458816'), env), 502, 'UPSTREAM_INVALID');
+});
+
+test('uses the Workers-supported manual redirect mode and never follows a provider redirect', async () => {
+  let calls = 0;
+  const { api } = setup(async (_url, init) => {
+    calls++;
+    if (init.redirect === 'error') throw new TypeError('Unsupported redirect mode');
+    assert.equal(init.redirect, 'manual');
+    return new Response(null, { status: 307, headers: { location: 'https://example.com/untrusted' } });
+  });
+  await error(await api(request(), env), 502, 'UPSTREAM_INVALID');
+  assert.equal(calls, 1);
 });
