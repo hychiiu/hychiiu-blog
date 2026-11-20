@@ -42,3 +42,18 @@ test('shared top-button token does not couple unrelated article avatar sizing', 
   const article = read('src/layouts/Article.astro');
   assert.match(article, /\.post-author img\s*\{\s*width: 36px;/);
 });
+
+test('Dock weather permanently uses sun-plus-cloud, independent from the theme controls', () => {
+  const dock = read('src/components/Dock.astro');
+  const entrance = dock.match(/<button[^>]*data-weather-toggle[\s\S]*?<\/button>/)?.[0];
+  assert.ok(entrance, 'weather tool must remain a distinct button');
+  assert.ok(
+    entrance.includes("weatherIcon('partly')"),
+    'pin the combined sun/cloud icon explicitly, never use current conditions',
+  );
+  assert.ok(!entrance.includes('i-sun') && !entrance.includes('i-moon'));
+  assert.ok(
+    dock.includes('name="sun-line"') && dock.includes('name="moon-line"'),
+    'existing theme icons stay unchanged',
+  );
+});

@@ -3,6 +3,7 @@ import { test } from 'node:test';
 import { parseHTML } from 'linkedom';
 import { bindWeather } from '../src/scripts/weather/controller.ts';
 import { renderWeather } from '../src/scripts/weather/view.ts';
+import { weatherIcon } from '../src/scripts/weather/icons.ts';
 const weather = {
   temperature: 18.2,
   code: 2,
@@ -359,3 +360,19 @@ test('late geolocation and search failure do not move focus back from the page',
   await tick();
   assert.ok(q.document.activeElement === out, 'search failure must not steal focus');
 });
+
+for (const isDay of [true, false])
+  test(`clear ${isDay ? 'day' : 'night'} changes only panel weather icon, never the Dock entrance`, async () => {
+    const s = setup({ service: { weather: async () => ({ ...weather, code: 0, isDay }) } });
+    const trigger = s.document.querySelector('[data-weather-toggle]');
+    trigger.innerHTML = weatherIcon('partly');
+    const original = trigger.innerHTML;
+    await s.search();
+    s.click('[data-weather-city]');
+    await tick();
+    assert.equal(trigger.innerHTML, original, 'weather must never rewrite the Dock icon');
+    const actual = s.document.querySelector('.weather-symbol').innerHTML;
+    const { document } = parseHTML(`<div id="expected">${weatherIcon(isDay ? 'sun' : 'moon')}</div>`);
+    assert.equal(actual, document.querySelector('#expected').innerHTML);
+    assert.notEqual(actual, original, 'actual clear sky glyph must differ from fixed sun/cloud entrance');
+  });

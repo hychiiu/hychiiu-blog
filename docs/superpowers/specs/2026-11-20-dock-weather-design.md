@@ -9,6 +9,8 @@ The owner approved the revised desktop/mobile mockups on 2026-11-20 (Asia/Shangh
 - Shared 20px left inset for city, temperature, description, high/low and footer. Weather glyph sits to the right of the temperature group; °C is 0.35em. Compact footer, no empty spacer. First-use title and text share this inset, small glyph top right, equal-width stacked buttons.
 - Existing tokens, serif headings, sans UI and mono metadata; both themes and locales. Keep 38px compact mobile slots; allow constrained horizontal Dock scrolling when all items cannot physically fit (including future archive), not smaller targets.
 
+The Dock entrance is permanently the combined sun-and-cloud glyph, never the actual clear-sky sun or moon. Actual condition icons belong only inside the popover; the theme toggle retains its existing independent sun/moon icons (owner clarification 2026-11-20).
+
 ## Behavior and privacy
 
 Opening does not request location. First use offers location or manual city search. No IP geolocation. Only the explicit location action calls geolocation; reject, timeout and unavailable states retain manual search. Location coordinates are rounded to two decimals before weather lookup, held in memory only, never logged or persisted. Only a manually selected city may be saved locally. Third-party requests go directly to Open-Meteo; show this disclosure and its privacy link before location use. Open-Meteo may retain request logs (including coordinates) for 90 days per its terms; this must be surfaced in review, not promised away.

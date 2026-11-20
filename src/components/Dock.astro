@@ -83,7 +83,7 @@ const other = otherLang(lang);
         data-label-zh="天气"
         data-label-en="Weather"
       >
-        <Fragment set:html={weatherIcon()} />
+        <Fragment set:html={weatherIcon('partly')} />
       </button>
       <span class="dock-tip" aria-hidden="true">
         {lang === 'zh' ? '天气' : 'Weather'}
