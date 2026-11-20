@@ -11,8 +11,10 @@ import { BUILD_ID } from './_build.js';
 
 const KEY = pages.cacheKeyParam;
 
-export async function onRequest({ request, env }) {
+export async function onRequest({ request, env, next: delegate }) {
   const url = new URL(request.url);
+  // 根中间件也会先于其他 Function 执行；非内容路由必须交回处理链，不能被 ASSETS 吞掉。
+  if (!pages.versionedPrefixes.some((prefix) => url.pathname.startsWith(prefix))) return delegate();
   url.searchParams.set(KEY, BUILD_ID);
   const res = await env.ASSETS.fetch(new Request(url, request));
 
