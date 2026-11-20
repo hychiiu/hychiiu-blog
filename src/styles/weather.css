@@ -1,0 +1,260 @@
+/* Approved Dock popover: DESIGN §1–9, §11. No page-navigation state. */
+.weather-panel {
+  position: fixed;
+  z-index: 56;
+  top: var(--weather-top, var(--sp-4));
+  left: var(--weather-left, var(--dock-safe));
+  width: var(--weather-width);
+  max-height: calc(100dvh - var(--sp-5));
+  box-sizing: border-box;
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding: var(--weather-pad);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  background: var(--paper);
+  box-shadow: var(--shadow-pop);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: var(--fs-meta);
+  line-height: var(--lh-ui);
+  animation: weather-appear var(--dur-2) var(--ease);
+}
+.weather-panel[hidden] {
+  display: none;
+}
+.weather-panel p,
+.weather-panel h2 {
+  margin: 0;
+}
+.weather-panel h2 {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: var(--fs-body);
+  line-height: var(--lh-ui);
+}
+.weather-panel button,
+.weather-panel input {
+  font: inherit;
+  color: inherit;
+}
+.weather-panel button {
+  cursor: pointer;
+}
+.weather-panel :is(button, input, a, summary):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.weather-panel a {
+  color: var(--ink-muted);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.weather-panel a:hover {
+  color: var(--accent);
+}
+.weather-heading {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-3);
+}
+.weather-heading h2 {
+  flex: 1;
+}
+.weather-heading svg {
+  width: var(--sp-5);
+  height: var(--sp-5);
+  flex-shrink: 0;
+}
+.weather-panel .weather-intro {
+  color: var(--ink-muted);
+  line-height: var(--lh-body);
+}
+.weather-panel .weather-privacy,
+.weather-panel .weather-credit {
+  margin-top: var(--sp-3);
+  font-size: var(--fs-xs);
+  color: var(--ink-muted);
+}
+.weather-actions {
+  display: grid;
+  gap: var(--sp-2);
+  margin-top: var(--sp-4);
+}
+.weather-button {
+  min-height: var(--weather-target);
+  padding: var(--sp-2) var(--sp-3);
+  border: 1px solid var(--border);
+  border-radius: var(--r-pill);
+  background: transparent;
+}
+.weather-button:hover {
+  background: var(--surface-2);
+}
+.weather-button.is-primary {
+  color: var(--accent);
+  background: var(--accent-8);
+  border-color: var(--accent-30);
+}
+.weather-panel .weather-status {
+  margin-top: var(--sp-3);
+  color: var(--ink-muted);
+}
+.weather-panel .weather-region {
+  margin-top: var(--sp-1);
+  color: var(--ink-muted);
+  font-size: var(--fs-xs);
+  overflow-wrap: anywhere;
+}
+.weather-current {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-5);
+  margin-top: var(--sp-2);
+}
+.weather-temperature {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-1);
+  color: var(--ink-strong);
+  font-size: var(--fs-4xl);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  font-family: var(--font-serif);
+}
+.weather-temperature span {
+  font-size: var(--weather-unit);
+  color: var(--ink-muted);
+  align-self: flex-start;
+  margin-top: var(--sp-2);
+}
+.weather-symbol svg {
+  display: block;
+  width: var(--weather-symbol);
+  height: var(--weather-symbol);
+}
+.weather-description {
+  color: var(--ink-muted);
+}
+.weather-panel .weather-range {
+  margin-top: var(--sp-3);
+  color: var(--ink-muted);
+  font-size: var(--fs-sm);
+  font-variant-numeric: tabular-nums;
+}
+.weather-range > span {
+  padding: 0 var(--sp-2);
+}
+.weather-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-2);
+  margin-top: var(--sp-3);
+  padding-top: var(--sp-2);
+  border-top: 1px solid var(--hair);
+}
+.weather-footer p {
+  display: grid;
+  gap: var(--sp-1);
+  min-width: 0;
+  font-family: var(--font-mono);
+  font-size: var(--fs-2xs);
+  color: var(--ink-muted);
+  overflow-wrap: anywhere;
+}
+.weather-footer button {
+  flex-shrink: 0;
+  min-height: var(--weather-target);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-size: var(--fs-sm);
+}
+.weather-footer button:hover {
+  color: var(--accent);
+}
+.weather-credit summary {
+  cursor: pointer;
+  width: fit-content;
+}
+.weather-credit p {
+  margin-top: var(--sp-2);
+}
+.weather-search-row {
+  display: flex;
+  gap: var(--sp-2);
+  margin-top: var(--sp-2);
+}
+.weather-search-row input {
+  min-width: 0;
+  width: 100%;
+  padding: var(--sp-2) var(--sp-3);
+  border: 1px solid var(--border);
+  border-radius: var(--r-pill);
+  background: var(--surface-1);
+}
+.weather-panel .weather-hint {
+  margin-top: var(--sp-2);
+  color: var(--ink-muted);
+  font-size: var(--fs-xs);
+}
+.weather-candidates {
+  margin: var(--sp-3) 0 0;
+  padding: 0;
+  list-style: none;
+  max-height: 30dvh;
+  overflow: auto;
+}
+.weather-candidates:empty {
+  display: none;
+}
+.weather-candidates button {
+  display: grid;
+  width: 100%;
+  gap: var(--sp-1);
+  text-align: left;
+  border: 0;
+  border-bottom: 1px solid var(--hair);
+  background: transparent;
+  padding: var(--sp-3) var(--sp-1);
+  overflow-wrap: anywhere;
+}
+.weather-candidates button:hover {
+  background: var(--surface-2);
+}
+.weather-candidates small {
+  color: var(--ink-muted);
+  font-size: var(--fs-xs);
+}
+@media (max-width: 1023.98px) {
+  .weather-panel {
+    top: auto;
+    left: var(--sp-3);
+    right: var(--sp-3);
+    bottom: calc(var(--dock-bar-clear) + var(--sp-3));
+    width: auto;
+    max-width: var(--measure);
+    max-height: calc(100dvh - var(--dock-bar-clear) - var(--sp-6));
+    margin-inline: auto;
+  }
+  /* Keep the article's existing top control reachable below the panel. */
+  body:has([data-to-top]) .weather-panel {
+    bottom: calc(var(--dock-bar-clear) + var(--to-top-size) + var(--sp-3));
+    max-height: calc(100dvh - var(--dock-bar-clear) - var(--to-top-size) - var(--sp-5));
+  }
+}
+@keyframes weather-appear {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .weather-panel {
+    animation-duration: var(--dur-tip);
+  }
+}

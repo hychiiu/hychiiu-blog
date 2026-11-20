@@ -7,6 +7,7 @@
  *
  * Dock 被 transition:persist 保留，状态挂在 window 上，站内跳转不重置、不重复绑定。
  */
+import { dockDotPosition } from './dock-geometry';
 import { isNavActive } from '../config/nav';
 import { defaultLang, langs, locales, otherLang, type Lang } from '../config/locales';
 import { dockMotion } from '../config/motion';
@@ -165,7 +166,9 @@ function frame(now: number) {
       );
     } else {
       const list = d.querySelector<HTMLElement>('[data-dock-list]')!;
-      dotEl.style.setProperty('--dot-x', `${r3(S.dot - ds / 2 + list.offsetLeft)}px`);
+      const position = dockDotPosition(S.dot, list.scrollLeft, list.offsetLeft, ds, list.clientWidth);
+      dotEl.classList.toggle('on', position.visible);
+      dotEl.style.setProperty('--dot-x', `${r3(position.x)}px`);
       dotEl.style.setProperty('--dot-y', `${r3(d.offsetHeight - ds - 5)}px`);
     }
   }
@@ -254,6 +257,7 @@ function endNavigation(d: HTMLElement) {
 }
 
 function bind(d: HTMLElement) {
+  d.querySelector('[data-dock-list]')?.addEventListener('scroll', kick, { passive: true });
   d.addEventListener('pointermove', (e) => {
     if (e.pointerType !== 'mouse' || !S.vertical) return;
     const list = d.querySelector<HTMLElement>('[data-dock-list]')!;

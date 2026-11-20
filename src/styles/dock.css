@@ -66,6 +66,17 @@
   color: var(--ink-strong);
   background: var(--surface-2);
 }
+.dock-btn[aria-expanded='true'] {
+  color: var(--accent);
+  background: var(--accent-8);
+}
+.dock-item:has([aria-expanded='true']) .dock-tip {
+  display: none;
+}
+.dock-btn[data-weather-toggle] svg {
+  width: 20px;
+  height: 20px;
+}
 .dock-btn[aria-current='page'] {
   color: var(--accent);
 }
@@ -196,19 +207,26 @@
 @media (max-width: 1023.98px) {
   .dock {
     --slot: var(--dock-bar-slot);
+    --dock-inline-pad: var(--sp-2);
     bottom: calc(var(--sp-3) + env(safe-area-inset-bottom, 0px));
     left: 50%;
-    padding: 0 var(--sp-2);
+    padding: 0 var(--dock-inline-pad);
     transform: translateX(-50%);
   }
   .dock-bg {
     transform: none;
   }
   .dock-list {
+    max-width: calc(100vw - var(--sp-3) * 2 - var(--dock-inline-pad) * 2);
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+    overscroll-behavior-x: contain;
     height: var(--dock-bar-h);
   }
   .dock-item {
     width: var(--slot);
+    flex-shrink: 0;
     height: var(--dock-bar-h);
     transform: none;
   }
@@ -226,6 +244,8 @@
     transform: none;
   }
   .dock-btn {
+    width: var(--weather-target);
+    height: var(--weather-target);
     transform: none;
     transition:
       color var(--dur-2) var(--ease),
@@ -253,10 +273,10 @@
     }
   }
 }
-@media (max-width: 380px) {
+@media (max-width: 420px) {
   .dock {
     --slot: 38px;
-    padding: 0 var(--sp-1);
+    --dock-inline-pad: var(--sp-1);
   }
   .dock-item.is-avatar {
     width: 40px;

@@ -1,7 +1,7 @@
 ---
 /**
  * 侧边 Dock（≥1024px，规范见 docs/DESIGN.md §10）：
- * 头像 → 分隔线 → 首页 / 文章 / 手记 / 关于（/ 归档）→ 分隔线 → 语言 / 主题。
+ * 头像 → 分隔线 → 首页 / 文章 / 手记 / 关于（/ 归档）→ 分隔线 → 天气 / 语言 / 主题。
  * transition:persist：跨 ClientRouter 跳转保留同一个 DOM 与放大状态；
  * 放大引擎与跳转后的同步见 scripts/dock.ts，主题 / 语言点击见 scripts/controls.ts 的事件委托。
  */
@@ -10,6 +10,8 @@ import { ui, localizePath, stripLang, useT } from '../i18n';
 import { getPosts, getNotes } from '../utils/content';
 import Icon from './Icon.astro';
 import '../styles/dock.css';
+import '../styles/weather.css';
+import { weatherIcon } from '../scripts/weather/icons';
 interface Props {
   lang: Lang;
   alternates: Record<Lang, string>;
@@ -71,6 +73,23 @@ const other = otherLang(lang);
     ))}
     <li class="dock-sep" aria-hidden="true"></li>
     <li class="dock-item" data-mag>
+      <button
+        type="button"
+        class="dock-btn"
+        data-weather-toggle
+        aria-expanded="false"
+        aria-controls="weather-panel"
+        aria-label={lang === 'zh' ? '天气' : 'Weather'}
+        data-label-zh="天气"
+        data-label-en="Weather"
+      >
+        <Fragment set:html={weatherIcon()} />
+      </button>
+      <span class="dock-tip" aria-hidden="true">
+        {lang === 'zh' ? '天气' : 'Weather'}
+      </span>
+    </li>
+    <li class="dock-item" data-mag>
       <a
         href={alternates[other]}
         class="dock-btn dock-lang"
@@ -107,8 +126,17 @@ const other = otherLang(lang);
     </li>
   </ul>
 </nav>
+<section
+  id="weather-panel"
+  class="weather-panel"
+  role="dialog"
+  aria-labelledby="weather-title"
+  hidden
+  transition:persist="weather"
+></section>
 
 <script>
   import '../scripts/dock';
   import '../scripts/back-nav';
+  import '../scripts/weather';
 </script>
