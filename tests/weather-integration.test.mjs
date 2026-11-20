@@ -37,3 +37,8 @@ test('article weather panel reserves the existing back-to-top control zone', () 
   assert.ok(css.includes('body:has([data-to-top]) .weather-panel'), 'article-specific clearance is required');
   assert.ok(css.includes('var(--to-top-size)'), 'clearance must include the existing control height');
 });
+
+test('shared top-button token does not couple unrelated article avatar sizing', () => {
+  const article = read('src/layouts/Article.astro');
+  assert.match(article, /\.post-author img\s*\{\s*width: 36px;/);
+});
