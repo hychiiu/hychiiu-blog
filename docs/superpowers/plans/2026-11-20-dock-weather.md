@@ -47,3 +47,9 @@ Files: modify src/components/Dock.astro, src/styles/dock.css, src/styles/tokens.
 All implementation steps completed locally; independent browser/code review remains a release gate. Tests were observed red before initial service/controller/integration implementation and before fixes for sparse city data, focus races and visible attribution. LinkeDOM is dev-only. Added mobile Dock scroll-offset geometry helper to keep the active navigation dot correct when the fixed-size targets overflow the narrow viewport. No article return-navigation code or issue data changed.
 
 CORS verified with an explicit Origin header on both public endpoints (`Access-Control-Allow-Origin: *`). Chinese 北京 returned distinguishable localized candidates. Open-Meteo current official mapping includes weather code 97 (heavy thunderstorm), covered alongside all other documented codes and an unknown fallback.
+
+## Browser-discovered search integration correction
+
+Astro 7.4.10 ClientRouter registers document submit bubbling before the Dock module. Its handler calls navigate(), whose doPreparation() synchronously dispatches astro:before-preparation. The original later bubbling weather handler therefore saw an already-closed popover and returned, allowing `?city=` navigation. The search handler now owns only its marked form in capture phase, preventing navigation before Router observes the event. Added real rendered-DOM/controller/service tests with a Router-first listener, explicit browser capture/bubble order (LinkeDOM itself does not implement capture ordering), button/Enter, 北京/London, candidate selection, empty input and network failure. Full browser retest remains mandatory.
+
+Panel padding was not changed: source and built CSS both use padding:var(--weather-pad), with --weather-pad:20px. Browser zoom must be normalized before measuring physical screenshots.

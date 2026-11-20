@@ -201,32 +201,53 @@ export function bindWeather({ document: doc, window: win, service, geolocation, 
       draw('[data-weather-action="manual"]');
     }
   });
-  doc.addEventListener('submit', async (e) => {
-    const form = e.target as HTMLFormElement;
-    if (!form.matches('[data-weather-form]') || !open) return;
-    e.preventDefault();
-    const query = form.querySelector<HTMLInputElement>('input')?.value.trim() ?? '';
-    cancel();
-    const ticket = generation;
-    active = new AbortController();
-    state = { ...state, mode: 'search', query, candidates: [], message: undefined, searching: true, searched: true };
-    draw('input');
-    try {
-      const candidates = await service.search(query, lang(), active.signal);
-      if (ticket !== generation || !open) return;
-      state = { ...state, candidates, searching: false };
-      draw(candidates.length ? '[data-weather-city]' : 'input', true);
-    } catch {
-      if (ticket !== generation || !open) return;
-      state = {
-        ...state,
-        searching: false,
-        message:
-          lang() === 'zh' ? '暂时无法搜索城市，请再次搜索。' : 'City search is unavailable. Please search again.',
-      };
-      draw('input', true);
-    }
-  });
+  // ClientRouter registers a document bubble listener in <head>. It calls
+  // navigate() and dispatches before-preparation synchronously, closing this
+  // popover before a later bubble listener can own the form. Prevent the native
+  // submit in capture phase (button and Enter both use this same event).
+  doc.addEventListener(
+    'submit',
+    async (e) => {
+      const form = e.target as HTMLFormElement;
+      if (!form.matches('[data-weather-form]') || !open) return;
+      e.preventDefault();
+      const query = form.querySelector<HTMLInputElement>('input')?.value.trim() ?? '';
+      cancel();
+      if (Array.from(query).length < 2) {
+        state = {
+          ...state,
+          mode: 'search',
+          query,
+          candidates: [],
+          searching: false,
+          searched: false,
+          message: lang() === 'zh' ? '请输入至少两个字的城市名称。' : 'Enter at least two characters for a city.',
+        };
+        draw('input');
+        return;
+      }
+      const ticket = generation;
+      active = new AbortController();
+      state = { ...state, mode: 'search', query, candidates: [], message: undefined, searching: true, searched: true };
+      draw('input');
+      try {
+        const candidates = await service.search(query, lang(), active.signal);
+        if (ticket !== generation || !open) return;
+        state = { ...state, candidates, searching: false };
+        draw(candidates.length ? '[data-weather-city]' : 'input', true);
+      } catch {
+        if (ticket !== generation || !open) return;
+        state = {
+          ...state,
+          searching: false,
+          message:
+            lang() === 'zh' ? '暂时无法搜索城市，请再次搜索。' : 'City search is unavailable. Please search again.',
+        };
+        draw('input', true);
+      }
+    },
+    { capture: true },
+  );
   doc.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && open) {
       e.preventDefault();
