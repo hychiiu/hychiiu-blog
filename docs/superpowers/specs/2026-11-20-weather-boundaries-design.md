@@ -1,5 +1,7 @@
 # Weather integration boundaries — 2026-11-20
 
+> Subsequent server status: [runtime configuration API and audited SDK coordinate boundary](2026-11-20-weather-location-server.md). The configuration route is now implemented but default-off; the forwarding proxy remains absent. Earlier batch-state statements below are retained as historical handoff context.
+
 ## Authorization and scope
 
 The owner approved starting this work on 2026-11-20 (t24), including the permanent fifth release gate, “保证页面高性能，丝滑”. UI designs belong exclusively to the UI designer; the parent is obtaining the design. This batch changes no UI, CSS, artwork, weather controller, theme, article return behavior, language navigation, geolocation provider or production configuration. Local normal commits are permitted; push, deployment and online secret writes await the parent’s integrated acceptance.

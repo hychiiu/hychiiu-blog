@@ -1,5 +1,6 @@
 import { env } from './env.ts';
 import { taxonomy } from './content.ts';
+import { locationConfig } from './location.ts';
 
 // 内容缓存的边界独立于 Function 调用路由，新增 API 不应继承文章缓存处理。
 const versionedPrefixes = ['/posts/', '/notes/', taxonomy.base, '/en/posts/', '/en/notes/', `/en${taxonomy.base}`];
@@ -13,8 +14,8 @@ export const pages = {
   project: env('PAGES_PROJECT', 'hychiiu-blog'),
   /** 随内容增删的页面前缀（含标签页）；只有这些请求使用构建号缓存键 */
   versionedPrefixes,
-  /** 交给 Pages Function 的调用路由；当前不启用任何定位代理 */
-  functionRoutes: versionedPrefixes.map((prefix) => `${prefix}*`),
+  /** 配置接口由运行时开关默认关闭；没有任何高德上游代理调用路由 */
+  functionRoutes: [...versionedPrefixes.map((prefix) => `${prefix}*`), locationConfig.path],
   /** 内部资源请求的缓存键参数名（对外 URL 不出现） */
   cacheKeyParam: '__b',
   /** 构建号文件（构建时改写；本地为 'dev'） */

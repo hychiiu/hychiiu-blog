@@ -38,7 +38,13 @@ for (const prefix of ['/posts/', '/notes/', '/tags/', '/en/posts/', '/en/notes/'
   });
 }
 
-for (const path of ['/', '/posts-evil/', '/_AMapService/v3/ip', '/_AMapService/v3/geocode/regeo']) {
+for (const path of [
+  '/',
+  '/posts-evil/',
+  '/api/weather/location-config',
+  '/_AMapService/v3/ip',
+  '/_AMapService/v3/geocode/regeo',
+]) {
   test(`non-content request delegates without an ASSETS request: ${path}`, async () => {
     const { calls, context } = setup(path);
     const response = await onRequest(context);
@@ -72,10 +78,7 @@ test('content redirect strips only the internal cache parameter', async () => {
 test('config distinguishes original versioned prefixes from the future invocation scope', () => {
   const prefixes = ['/posts/', '/notes/', '/tags/', '/en/posts/', '/en/notes/', '/en/tags/'];
   assert.deepEqual(pages.versionedPrefixes, prefixes);
-  assert.deepEqual(
-    pages.functionRoutes,
-    prefixes.map((prefix) => `${prefix}*`),
-  );
+  assert.deepEqual(pages.functionRoutes, [...prefixes.map((prefix) => `${prefix}*`), '/api/weather/location-config']);
   assert.equal(
     pages.functionRoutes.some((route) => route.includes('_AMapService')),
     false,
