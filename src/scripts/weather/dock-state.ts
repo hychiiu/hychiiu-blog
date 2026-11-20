@@ -1,22 +1,23 @@
+import zh from '../../i18n/zh.ts';
+import en from '../../i18n/en.ts';
 import { refreshDockTooltip } from '../dock-tooltip.ts';
 import { condition, type Place, type Weather, type WeatherLang } from './service.ts';
 import { dockWeatherIcon } from './dock-icons.ts';
 
-/** Presentation only: no requests, timers, persistence or location coordinates. */
+/**
+ * One presentation snapshot per document, retained with the ClientRouter Dock.
+ * The controller calls success/failed only after its request-generation guards,
+ * and sync after a locale/navigation swap; a new document starts neutral.
+ * No requests, timers, persistence or location coordinates are owned here.
+ */
 export function createWeatherDock(doc: Document) {
   let snapshot: { name: string; code: number; isDay: boolean } | undefined;
   let unavailable = false;
   const label = (lang: WeatherLang): string => {
-    if (!snapshot)
-      return unavailable
-        ? lang === 'zh'
-          ? '天气暂不可用'
-          : 'Weather unavailable'
-        : lang === 'zh'
-          ? '天气'
-          : 'Weather';
-    const city = snapshot.name === '@location' ? (lang === 'zh' ? '当前位置' : 'Current location') : snapshot.name;
-    return `${city} · ${condition(snapshot.code, lang, snapshot.isDay).text} · ${lang === 'zh' ? '天气' : 'Weather'}`;
+    const text = { zh, en }[lang];
+    if (!snapshot) return text[unavailable ? 'weather.dock.unavailable' : 'weather.dock.label'];
+    const city = snapshot.name === '@location' ? text['weather.dock.currentLocation'] : snapshot.name;
+    return text['weather.dock.summary'](city, condition(snapshot.code, lang, snapshot.isDay).text);
   };
   function sync(): void {
     const button = doc.querySelector<HTMLButtonElement>('[data-weather-toggle]');
