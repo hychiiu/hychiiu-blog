@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { parseHTML } from 'linkedom';
 import { bindWeather } from '../src/scripts/weather/controller.ts';
+import { noteDockPointer, clearDockPointer } from '../src/scripts/dock-tooltip.ts';
 import { renderWeather } from '../src/scripts/weather/view.ts';
 import { weatherIcon } from '../src/scripts/weather/icons.ts';
 import { dockWeatherIcon } from '../src/scripts/weather/dock-icons.ts';
@@ -18,7 +19,7 @@ const city = { name: '北京', detail: '北京市 · 中国', latitude: 39.9, lo
 const tick = () => new Promise((resolve) => setTimeout(resolve, 0));
 function setup(overrides = {}) {
   const { document, window } = parseHTML(
-    '<html data-lang="zh"><body><nav data-dock><button data-weather-toggle aria-expanded="false" aria-controls="weather-panel">天气</button></nav><section id="weather-panel" hidden role="dialog" aria-labelledby="weather-title"></section><button id="outside">out</button></body></html>',
+    '<html data-lang="zh"><body><nav data-dock><ul><li class="dock-item"><button class="dock-btn" data-weather-toggle aria-expanded="false" aria-controls="weather-panel">天气</button></li></ul></nav><section id="weather-panel" hidden role="dialog" aria-labelledby="weather-title"></section><button id="outside">out</button></body></html>',
   );
   window.HTMLElement.prototype.focus = function () {
     document._active = this;
@@ -47,16 +48,21 @@ function setup(overrides = {}) {
     ...overrides.geo,
   };
   const host = { document, window, service, geolocation: geo, storage: overrides.storage ?? storage };
+  clearDockPointer();
   bindWeather(host);
-  const click = (sel) => {
+  const click = (sel, { detail = 1 } = {}) => {
     const el = document.querySelector(sel);
     assert.ok(el, sel);
-    el.dispatchEvent(new window.Event('click', { bubbles: true }));
+    // LinkeDOM does not move focus on click; real buttons do, and Escape-restore relies on it.
+    el.focus();
+    const ev = new window.Event('click', { bubbles: true, cancelable: true });
+    Object.defineProperty(ev, 'detail', { value: detail });
+    el.dispatchEvent(ev);
   };
   const event = (type) => document.dispatchEvent(new window.Event(type));
   const search = async () => {
     click('[data-weather-toggle]');
-    click('[data-weather-action="manual"]');
+    if (!document.querySelector('input')) click('[data-weather-action="manual"]');
     document.querySelector('input').value = '北京';
     document.querySelector('form').dispatchEvent(new window.Event('submit', { bubbles: true, cancelable: true }));
     await tick();
@@ -71,10 +77,23 @@ test('first open is consent-first, no network or geolocation, bindings idempoten
   assert.equal(s.calls.locate, 0);
   assert.equal(s.calls.weather, 0);
   assert.equal(s.calls.search, 0);
-  assert.match(s.document.querySelector('#weather-panel').textContent, /看看你那里的天气/);
+  const panel = s.document.querySelector('#weather-panel');
+  assert.match(panel.textContent, /看看你那里的天气/);
+  assert.ok(panel.querySelector('input'));
+  assert.ok(panel.querySelector('[type="submit"]'));
+  const locate = panel.querySelector('[data-weather-action="locate"]');
+  assert.ok(locate);
+  assert.equal(locate.classList.contains('is-primary'), false);
+  assert.equal(panel.querySelector('[data-weather-action="manual"]'), null);
+  assert.match(panel.innerHTML, /weatherIcon|viewBox="0 0 24 24"/);
   assert.equal(s.document.querySelector('[data-weather-toggle]').getAttribute('aria-expanded'), 'true');
+  assert.equal(
+    s.document.activeElement === panel.querySelector('input'),
+    false,
+    'pointer open must not focus the input',
+  );
   s.event('pointerleave');
-  assert.equal(s.document.querySelector('#weather-panel').hidden, false);
+  assert.equal(panel.hidden, false);
 });
 test('explicit location rejection gives clear manual fallback without storage', async () => {
   const s = setup();
@@ -83,8 +102,7 @@ test('explicit location rejection gives clear manual fallback without storage', 
   await tick();
   assert.equal(s.calls.locate, 1);
   assert.match(s.document.querySelector('#weather-panel').textContent, /定位未获允许/);
-  s.click('[data-weather-action="manual"]');
-  assert.ok(s.document.querySelector('input'));
+  assert.ok(s.document.querySelector('input'), 'native locate failure must keep the search form usable');
   assert.deepEqual(s.calls.writes, []);
 });
 test('manual candidates are distinguishable and selected weather persists city only', async () => {
@@ -129,7 +147,7 @@ test('Escape/outside close restore focus and ClientRouter closes without fetchin
   key.key = 'Escape';
   s.document.dispatchEvent(key);
   assert.equal(s.document.querySelector('#weather-panel').hidden, true);
-  assert.equal(s.document.activeElement, s.document.querySelector('[data-weather-toggle]'));
+  assert.equal(s.document.activeElement === s.document.querySelector('[data-weather-toggle]'), true);
   s.click('[data-weather-toggle]');
   s.document.querySelector('#outside').dispatchEvent(new s.window.Event('pointerdown', { bubbles: true }));
   assert.equal(s.document.querySelector('#weather-panel').hidden, true);
@@ -228,7 +246,16 @@ test('attribution is a visible link and consent copy discloses provider log rete
   const link = document.querySelector('a[href="https://open-meteo.com/"]');
   assert.ok(link);
   assert.ok(link.closest('details') === null, 'attribution must not be collapsed');
-  assert.match(renderWeather({ mode: 'choice' }, 'en'), /90 days/);
+  const choice = renderWeather({ mode: 'choice' }, 'en');
+  assert.match(choice, /90 days/);
+  assert.match(choice, /Open-Meteo terms/);
+  const { document: initial } = parseHTML(`<div id="root">${choice}</div>`);
+  const terms = initial.querySelector('a[href="https://open-meteo.com/en/terms"]');
+  assert.ok(terms);
+  assert.ok(terms.closest('details'), 'terms belong inside the privacy details');
+  const provider = initial.querySelector('.weather-privacy');
+  assert.ok(provider);
+  assert.equal(provider.querySelector('a'), null, 'provider sentence must not repeat the details label as a link');
 });
 
 for (const code of [2, 3])
@@ -243,7 +270,7 @@ for (const code of [2, 3])
     s.click('[data-weather-toggle]');
     s.click('[data-weather-action="locate"]');
     await tick();
-    assert.ok(s.document.querySelector('[data-weather-action="manual"]'));
+    assert.ok(s.document.querySelector('input'), 'native locate failure must keep the search form usable');
     assert.match(s.document.querySelector('#weather-panel').textContent, code === 3 ? /定位超时/ : /定位不可用/);
   });
 test('stored manual preference is lazy; unavailable local storage is harmless', async () => {
@@ -275,7 +302,7 @@ test('newer city search wins even if older service ignores abort', async () => {
   const pending = [];
   const s = setup({ service: { search: () => new Promise((resolve) => pending.push(resolve)) } });
   s.click('[data-weather-toggle]');
-  s.click('[data-weather-action="manual"]');
+  if (!s.document.querySelector('input')) s.click('[data-weather-action="manual"]');
   const submit = (q) => {
     s.document.querySelector('input').value = q;
     s.document.querySelector('form').dispatchEvent(new s.window.Event('submit', { bubbles: true, cancelable: true }));
@@ -321,9 +348,11 @@ test('search failures and no matches are explicit and can be resubmitted', async
   });
   await s.search();
   assert.match(s.document.querySelector('#weather-panel').textContent, /暂时无法搜索城市/);
+  assert.equal(s.document.querySelector('input').value, '北京');
   s.document.querySelector('form').dispatchEvent(new s.window.Event('submit', { bubbles: true, cancelable: true }));
   await tick();
   assert.match(s.document.querySelector('#weather-panel').textContent, /没有找到城市/);
+  assert.equal(s.document.querySelector('input').value, '北京');
 });
 
 test('late geolocation and search failure do not move focus back from the page', async () => {
@@ -352,7 +381,7 @@ test('late geolocation and search failure do not move focus back from the page',
     },
   });
   q.click('[data-weather-toggle]');
-  q.click('[data-weather-action="manual"]');
+  if (!q.document.querySelector('input')) q.click('[data-weather-action="manual"]');
   q.document.querySelector('input').value = 'London';
   q.document.querySelector('form').dispatchEvent(new q.window.Event('submit', { bubbles: true, cancelable: true }));
   const out = q.document.querySelector('#outside');
@@ -363,19 +392,122 @@ test('late geolocation and search failure do not move focus back from the page',
 });
 
 for (const isDay of [true, false])
-  test(`clear ${isDay ? 'day' : 'night'} uses approved distinct Dock glyph while preserving panel glyph`, async () => {
+  test(`clear ${isDay ? 'day' : 'night'} uses shared approved v2 paths at Dock 20px and panel 24px`, async () => {
     const s = setup({ service: { weather: async () => ({ ...weather, code: 0, isDay }) } });
     const trigger = s.document.querySelector('[data-weather-toggle]');
     trigger.innerHTML = dockWeatherIcon();
     await s.search();
     s.click('[data-weather-city]');
     await tick();
-    const expectedDock = parseHTML(`<div>${dockWeatherIcon(isDay ? 'sun' : 'moon')}</div>`).document.querySelector(
-      'div',
-    ).innerHTML;
-    assert.equal(trigger.innerHTML, expectedDock);
+    const kind = isDay ? 'sun' : 'moon';
+    const inner = (svg) => svg.replace(/^<svg[^>]*>/, '').replace(/<\/svg>$/, '');
     const actual = s.document.querySelector('.weather-symbol').innerHTML;
-    const { document } = parseHTML(`<div id="expected">${weatherIcon(isDay ? 'sun' : 'moon')}</div>`);
-    assert.equal(actual, document.querySelector('#expected').innerHTML);
-    assert.notEqual(actual, trigger.innerHTML, 'Dock has its own distinct clear-sky artwork');
+    // LinkeDOM may serialize self-closing tags with a space before />.
+    const normalize = (svg) => svg.replace(/\s+\/>/g, '/>');
+    assert.equal(normalize(trigger.innerHTML), normalize(dockWeatherIcon(kind)));
+    assert.equal(normalize(actual), normalize(weatherIcon(kind)));
+    assert.equal(inner(normalize(actual)), inner(normalize(dockWeatherIcon(kind))));
+    assert.match(actual, /width="24"/);
+    assert.match(trigger.innerHTML, /width="20"/);
   });
+test('keyboard open may focus the search field; pointer open does not', () => {
+  const pointer = setup();
+  pointer.click('[data-weather-toggle]', { detail: 1 });
+  assert.notEqual(pointer.document.activeElement, pointer.document.querySelector('input'));
+  const keys = setup();
+  keys.click('[data-weather-toggle]', { detail: 0 });
+  assert.equal(keys.document.activeElement, keys.document.querySelector('input'));
+});
+
+test('IME composition Enter does not submit a city search', async () => {
+  const s = setup();
+  s.click('[data-weather-toggle]');
+  const input = s.document.querySelector('input');
+  input.value = '北';
+  const Ctor = s.window.KeyboardEvent || s.window.Event;
+  const ev = new Ctor('keydown', { key: 'Enter', bubbles: true, cancelable: true });
+  Object.defineProperty(ev, 'key', { value: 'Enter' });
+  Object.defineProperty(ev, 'isComposing', { value: true });
+  Object.defineProperty(ev, 'keyCode', { value: 229 });
+  input.dispatchEvent(ev);
+  await tick();
+  assert.equal(s.calls.search, 0);
+});
+
+test('clearing the search field cancels an in-flight request and keeps the query empty', async () => {
+  let rejectSearch;
+  let searches = 0;
+  const s = setup({
+    service: {
+      search: () => {
+        searches += 1;
+        return new Promise((_ok, fail) => {
+          rejectSearch = fail;
+        });
+      },
+    },
+  });
+  s.click('[data-weather-toggle]');
+  const input = s.document.querySelector('input');
+  input.value = 'London';
+  input.closest('form').dispatchEvent(new s.window.Event('submit', { bubbles: true, cancelable: true }));
+  assert.equal(searches, 1);
+  // Submit redraws the form; act on the live input, not the detached node.
+  const live = s.document.querySelector('input');
+  live.value = '';
+  live.dispatchEvent(new s.window.Event('input', { bubbles: true }));
+  await tick();
+  rejectSearch(Error('offline'));
+  await tick();
+  assert.equal(s.document.querySelector('input').value, '');
+  assert.doesNotMatch(s.document.querySelector('#weather-panel').textContent, /暂时无法搜索城市/);
+});
+
+test('privacy copy describes native locate and never promises AMap', () => {
+  const html = renderWeather({ mode: 'choice' }, 'zh');
+  assert.match(html, /主动点击后申请定位/);
+  assert.match(html, /不会用 IP/);
+  assert.doesNotMatch(html, /高德|AMap|amap/);
+});
+
+test('keyboard toggle close does not pointer-suppress when the pointer is outside the item', () => {
+  const s = setup();
+  const item = s.document.querySelector('.dock-item');
+  assert.ok(item);
+  const orig = item.matches.bind(item);
+  item.matches = (sel) => (sel === ':hover' ? false : orig(sel));
+  s.document.elementFromPoint = () => s.document.querySelector('#outside');
+  s.click('[data-weather-toggle]', { detail: 0 });
+  s.click('[data-weather-toggle]', { detail: 0 });
+  assert.equal(s.document.querySelector('#weather-panel').hidden, true);
+  assert.equal(item.classList.contains('is-tip-pointer-suppressed'), false);
+  assert.equal(item.classList.contains('is-tip-focus-suppressed'), true);
+});
+
+test('pointer toggle close suppresses pointer when the pointer is on the item', () => {
+  const s = setup();
+  const item = s.document.querySelector('.dock-item');
+  const trigger = s.document.querySelector('[data-weather-toggle]');
+  const orig = item.matches.bind(item);
+  item.matches = (sel) => (sel === ':hover' ? true : orig(sel));
+  s.document.elementFromPoint = () => trigger;
+  noteDockPointer(20, 20);
+  s.click('[data-weather-toggle]', { detail: 1 });
+  s.click('[data-weather-toggle]', { detail: 1 });
+  assert.equal(s.document.querySelector('#weather-panel').hidden, true);
+  assert.equal(item.classList.contains('is-tip-pointer-suppressed'), true);
+});
+
+test('Escape with no lastPointer still pointer-suppresses when the trigger is :hover', () => {
+  const s = setup();
+  const item = s.document.querySelector('.dock-item');
+  const orig = item.matches.bind(item);
+  item.matches = (sel) => (sel === ':hover' ? true : orig(sel));
+  s.click('[data-weather-toggle]', { detail: 1 });
+  const key = new s.window.Event('keydown');
+  key.key = 'Escape';
+  s.document.dispatchEvent(key);
+  assert.equal(s.document.querySelector('#weather-panel').hidden, true);
+  assert.equal(item.classList.contains('is-tip-pointer-suppressed'), true);
+  assert.equal(item.classList.contains('is-tip-focus-suppressed'), true);
+});

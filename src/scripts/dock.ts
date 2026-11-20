@@ -8,7 +8,8 @@
  * Dock 被 transition:persist 保留，状态挂在 window 上，站内跳转不重置、不重复绑定。
  */
 import { dockDotPosition } from './dock-geometry';
-import { refreshDockTooltip } from './dock-tooltip';
+import { noteDockPointer, clearDockPointer, refreshDockTooltip, setDockTipSuppression } from './dock-tooltip';
+import { bindDockNavigation } from './dock-navigation';
 import { isNavActive } from '../config/nav';
 import { defaultLang, langs, locales, otherLang, type Lang } from '../config/locales';
 import { dockMotion } from '../config/motion';
@@ -220,8 +221,6 @@ function syncDock() {
     langLink.href = root.getAttribute(`data-alt-${other}`) || (other === defaultLang ? '/' : `/${other}/`);
     langLink.hreflang = locales[other].html;
     langLink.dataset.setLang = other;
-    const g = langLink.querySelector('[data-glyph]');
-    if (g) g.textContent = locales[other].short;
   }
   d.querySelectorAll<HTMLElement>('.dock-btn[data-label-zh]').forEach((b) => {
     const text = lbl(b)!;
@@ -246,7 +245,7 @@ function setHover(d: HTMLElement, item: Element | null) {
 }
 
 /** 跳转（含视图过渡）结束：按最后的指针位置同步悬停与放大 */
-function endNavigation(d: HTMLElement) {
+function endNavigation(d: HTMLElement, cancelled = false) {
   S.navigating = false;
   const xy = S.lastXY;
   S.lastXY = null;
@@ -255,6 +254,10 @@ function endNavigation(d: HTMLElement) {
     const inDock = !!hit && d.contains(hit);
     setHover(d, inDock ? hit.closest('.dock-item') : null);
     if (!inDock) S.rawPointer = null;
+  } else if (cancelled) {
+    // 中止且没有可靠指针坐标时，不能继续信任为视图过渡冻结的悬停镜像。
+    setHover(d, null);
+    S.rawPointer = null;
   }
   kick();
 }
@@ -270,22 +273,41 @@ function bind(d: HTMLElement) {
     { passive: true },
   );
   d.addEventListener('focusin', refreshTip);
-  d.addEventListener('focusout', () => queueMicrotask(refreshTip));
+  d.addEventListener('focusout', () => {
+    queueMicrotask(() => {
+      d.querySelectorAll('.dock-item.is-tip-focus-suppressed').forEach((el) => {
+        if (!el.contains(document.activeElement)) setDockTipSuppression(d, el, { focus: false });
+      });
+      refreshTip();
+    });
+  });
   // Controls update aria-expanded at document level, after the Dock click handler.
   d.addEventListener('click', () => queueMicrotask(refreshTip));
   d.addEventListener('pointermove', (e) => {
+    if (e.pointerType === 'mouse') noteDockPointer(e.clientX, e.clientY);
     if (e.pointerType !== 'mouse' || !S.vertical) return;
     const list = d.querySelector<HTMLElement>('[data-dock-list]')!;
     S.rawPointer = e.clientY - list.getBoundingClientRect().top;
     kick();
   });
+  d.addEventListener('pointerdown', (e) => {
+    if (e.pointerType === 'mouse') noteDockPointer(e.clientX, e.clientY);
+  });
   d.addEventListener('pointerover', (e) => {
+    if (e.pointerType === 'mouse') noteDockPointer(e.clientX, e.clientY);
     if (e.pointerType !== 'mouse' || S.navigating) return;
-    setHover(d, (e.target as Element).closest('.dock-item'));
+    const item = (e.target as Element).closest('.dock-item');
+    d.querySelectorAll('.dock-item.is-tip-pointer-suppressed').forEach((el) => {
+      if (el !== item) setDockTipSuppression(d, el, { pointer: false });
+    });
+    setHover(d, item);
   });
   d.addEventListener('pointerleave', (e) => {
     // 视图过渡期间浏览器会短暂接管指针，忽略这期间的 leave，保持悬停与放大连续
     if (e.pointerType !== 'mouse' || S.navigating) return;
+    d.querySelectorAll('.dock-item.is-tip-pointer-suppressed').forEach((el) => {
+      setDockTipSuppression(d, el, { pointer: false });
+    });
     setHover(d, null);
     S.rawPointer = null;
     kick();
@@ -296,23 +318,25 @@ function bind(d: HTMLElement) {
     if (!a || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
     setActive(d, a.dataset.nav ?? 'home');
   });
-  document.addEventListener('astro:before-preparation', (e) => {
-    S.navigating = true;
-    // 前进 / 后退等非点击跳转：同样在加载前就切换激活项
-    const key = navKeyFor((e as Event & { to: URL }).to.pathname);
-    if (key) setActive(d, key);
-  });
-  document.addEventListener('astro:before-swap', (e) => {
-    const vt = (e as Event & { viewTransition?: ViewTransition }).viewTransition;
-    const done = () => endNavigation(d);
-    if (vt) vt.finished.then(done, done);
-    else requestAnimationFrame(done);
-  });
+  bindDockNavigation(
+    document,
+    {
+      start(to) {
+        S.navigating = true;
+        // 前进 / 后退等非点击跳转：同样在加载前就切换激活项。
+        const key = navKeyFor(to.pathname);
+        if (key) setActive(d, key);
+      },
+      finish: (cancelled) => endNavigation(d, cancelled),
+    },
+    requestAnimationFrame,
+  );
   // 兜底：指针已在 Dock 外移动时收回
   document.addEventListener(
     'pointermove',
     (e) => {
       if (e.pointerType !== 'mouse') return;
+      noteDockPointer(e.clientX, e.clientY);
       if (S.navigating) {
         S.lastXY = [e.clientX, e.clientY];
         return;
@@ -331,6 +355,10 @@ function bind(d: HTMLElement) {
     refreshTip();
     kick();
   };
+  // pointerleave does not bubble; leaving the viewport targets <html>, not window.
+  document.documentElement.addEventListener('pointerleave', (e) => {
+    if (e.pointerType === 'mouse') clearDockPointer();
+  });
   window.addEventListener('resize', remeasure);
   mqVertical.addEventListener('change', remeasure);
   window.matchMedia('(prefers-reduced-motion: reduce)').addEventListener('change', kick);

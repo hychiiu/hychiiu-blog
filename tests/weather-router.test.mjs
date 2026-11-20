@@ -78,7 +78,7 @@ function setup({ networkFailure = false } = {}) {
   const click = (selector) =>
     document.querySelector(selector).dispatchEvent(new window.Event('click', { bubbles: true }));
   click('[data-weather-toggle]');
-  click('[data-weather-action="manual"]');
+  if (!document.querySelector('input')) click('[data-weather-action="manual"]');
   async function submit(query, via) {
     const form = document.querySelector('form'),
       input = form.querySelector('input'),

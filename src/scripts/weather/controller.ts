@@ -1,4 +1,8 @@
 import { weatherConfig } from '../../config/weather.ts';
+import zh from '../../i18n/zh.ts';
+import en from '../../i18n/en.ts';
+const ui = { zh, en };
+import { afterWeatherPanelClose, pointerIsOnItem, refreshDockTooltip } from '../dock-tooltip.ts';
 import { createWeatherDock } from './dock-state.ts';
 import { validPlace, type Place, type WeatherLang, type WeatherService } from './service.ts';
 import { renderWeather, type WeatherState } from './view.ts';
@@ -19,6 +23,15 @@ export function bindWeather({ document: doc, window: win, service, geolocation, 
   const panel = () => doc.querySelector<HTMLElement>('#weather-panel');
   const trigger = () => doc.querySelector<HTMLButtonElement>('[data-weather-toggle]');
   const lang = (): WeatherLang => (doc.documentElement.dataset.lang === 'en' ? 'en' : 'zh');
+  const t = (
+    key:
+      | 'weather.searchFailed'
+      | 'weather.tooShort'
+      | 'weather.unavailable'
+      | 'weather.locateDenied'
+      | 'weather.locateTimeout'
+      | 'weather.locateUnavailable',
+  ) => ui[lang()][key];
   let state: WeatherState = { mode: 'choice' },
     selected: Place | undefined,
     manual = false,
@@ -60,14 +73,27 @@ export function bindWeather({ document: doc, window: win, service, geolocation, 
     position();
     if (focusSelector && (!preserveOutsideFocus || focusInside)) focus(p.querySelector<HTMLElement>(focusSelector));
   }
-  function close(restore = true) {
+  function close(restore = true, reason: 'escape' | 'toggle' | 'outside' | 'nav' = 'outside') {
     if (!open) return;
     const hadFocus = !!panel()?.contains(doc.activeElement);
+    const tgl = trigger();
+    const item = tgl?.closest('.dock-item') ?? null;
+    const dock = doc.querySelector<HTMLElement>('[data-dock]');
     open = false;
     cancel();
     if (panel()) panel()!.hidden = true;
-    trigger()?.setAttribute('aria-expanded', 'false');
-    if (restore && hadFocus) focus(trigger());
+    tgl?.setAttribute('aria-expanded', 'false');
+    if (restore && hadFocus) focus(tgl);
+    if (dock && reason !== 'nav') {
+      const pointerOnItem = reason === 'outside' ? false : pointerIsOnItem(item);
+      const suppressFocus =
+        reason === 'escape' ||
+        (reason === 'toggle' && !!tgl && (doc.activeElement === tgl || tgl.contains(doc.activeElement))) ||
+        (reason === 'outside' && restore && hadFocus);
+      afterWeatherPanelClose(dock, item, { pointerOnItem, suppressFocus });
+    } else if (dock) {
+      refreshDockTooltip(dock);
+    }
   }
   function manualSearch() {
     cancel();
@@ -111,13 +137,7 @@ export function bindWeather({ document: doc, window: win, service, geolocation, 
     } catch {
       if (ticket !== generation || !open) return;
       weatherDock.failed();
-      state = {
-        mode: 'error',
-        message:
-          lang() === 'zh'
-            ? '暂时无法获取天气，请重试或选择其他城市。'
-            : 'Weather is unavailable. Retry or choose another city.',
-      };
+      state = { mode: 'error', message: t('weather.unavailable') };
       draw('[data-weather-action="retry"]', true);
     }
   }
@@ -131,19 +151,13 @@ export function bindWeather({ document: doc, window: win, service, geolocation, 
       state = {
         mode: 'choice',
         message:
-          lang() === 'zh'
-            ? code === 1
-              ? '定位未获允许，仍可手动选择城市。'
-              : code === 3
-                ? '定位超时，请重试或手动选择城市。'
-                : '定位不可用，请手动选择城市。'
-            : code === 1
-              ? 'Location permission was denied. You can select a city manually.'
-              : code === 3
-                ? 'Location timed out. Retry or choose a city manually.'
-                : 'Location is unavailable. Choose a city manually.',
+          code === 1
+            ? t('weather.locateDenied')
+            : code === 3
+              ? t('weather.locateTimeout')
+              : t('weather.locateUnavailable'),
       };
-      draw('[data-weather-action="manual"]', true);
+      draw('input', true);
     };
     if (!geolocation) {
       fail(2);
@@ -176,17 +190,20 @@ export function bindWeather({ document: doc, window: win, service, geolocation, 
     const target = e.target as Element | null;
     if (target?.closest('[data-weather-toggle]')) {
       if (open) {
-        close(false);
+        close(false, 'toggle');
         return;
       }
       open = true;
       panel()!.hidden = false;
       trigger()?.setAttribute('aria-expanded', 'true');
+      const keyboard = e.detail === 0;
       if (selected) void load(selected, manual);
       else {
         state = { mode: 'choice' };
-        draw('[data-weather-action="locate"]');
+        draw(keyboard ? 'input' : undefined);
       }
+      const dock = doc.querySelector<HTMLElement>('[data-dock]');
+      if (dock) refreshDockTooltip(dock);
       return;
     }
     if (!open || !panel()?.contains(target)) return;
@@ -216,7 +233,10 @@ export function bindWeather({ document: doc, window: win, service, geolocation, 
       const form = e.target as HTMLFormElement;
       if (!form.matches('[data-weather-form]') || !open) return;
       e.preventDefault();
-      const query = form.querySelector<HTMLInputElement>('input')?.value.trim() ?? '';
+      const input = form.querySelector<HTMLInputElement>('input');
+      const query = input?.value.trim() ?? '';
+      const activeIsInput = doc.activeElement === input;
+      const activeIsSubmit = doc.activeElement === form.querySelector('[type="submit"]');
       cancel();
       if (Array.from(query).length < 2) {
         state = {
@@ -226,7 +246,7 @@ export function bindWeather({ document: doc, window: win, service, geolocation, 
           candidates: [],
           searching: false,
           searched: false,
-          message: lang() === 'zh' ? '请输入至少两个字的城市名称。' : 'Enter at least two characters for a city.',
+          message: t('weather.tooShort'),
         };
         draw('input');
         return;
@@ -234,36 +254,69 @@ export function bindWeather({ document: doc, window: win, service, geolocation, 
       const ticket = generation;
       active = new AbortController();
       state = { ...state, mode: 'search', query, candidates: [], message: undefined, searching: true, searched: true };
-      draw('input');
+      draw(activeIsInput ? 'input' : activeIsSubmit ? '[type="submit"]' : undefined, true);
       try {
         const candidates = await service.search(query, lang(), active.signal);
         if (ticket !== generation || !open) return;
         state = { ...state, candidates, searching: false };
-        draw(candidates.length ? '[data-weather-city]' : 'input', true);
+        const restore = activeIsInput
+          ? 'input'
+          : activeIsSubmit
+            ? '[type="submit"]'
+            : candidates.length
+              ? '[data-weather-city]'
+              : undefined;
+        draw(restore, true);
       } catch {
         if (ticket !== generation || !open) return;
-        state = {
-          ...state,
-          searching: false,
-          message:
-            lang() === 'zh' ? '暂时无法搜索城市，请再次搜索。' : 'City search is unavailable. Please search again.',
-        };
-        draw('input', true);
+        state = { ...state, searching: false, message: t('weather.searchFailed') };
+        draw(activeIsInput ? 'input' : activeIsSubmit ? '[type="submit"]' : undefined, true);
       }
     },
     { capture: true },
   );
-  doc.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && open) {
-      e.preventDefault();
-      close();
-    }
-  });
+  const onQueryClear = (e: Event) => {
+    const input = e.target as HTMLInputElement | null;
+    if (!input || input.id !== 'weather-query' || !open) return;
+    if (input.value.trim() !== '') return;
+    cancel();
+    state = {
+      ...state,
+      mode: 'search',
+      query: '',
+      candidates: [],
+      message: undefined,
+      searching: false,
+      searched: false,
+    };
+    draw('input', true);
+  };
+  doc.addEventListener('input', onQueryClear);
+  doc.addEventListener('search', onQueryClear);
+  doc.addEventListener(
+    'keydown',
+    (e) => {
+      const target = e.target as Element | null;
+      if (
+        (e.key === 'Enter' || e.keyCode === 229) &&
+        (e.isComposing || e.keyCode === 229) &&
+        target?.closest?.('[data-weather-form]')
+      ) {
+        e.preventDefault();
+        return;
+      }
+      if (e.key === 'Escape' && open) {
+        e.preventDefault();
+        close(true, 'escape');
+      }
+    },
+    { capture: true },
+  );
   doc.addEventListener('pointerdown', (e) => {
     const target = e.target as Node | null;
-    if (open && !panel()?.contains(target) && !trigger()?.contains(target)) close();
+    if (open && !panel()?.contains(target) && !trigger()?.contains(target)) close(true, 'outside');
   });
-  doc.addEventListener('astro:before-preparation', () => close(false));
+  doc.addEventListener('astro:before-preparation', () => close(false, 'nav'));
   doc.addEventListener('astro:after-swap', () => {
     weatherDock.sync();
     if (!open && panel()) panel()!.innerHTML = '';

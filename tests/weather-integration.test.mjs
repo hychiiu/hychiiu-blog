@@ -54,3 +54,60 @@ test('Dock weather starts neutral with its own v2 renderer, independent from the
     'existing theme icons stay unchanged',
   );
 });
+
+test('search row keeps the submit button on one line at 38px', () => {
+  const css = read('src/styles/weather.css');
+  assert.match(css, /\.weather-search-row\s*\{[^}]*display:\s*flex/);
+  assert.match(css, /\.weather-search-row input\s*\{[^}]*flex:\s*1 1 0%/);
+  assert.match(css, /\.weather-search-row input\s*\{[^}]*min-width:\s*0/);
+  assert.match(css, /\.weather-search-row input\s*\{[^}]*width:\s*auto/);
+  assert.match(css, /\.weather-search-row input\s*\{[^}]*height:\s*var\(--weather-target\)/);
+  assert.match(css, /\.weather-search-row \.weather-button\s*\{[^}]*flex:\s*0 0 auto/);
+  assert.match(css, /\.weather-search-row \.weather-button\s*\{[^}]*white-space:\s*nowrap/);
+  assert.match(css, /\.weather-panel button\s*\{[^}]*white-space:\s*nowrap/);
+  assert.match(css, /\.weather-status-slot\s*\{[^}]*min-height:/);
+  assert.equal(/\.weather-status-slot[^}]*transition:[^}]*height/.test(css), false);
+  assert.match(css, /\.weather-candidates\s*\{[^}]*max-height:\s*30dvh/);
+  assert.match(css, /\.weather-candidates\s*\{[^}]*overflow:\s*auto/);
+  assert.equal(/\.weather-candidates\s*\{[^}]*overflow-x:\s*hidden/.test(css), false);
+  assert.match(css, /\.weather-candidates button\s*\{[^}]*white-space:\s*normal/);
+  assert.match(css, /\.weather-candidates button\s*\{[^}]*overflow-wrap:\s*anywhere/);
+});
+
+test('language control uses the approved translate glyph and never writes 中/EN into it', () => {
+  const dock = read('src/components/Dock.astro');
+  const script = read('src/scripts/dock.ts');
+  const icon = read('src/components/Icon.astro');
+  assert.match(icon, /'lang-translate':/);
+  assert.match(icon, /M4\.1 18L7\.7 6\.7L11\.3 18/);
+  assert.match(icon, /M13\.3 11\.35L20\.8 18\.2/);
+  assert.match(dock, /name="lang-translate"/);
+  assert.doesNotMatch(dock, /data-glyph/);
+  assert.doesNotMatch(script, /data-glyph/);
+  assert.doesNotMatch(script, /locales\[other\]\.short/);
+  assert.match(script, /langLink\.hreflang/);
+  assert.match(script, /dataset\.setLang/);
+});
+
+test('desktop tooltip channels are independent and reduced-motion tips do not slide 4px', () => {
+  const css = read('src/styles/dock.css');
+  assert.match(css, /:not\(\.is-tip-pointer-suppressed\)/);
+  assert.match(css, /:not\(\.is-tip-focus-suppressed\)/);
+  assert.match(css, /\.dock-btn:focus-visible/);
+  assert.match(
+    css,
+    /\.dock\.is-tip-pointer-suppressed\s+\.dock-floating-tip\s*,\s*\.dock\.is-tip-focus-suppressed\s+\.dock-floating-tip\s*\{[^}]*opacity:\s*0[^}]*transition:\s*none/,
+  );
+  assert.doesNotMatch(css, /translate\(-4px/);
+  assert.doesNotMatch(css, /translate\(-50%, 4px\)/);
+  const script = read('src/scripts/dock.ts');
+  assert.match(script, /addEventListener\(\s*'pointerdown'[\s\S]*noteDockPointer/);
+  assert.match(script, /addEventListener\(\s*'pointerover'[\s\S]*noteDockPointer/);
+});
+
+test('viewport leave clears last pointer on documentElement, not a bubbling window listener', () => {
+  const script = read('src/scripts/dock.ts');
+  // pointerleave does not bubble; leaving the viewport targets <html>.
+  assert.match(script, /document\.documentElement\.addEventListener\(\s*'pointerleave'[\s\S]*?clearDockPointer/);
+  assert.doesNotMatch(script, /window\.addEventListener\(\s*'pointerleave'/);
+});

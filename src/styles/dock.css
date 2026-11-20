@@ -85,12 +85,10 @@
   outline-offset: 2px;
   border-radius: var(--r-round);
 }
-.dock-lang .glyph {
-  font-family: var(--font-mono);
-  font-size: var(--fs-xs);
-  font-weight: 500;
-  letter-spacing: 0.04em;
-  line-height: 1;
+.dock-lang svg {
+  display: block;
+  width: 20px;
+  height: 20px;
 }
 .dock-btn .i-moon,
 :root[data-theme='dark'] .dock-btn .i-sun {
@@ -198,13 +196,15 @@
   .dock-tip {
     top: 50%;
     left: calc(50% + var(--plate) / 2 + var(--sp-3) + var(--dx, 0px));
-    transform: translate(-4px, -50%);
+    transform: translateY(-50%);
   }
-  .dock-item:hover .dock-tip,
-  .dock-item.is-hover .dock-tip,
-  .dock-item:focus-within .dock-tip {
+  .dock-item:is(:hover, .is-hover):not(.is-tip-pointer-suppressed) .dock-tip,
+  .dock-item:has(.dock-btn:focus-visible):not(.is-tip-focus-suppressed) .dock-tip {
     opacity: 1;
-    transform: translate(0, -50%);
+  }
+  .dock-item:has([aria-expanded='true']) .dock-tip,
+  .dock-item.is-tip-pointer-suppressed.is-tip-focus-suppressed .dock-tip {
+    transition: none;
   }
 }
 
@@ -268,11 +268,15 @@
     .dock-floating-tip {
       display: block;
       bottom: calc(100% + var(--sp-1));
-      transform: translate(-50%, 4px);
+      transform: translate(-50%, 0);
     }
     .dock-floating-tip.on {
       opacity: 1;
-      transform: translate(-50%, 0);
+    }
+    .dock.is-tip-pointer-suppressed .dock-floating-tip,
+    .dock.is-tip-focus-suppressed .dock-floating-tip {
+      opacity: 0;
+      transition: none;
     }
   }
 }
@@ -288,7 +292,9 @@
 
 @media (prefers-reduced-motion: reduce) {
   .dock-tip,
-  .dock-floating-tip,
+  .dock-floating-tip {
+    transition: opacity var(--dur-tip) linear;
+  }
   .dock-btn {
     transition:
       color var(--dur-2) var(--ease),

@@ -72,7 +72,7 @@ function setup({ weather = async () => current, service, stored = null } = {}) {
     click('[data-weather-toggle]');
   };
   const select = async (name) => {
-    click('[data-weather-action="manual"]');
+    if (!document.querySelector('input')) click('[data-weather-action="manual"]');
     document.querySelector('input').value = name;
     document.querySelector('form').dispatchEvent(new window.Event('submit', { bubbles: true, cancelable: true }));
     await tick();
