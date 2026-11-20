@@ -36,11 +36,11 @@ function status(text: string) {
 
 function privacy(lang: WeatherLang) {
   const t = copy(lang);
-  return `<p class="weather-privacy">${t['weather.provider']}</p><details class="weather-credit"><summary>${t['weather.privacyLink']}</summary><p>${t['weather.retention']}</p><p><a href="https://open-meteo.com/en/terms" target="_blank" rel="noopener noreferrer" data-astro-reload>${t['weather.terms']}</a></p></details>`;
+  return `<p class="weather-privacy">${t['weather.provider']}</p><details class="weather-credit"><summary>${t['weather.privacyLink']}</summary><p>${t['weather.retention']}</p><p><a href="https://www.weatherapi.com/terms.aspx" target="_blank" rel="noopener noreferrer" data-astro-reload>${t['weather.terms']}</a></p></details>`;
 }
 
 function credits() {
-  return `<p class="weather-credit"><a href="https://open-meteo.com/" target="_blank" rel="noopener noreferrer" data-astro-reload>Open-Meteo</a> · <a href="https://www.geonames.org/" target="_blank" rel="noopener noreferrer" data-astro-reload>GeoNames</a> · <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer" data-astro-reload>CC BY 4.0</a></p>`;
+  return `<p class="weather-credit"><a href="https://www.weatherapi.com/" target="_blank" rel="noopener noreferrer" data-astro-reload>WeatherAPI.com</a></p>`;
 }
 
 function searchForm(state: WeatherState, lang: WeatherLang, heading: string, intro: boolean) {
@@ -56,7 +56,7 @@ function searchForm(state: WeatherState, lang: WeatherLang, heading: string, int
         : '';
   const back = state.weather ? button('back', t['weather.back']) : '';
   return `${title(heading)}${intro ? `<p class="weather-intro">${t['weather.privacy']}</p>` : ''}
-   <form data-weather-form><label for="weather-query">${t['weather.city']}</label><div class="weather-search-row"><input id="weather-query" name="city" type="search" autocomplete="off" maxlength="100" required value="${esc(state.query ?? '')}" aria-describedby="weather-search-hint" /><button type="submit" class="weather-button">${t['weather.search']}</button></div><p id="weather-search-hint" class="weather-hint">${t['weather.hint']}</p></form>
+   <form data-weather-form><label for="weather-query">${t['weather.city']}</label><div class="weather-search-row"><input id="weather-query" name="city" type="search" autocomplete="off" maxlength="80" required value="${esc(state.query ?? '')}" aria-describedby="weather-search-hint" /><button type="submit" class="weather-button">${t['weather.search']}</button></div><p id="weather-search-hint" class="weather-hint">${t['weather.hint']}</p></form>
    <div class="weather-status-slot">${statusText ? status(statusText) : ''}</div>
    <ul class="weather-candidates">${candidates.map((p, i) => `<li><button type="button" data-weather-city="${i}"><span>${esc(p.name)}</span><small>${esc(p.detail ?? '')} · ${p.latitude.toFixed(2)}, ${p.longitude.toFixed(2)}</small></button></li>`).join('')}</ul>
    <div class="weather-actions">${button('locate', t['weather.locate'])}${back}</div>${credits()}${privacy(lang)}`;
@@ -74,7 +74,7 @@ export function renderWeather(state: WeatherState, lang: WeatherLang): string {
    <div class="weather-current"><div><div class="weather-temperature">${Math.round(w.temperature)}<span>°C</span></div><p class="weather-description">${c.text}</p></div><div class="weather-symbol">${weatherIcon(c.icon)}</div></div>
    <p class="weather-range">${t['weather.high']} ${Math.round(w.high)}° <span>·</span> ${t['weather.low']} ${Math.round(w.low)}°</p>
    <footer class="weather-footer"><p><span>${t['weather.time']} ${esc(cityTime(w.time, w.timezone, lang))}</span><span>${t['weather.local']} · ${esc(w.timezone)}</span></p><button type="button" data-weather-action="manual">${t['weather.change']}</button></footer>
-   <p class="weather-credit">${t['weather.model']} <a href="https://open-meteo.com/" target="_blank" rel="noopener noreferrer" data-astro-reload>Weather data by Open-Meteo.com</a> · <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer" data-astro-reload>CC BY 4.0</a></p>`;
+   <p class="weather-credit">${t['weather.model']} <a href="https://www.weatherapi.com/" target="_blank" rel="noopener noreferrer" data-astro-reload>Weather data by WeatherAPI.com</a></p>`;
   }
   if (state.mode === 'search') return searchForm(state, lang, t['weather.change'], false);
   if (state.mode === 'choice') return searchForm(state, lang, t['weather.title'], true);

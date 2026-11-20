@@ -1,8 +1,22 @@
 import { weatherConfig } from '../../config/weather.ts';
+import { condition, type WeatherIcon, type WeatherLang } from './conditions.ts';
 
-export type WeatherLang = 'zh' | 'en';
-export type Place = { name: string; latitude: number; longitude: number; detail?: string; id?: number };
+export type { WeatherIcon, WeatherLang };
+export { condition };
+
+export type WeatherProvider = 'weatherapi';
+export type Place = {
+  name: string;
+  latitude: number;
+  longitude: number;
+  detail?: string;
+  id?: number;
+  provider?: 'weatherapi' | 'legacy-wgs84';
+  region?: string;
+  country?: string;
+};
 export type Weather = {
+  provider: 'weatherapi';
   temperature: number;
   code: number;
   isDay: boolean;
@@ -10,111 +24,174 @@ export type Weather = {
   low: number;
   time: number;
   timezone: string;
+  humidity: number;
+  windKph: number;
+  windDegree: number;
 };
-export type WeatherIcon = 'sun' | 'moon' | 'cloud' | 'partly' | 'fog' | 'rain' | 'snow' | 'storm' | 'unknown';
-const codes: Record<number, [string, string, WeatherIcon]> = {
-  0: ['晴', 'Clear sky', 'sun'],
-  1: ['大部晴朗', 'Mainly clear', 'partly'],
-  2: ['多云', 'Partly cloudy', 'partly'],
-  3: ['阴', 'Overcast', 'cloud'],
-  45: ['雾', 'Fog', 'fog'],
-  48: ['雾凇', 'Rime fog', 'fog'],
-  51: ['小毛毛雨', 'Light drizzle', 'rain'],
-  53: ['毛毛雨', 'Moderate drizzle', 'rain'],
-  55: ['强毛毛雨', 'Dense drizzle', 'rain'],
-  56: ['小冻毛毛雨', 'Light freezing drizzle', 'rain'],
-  57: ['强冻毛毛雨', 'Dense freezing drizzle', 'rain'],
-  61: ['小雨', 'Slight rain', 'rain'],
-  63: ['中雨', 'Moderate rain', 'rain'],
-  65: ['大雨', 'Heavy rain', 'rain'],
-  66: ['小冻雨', 'Light freezing rain', 'rain'],
-  67: ['大冻雨', 'Heavy freezing rain', 'rain'],
-  71: ['小雪', 'Slight snowfall', 'snow'],
-  73: ['中雪', 'Moderate snowfall', 'snow'],
-  75: ['大雪', 'Heavy snowfall', 'snow'],
-  77: ['米雪', 'Snow grains', 'snow'],
-  80: ['小阵雨', 'Slight rain showers', 'rain'],
-  81: ['中阵雨', 'Moderate rain showers', 'rain'],
-  82: ['强阵雨', 'Violent rain showers', 'rain'],
-  85: ['小阵雪', 'Slight snow showers', 'snow'],
-  86: ['大阵雪', 'Heavy snow showers', 'snow'],
-  95: ['雷暴', 'Thunderstorm', 'storm'],
-  96: ['雷暴伴小冰雹', 'Thunderstorm with slight hail', 'storm'],
-  97: ['强雷暴', 'Heavy thunderstorm', 'storm'],
-  99: ['雷暴伴大冰雹', 'Thunderstorm with heavy hail', 'storm'],
-};
-export function condition(code: number, lang: WeatherLang, isDay = true) {
-  const entry = codes[code] ?? ['天气未知', 'Unknown conditions', 'unknown'];
-  return { text: entry[lang === 'zh' ? 0 : 1], icon: (code === 0 && !isDay ? 'moon' : entry[2]) as WeatherIcon };
+
+export class WeatherRequestError extends Error {
+  readonly code: string;
+  constructor(code: string, message = code) {
+    super(message);
+    this.name = 'WeatherRequestError';
+    this.code = code;
+  }
 }
+
 const record = (v: unknown): Record<string, unknown> => {
   if (!v || typeof v !== 'object' || Array.isArray(v)) throw new Error('Invalid weather data');
   return v as Record<string, unknown>;
 };
 const finite = (v: unknown): v is number => typeof v === 'number' && Number.isFinite(v);
 const text = (v: unknown): v is string => typeof v === 'string' && v.length > 0 && v.length <= 200;
+const safeId = (v: unknown): v is number =>
+  Number.isInteger(v) && (v as number) > 0 && (v as number) <= Number.MAX_SAFE_INTEGER;
+
+export function validCoords(latitude: unknown, longitude: unknown): boolean {
+  return finite(latitude) && Math.abs(latitude) <= 90 && finite(longitude) && Math.abs(longitude) <= 180;
+}
+
 export function validPlace(v: unknown): v is Place {
   if (!v || typeof v !== 'object') return false;
   const p = v as Place;
   return (
     text(p.name) &&
-    finite(p.latitude) &&
-    Math.abs(p.latitude) <= 90 &&
-    finite(p.longitude) &&
-    Math.abs(p.longitude) <= 180 &&
+    validCoords(p.latitude, p.longitude) &&
     (p.detail === undefined || p.detail === '' || text(p.detail))
   );
 }
-export function parsePlaces(data: unknown): Place[] {
-  const root = record(data);
-  if (root.error) throw new Error('City search failed');
-  if (root.results === undefined) return [];
-  if (!Array.isArray(root.results)) throw new Error('Invalid city data');
-  return root.results
-    .filter(validPlace)
-    .slice(0, 8)
-    .map((raw) => {
-      const p = raw as Place & Record<string, unknown>;
-      return {
-        name: p.name,
-        latitude: p.latitude,
-        longitude: p.longitude,
-        ...(Number.isInteger(p.id) ? { id: p.id } : {}),
-        detail: [...new Set([p.admin2, p.admin1, p.country].filter(text))].join(' · '),
-      };
-    });
+
+export function isWeatherApiPlace(v: unknown): v is Place & { provider: 'weatherapi'; id: number } {
+  if (!validPlace(v)) return false;
+  const p = v as Place;
+  return p.provider === 'weatherapi' && safeId(p.id);
 }
-export function parseWeather(data: unknown): Weather {
-  const root = record(data),
-    c = record(root.current),
-    d = record(root.daily);
-  const high = Array.isArray(d.temperature_2m_max) ? d.temperature_2m_max[0] : undefined;
-  const low = Array.isArray(d.temperature_2m_min) ? d.temperature_2m_min[0] : undefined;
-  if (
-    !finite(c.temperature_2m) ||
-    !finite(c.weather_code) ||
-    !Number.isInteger(c.weather_code) ||
-    !finite(c.time) ||
-    c.time <= 0 ||
-    !finite(high) ||
-    !finite(low) ||
-    high < low ||
-    !text(root.timezone) ||
-    ![0, 1].includes(c.is_day as number)
-  )
-    throw new Error('Invalid weather data');
-  // Reject invalid IANA zones rather than interpreting an unzoned timestamp as local time.
-  new Intl.DateTimeFormat('en', { timeZone: root.timezone }).format();
+
+/** Read stored selection. Legacy GeoNames ids are dropped so they can never be sent as WeatherAPI ids. Does not write storage. */
+export function readStoredPlace(v: unknown): Place | undefined {
+  if (!validPlace(v) || (v as Place).name === '@location') return undefined;
+  if (isWeatherApiPlace(v)) {
+    const p = v as Place;
+    return {
+      provider: 'weatherapi',
+      id: p.id,
+      name: p.name,
+      latitude: p.latitude,
+      longitude: p.longitude,
+      detail: p.detail,
+      region: text(p.region) ? p.region : undefined,
+      country: text(p.country) ? p.country : undefined,
+    };
+  }
+  const p = v as Place;
   return {
-    temperature: c.temperature_2m,
-    code: c.weather_code,
-    isDay: c.is_day === 1,
-    high,
-    low,
-    time: c.time,
-    timezone: root.timezone,
+    provider: 'legacy-wgs84',
+    name: p.name,
+    latitude: p.latitude,
+    longitude: p.longitude,
+    ...(p.detail ? { detail: p.detail } : {}),
   };
 }
+
+export function persistablePlace(place: Place): Place | undefined {
+  if (isWeatherApiPlace(place)) return readStoredPlace(place);
+  if (validPlace(place) && place.name !== '@location') {
+    return {
+      provider: 'legacy-wgs84',
+      name: place.name,
+      latitude: place.latitude,
+      longitude: place.longitude,
+      ...(place.detail ? { detail: place.detail } : {}),
+    };
+  }
+  return undefined;
+}
+
+export function isCurrentStale(
+  weather: { time: number },
+  nowMs: number,
+  maxAgeMs = weatherConfig.currentMaxAgeMs,
+): boolean {
+  return nowMs / 1000 - weather.time > maxAgeMs / 1000;
+}
+export function parsePlaces(data: unknown): Place[] {
+  const root = record(data);
+  if (root.provider !== 'weatherapi') throw new Error('Invalid city data');
+  if (root.results === undefined) return [];
+  if (!Array.isArray(root.results)) throw new Error('Invalid city data');
+  const out: Place[] = [];
+  for (const raw of root.results) {
+    if (!raw || typeof raw !== 'object' || Array.isArray(raw)) continue;
+    const p = raw as Record<string, unknown>;
+    const id = p.id,
+      name = p.name,
+      latitude = p.latitude,
+      longitude = p.longitude;
+    if (
+      p.provider !== 'weatherapi' ||
+      !safeId(id) ||
+      !text(name) ||
+      !finite(latitude) ||
+      !finite(longitude) ||
+      !validCoords(latitude, longitude)
+    )
+      continue;
+    const region = text(p.region) ? p.region : '';
+    const country = text(p.country) ? p.country : '';
+    const detail = text(p.detail) ? p.detail : [...new Set([region, country].filter(Boolean))].join(' · ');
+    if (detail && !text(detail) && detail !== '') continue;
+    out.push({
+      provider: 'weatherapi',
+      id,
+      name,
+      latitude,
+      longitude,
+      region: region || undefined,
+      country: country || undefined,
+      detail,
+    });
+    if (out.length === 8) break;
+  }
+  return out;
+}
+
+export function parseWeather(data: unknown): Weather {
+  const root = record(data);
+  if (root.provider !== 'weatherapi') throw new Error('Invalid weather data');
+  const w = record(root.weather);
+  if (w.provider !== 'weatherapi') throw new Error('Invalid weather data');
+  if (
+    !finite(w.temperature) ||
+    !Number.isInteger(w.code) ||
+    !finite(w.code) ||
+    typeof w.isDay !== 'boolean' ||
+    !finite(w.high) ||
+    !finite(w.low) ||
+    w.high < w.low ||
+    !finite(w.time) ||
+    w.time <= 0 ||
+    !text(w.timezone) ||
+    !finite(w.humidity) ||
+    !finite(w.windKph) ||
+    !finite(w.windDegree)
+  )
+    throw new Error('Invalid weather data');
+  new Intl.DateTimeFormat('en', { timeZone: w.timezone }).format();
+  return {
+    provider: 'weatherapi',
+    temperature: w.temperature,
+    code: w.code,
+    isDay: w.isDay,
+    high: w.high,
+    low: w.low,
+    time: w.time,
+    timezone: w.timezone,
+    humidity: w.humidity,
+    windKph: w.windKph,
+    windDegree: w.windDegree,
+  };
+}
+
 export function cityTime(time: number, timezone: string, lang: WeatherLang) {
   return new Intl.DateTimeFormat(lang === 'zh' ? 'zh-CN' : 'en-GB', {
     timeZone: timezone,
@@ -125,13 +202,36 @@ export function cityTime(time: number, timezone: string, lang: WeatherLang) {
     hourCycle: 'h23',
   }).format(new Date(time * 1000));
 }
+
+function apiUrl(path: string, origin?: string): URL {
+  const base = origin ?? ((typeof location !== 'undefined' && location.origin) || 'http://127.0.0.1');
+  return new URL(path, base);
+}
+
+const errorByStatus: Record<number, string> = {
+  400: 'INVALID_REQUEST',
+  404: 'LOCATION_NOT_FOUND',
+  429: 'RATE_LIMITED',
+  502: 'UPSTREAM_INVALID',
+  503: 'WEATHER_UNAVAILABLE',
+  504: 'UPSTREAM_TIMEOUT',
+};
+
 export function createWeatherService({
   fetcher = globalThis.fetch,
   now = Date.now,
   timeoutMs = weatherConfig.timeoutMs as number,
+  origin,
+}: {
+  fetcher?: typeof fetch;
+  now?: () => number;
+  timeoutMs?: number;
+  origin?: string;
 } = {}) {
   const cache = new Map<string, { at: number; value: Weather }>();
-  async function request(url: URL, signal?: AbortSignal): Promise<unknown> {
+  const inflight = new Map<string, Promise<Weather>>();
+
+  async function request(url: URL, init: RequestInit = {}, signal?: AbortSignal): Promise<unknown> {
     const controller = new AbortController();
     const abort = () => controller.abort();
     if (signal?.aborted) throw new DOMException('Aborted', 'AbortError');
@@ -142,47 +242,105 @@ export function createWeatherService({
       controller.abort();
     }, timeoutMs);
     try {
-      const res = await fetcher(url, { signal: controller.signal, credentials: 'omit', referrerPolicy: 'no-referrer' });
-      if (!res.ok) throw new Error('Weather service unavailable');
-      return await res.json();
+      const res = await fetcher(url, {
+        ...init,
+        signal: controller.signal,
+        credentials: 'same-origin',
+        referrerPolicy: 'no-referrer',
+      });
+      let body: unknown = null;
+      try {
+        body = await res.json();
+      } catch {
+        body = null;
+      }
+      if (!res.ok) {
+        const reported =
+          body && typeof body === 'object' && !Array.isArray(body) ? (body as { code?: unknown }).code : undefined;
+        const code =
+          typeof reported === 'string' && reported ? reported : (errorByStatus[res.status] ?? 'WEATHER_UNAVAILABLE');
+        throw new WeatherRequestError(code);
+      }
+      return body;
     } catch (error) {
-      if (timedOut) throw new Error('Weather request timeout', { cause: error });
+      if (error instanceof WeatherRequestError) throw error;
+      if (timedOut) throw new WeatherRequestError('UPSTREAM_TIMEOUT', 'Weather request timeout');
       throw error;
     } finally {
       clearTimeout(timer);
       signal?.removeEventListener('abort', abort);
     }
   }
+
+  function cacheGet(key: string): Weather | undefined {
+    const hit = cache.get(key);
+    if (!hit) return undefined;
+    if (now() - hit.at >= weatherConfig.cacheMs || isCurrentStale(hit.value, now())) {
+      cache.delete(key);
+      return undefined;
+    }
+    return hit.value;
+  }
+
+  function cacheSet(key: string, value: Weather) {
+    if (isCurrentStale(value, now())) return;
+    if (cache.size >= weatherConfig.maxCacheEntries) cache.delete(cache.keys().next().value!);
+    cache.set(key, { at: now(), value });
+  }
+
   return {
     async search(query: string, lang: WeatherLang, signal?: AbortSignal): Promise<Place[]> {
-      const name = query.trim().slice(0, 100);
-      if (Array.from(name).length < 2) return [];
-      const url = new URL(weatherConfig.search);
-      url.search = new URLSearchParams({ name, language: lang, count: '8' }).toString();
-      return parsePlaces(await request(url, signal));
+      const name = Array.from(query.trim()).slice(0, weatherConfig.queryMax).join('');
+      if (Array.from(name).length < weatherConfig.queryMin) return [];
+      const url = apiUrl(weatherConfig.search, origin);
+      url.search = new URLSearchParams({ q: name, lang }).toString();
+      return parsePlaces(await request(url, {}, signal));
     },
     async weather(place: Place, signal?: AbortSignal): Promise<Weather> {
       if (!validPlace(place)) throw new Error('Invalid location');
       if (signal?.aborted) throw new DOMException('Aborted', 'AbortError');
-      const key = `${place.latitude},${place.longitude}`;
-      const hit = cache.get(key);
-      if (hit && now() - hit.at < weatherConfig.cacheMs) return hit.value;
-      const url = new URL(weatherConfig.forecast);
-      url.search = new URLSearchParams({
-        latitude: String(place.latitude),
-        longitude: String(place.longitude),
-        current: 'temperature_2m,weather_code,is_day',
-        daily: 'temperature_2m_max,temperature_2m_min',
-        forecast_days: '1',
-        timezone: 'auto',
-        timeformat: 'unixtime',
-        temperature_unit: 'celsius',
-      }).toString();
-      const value = parseWeather(await request(url, signal));
-      if (signal?.aborted) throw new DOMException('Aborted', 'AbortError');
-      if (cache.size >= weatherConfig.maxCacheEntries) cache.delete(cache.keys().next().value!);
-      cache.set(key, { at: now(), value });
-      return value;
+      let key: string;
+      let send: () => Promise<unknown>;
+      if (isWeatherApiPlace(place)) {
+        key = `weatherapi:${place.id}`;
+        const url = apiUrl(weatherConfig.forecast, origin);
+        url.search = new URLSearchParams({ cityId: String(place.id) }).toString();
+        send = () => request(url, {}, signal);
+      } else if (validCoords(place.latitude, place.longitude)) {
+        key = `wgs84:${place.latitude},${place.longitude}`;
+        send = () =>
+          request(
+            apiUrl(weatherConfig.forecast, origin),
+            {
+              method: 'POST',
+              headers: { 'content-type': 'application/json' },
+              body: JSON.stringify({
+                coordinates: { latitude: place.latitude, longitude: place.longitude, system: 'wgs84' },
+              }),
+            },
+            signal,
+          );
+      } else {
+        throw new Error('Invalid location');
+      }
+      const cached = cacheGet(key);
+      if (cached) return cached;
+      if (!signal) {
+        const pending = inflight.get(key);
+        if (pending) return pending;
+      }
+      const run = (async () => {
+        const value = parseWeather(await send());
+        if (signal?.aborted) throw new DOMException('Aborted', 'AbortError');
+        cacheSet(key, value);
+        return value;
+      })();
+      if (!signal) inflight.set(key, run);
+      try {
+        return await run;
+      } finally {
+        inflight.delete(key);
+      }
     },
   };
 }

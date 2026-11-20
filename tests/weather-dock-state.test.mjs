@@ -4,14 +4,19 @@ import { parseHTML } from 'linkedom';
 import { bindWeather } from '../src/scripts/weather/controller.ts';
 import { createWeatherService } from '../src/scripts/weather/service.ts';
 import { dockWeatherIcon } from '../src/scripts/weather/dock-icons.ts';
+import { createWeatherDock } from '../src/scripts/weather/dock-state.ts';
 const current = {
+  provider: 'weatherapi',
   temperature: 18,
-  code: 0,
+  code: 1000,
   isDay: true,
   high: 21,
   low: 14,
-  time: 1795146300,
+  time: Math.floor(Date.now() / 1000),
   timezone: 'Asia/Shanghai',
+  humidity: 60,
+  windKph: 12,
+  windDegree: 90,
 };
 const tick = () => new Promise((r) => setTimeout(r, 0));
 const normalized = (svg) => parseHTML(`<div>${svg}</div>`).document.querySelector('div').innerHTML;
@@ -100,7 +105,7 @@ for (const isDay of [true, false])
     await s.select('北京');
     expectGlyph(s, isDay ? 'sun' : 'moon');
     assert.equal(s.button().getAttribute('aria-label'), '北京 · 晴 · 天气');
-    assert.equal(s.button().dataset.labelEn, '北京 · Clear sky · Weather');
+    assert.equal(s.button().dataset.labelEn, isDay ? '北京 · Sunny · Weather' : '北京 · Clear · Weather');
     assert.equal(s.document.querySelector('.dock-tip').textContent, '北京 · 晴 · 天气');
   });
 test('pending new city keeps old successful pair, failure falls back, retry updates only on success', async () => {
@@ -113,7 +118,7 @@ test('pending new city keeps old successful pair, failure falls back, retry upda
         return new Promise((_ok, reject) => {
           fail = reject;
         });
-      return { ...current, code: 63 };
+      return { ...current, code: 1189 };
     },
   });
   s.open();
@@ -143,8 +148,8 @@ test('successful snapshot survives ClientRouter navigation and language synchron
   s.event('astro:after-swap');
   s.event('astro:page-load');
   expectGlyph(s, 'sun');
-  assert.equal(s.button().getAttribute('aria-label'), '北京 · Clear sky · Weather');
-  assert.equal(s.document.querySelector('.dock-tip').textContent, '北京 · Clear sky · Weather');
+  assert.equal(s.button().getAttribute('aria-label'), '北京 · Sunny · Weather');
+  assert.equal(s.document.querySelector('.dock-tip').textContent, '北京 · Sunny · Weather');
   assert.deepEqual(s.requests, before);
   s.document.documentElement.dataset.lang = 'zh';
   s.event('astro:after-swap');
@@ -156,7 +161,7 @@ test('out-of-order or navigation-canceled success cannot roll back the Dock snap
   s.open();
   await s.select('北京');
   await s.select('London');
-  pending[1].resolve({ ...current, code: 75 });
+  pending[1].resolve({ ...current, code: 1225 });
   await tick();
   expectGlyph(s, 'snow');
   assert.match(s.button().getAttribute('aria-label'), /^London/);
@@ -188,9 +193,20 @@ test('existing real service cache is used on reopen and refreshed only on expire
       json: async () => {
         fetches++;
         return {
-          timezone: 'Asia/Shanghai',
-          current: { temperature_2m: 18, weather_code: fetches === 1 ? 0 : 61, is_day: 1, time: 1795146300 },
-          daily: { temperature_2m_max: [21], temperature_2m_min: [14] },
+          provider: 'weatherapi',
+          weather: {
+            provider: 'weatherapi',
+            temperature: 18,
+            code: fetches === 1 ? 1000 : 1183,
+            isDay: true,
+            high: 21,
+            low: 14,
+            time: Math.floor(Date.now() / 1000),
+            timezone: 'Asia/Shanghai',
+            humidity: 60,
+            windKph: 12,
+            windDegree: 90,
+          },
         };
       },
     }),
@@ -218,4 +234,17 @@ test('existing real service cache is used on reopen and refreshed only on expire
   const fresh = setup({ service, stored });
   expectGlyph(fresh, 'unknown');
   assert.equal(fetches, 2, 'full reload does not eagerly fetch remembered city');
+});
+
+test('dock snapshot of an observation older than 60 minutes is cleared on sync without fetching', async () => {
+  let now = 1_795_146_300_000;
+  const { document } = parseHTML(
+    `<html data-lang="zh"><body><nav data-dock><span data-dock-floating-tip></span><ul data-dock-list><li><button data-weather-toggle class="dock-btn" aria-expanded="false" data-label-zh="天气" data-label-en="Weather" aria-label="天气"></button><span class="dock-tip">天气</span></li></ul></nav></body></html>`,
+  );
+  const dock = createWeatherDock(document, { now: () => now });
+  dock.success({ name: '上海', latitude: 31.23, longitude: 121.47 }, { ...current, time: 1_795_146_300 });
+  assert.match(document.querySelector('[data-weather-toggle]').getAttribute('aria-label'), /^上海/);
+  now += 60 * 60 * 1000 + 1;
+  dock.sync();
+  assert.equal(document.querySelector('[data-weather-toggle]').getAttribute('aria-label'), '天气');
 });

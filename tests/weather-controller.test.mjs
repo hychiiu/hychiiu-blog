@@ -7,15 +7,28 @@ import { renderWeather } from '../src/scripts/weather/view.ts';
 import { weatherIcon } from '../src/scripts/weather/icons.ts';
 import { dockWeatherIcon } from '../src/scripts/weather/dock-icons.ts';
 const weather = {
+  provider: 'weatherapi',
   temperature: 18.2,
-  code: 2,
+  code: 1003,
   isDay: true,
   high: 21,
   low: 14,
-  time: 1795146300,
+  time: Math.floor(Date.now() / 1000),
   timezone: 'Asia/Shanghai',
+  humidity: 60,
+  windKph: 12,
+  windDegree: 90,
 };
-const city = { name: '北京', detail: '北京市 · 中国', latitude: 39.9, longitude: 116.4, id: 1 };
+const city = {
+  provider: 'weatherapi',
+  id: 458816,
+  name: '北京',
+  detail: '北京市 · 中国',
+  latitude: 39.9,
+  longitude: 116.4,
+  region: '北京市',
+  country: '中国',
+};
 const tick = () => new Promise((resolve) => setTimeout(resolve, 0));
 function setup(overrides = {}) {
   const { document, window } = parseHTML(
@@ -212,13 +225,19 @@ test('forecast failure is retryable, rejected location preference does not break
 });
 test('rendering escapes remote names, supplies attribution, city timezone, and unknown fallback', () => {
   const html = renderWeather(
-    { mode: 'weather', place: { ...city, name: '<img src=x onerror=alert(1)>' }, weather: { ...weather, code: 999 } },
+    {
+      mode: 'weather',
+      place: { ...city, name: '<img src=x onerror=alert(1)>' },
+      weather: { ...weather, code: 999, time: 1795146300 },
+    },
     'en',
   );
   assert.equal(html.includes('<img src=x'), false);
   assert.match(html, /Unknown conditions/);
-  assert.match(html, /Open-Meteo/);
-  assert.match(html, /creativecommons/);
+  assert.match(html, /WeatherAPI\.com/);
+  assert.equal(html.includes('Open-Meteo'), false);
+  assert.equal(html.includes('GeoNames'), false);
+  assert.equal(html.includes('creativecommons'), false);
   assert.match(html, /Asia\/Shanghai/);
   assert.match(html, /11:45/);
 });
@@ -241,16 +260,20 @@ test('asynchronous completion never steals focus from reading outside panel', as
   await tick();
   assert.ok(s.document.activeElement === outside, 'focus must stay outside');
 });
-test('attribution is a visible link and consent copy discloses provider log retention', () => {
+test('attribution credits WeatherAPI.com and privacy copy matches the same-origin path', () => {
   const { document } = parseHTML(renderWeather({ mode: 'weather', place: city, weather }, 'en'));
-  const link = document.querySelector('a[href="https://open-meteo.com/"]');
+  const link = document.querySelector('a[href="https://www.weatherapi.com/"]');
   assert.ok(link);
   assert.ok(link.closest('details') === null, 'attribution must not be collapsed');
   const choice = renderWeather({ mode: 'choice' }, 'en');
-  assert.match(choice, /90 days/);
-  assert.match(choice, /Open-Meteo terms/);
+  assert.match(choice, /WeatherAPI\.com/);
+  assert.match(choice, /this site/);
+  assert.equal(choice.includes('90 days'), false);
+  assert.equal(choice.includes('Open-Meteo'), false);
+  assert.equal(choice.includes('GeoNames'), false);
+  assert.match(choice, /WeatherAPI terms/);
   const { document: initial } = parseHTML(`<div id="root">${choice}</div>`);
-  const terms = initial.querySelector('a[href="https://open-meteo.com/en/terms"]');
+  const terms = initial.querySelector('a[href="https://www.weatherapi.com/terms.aspx"]');
   assert.ok(terms);
   assert.ok(terms.closest('details'), 'terms belong inside the privacy details');
   const provider = initial.querySelector('.weather-privacy');
@@ -393,7 +416,7 @@ test('late geolocation and search failure do not move focus back from the page',
 
 for (const isDay of [true, false])
   test(`clear ${isDay ? 'day' : 'night'} uses shared approved v2 paths at Dock 20px and panel 24px`, async () => {
-    const s = setup({ service: { weather: async () => ({ ...weather, code: 0, isDay }) } });
+    const s = setup({ service: { weather: async () => ({ ...weather, code: 1000, isDay }) } });
     const trigger = s.document.querySelector('[data-weather-toggle]');
     trigger.innerHTML = dockWeatherIcon();
     await s.search();
@@ -419,19 +442,111 @@ test('keyboard open may focus the search field; pointer open does not', () => {
   assert.equal(keys.document.activeElement, keys.document.querySelector('input'));
 });
 
+function keydown(window, target, { key, isComposing = false, keyCode = 0 } = {}) {
+  const Ctor = window.KeyboardEvent || window.Event;
+  const ev = new Ctor('keydown', { key, bubbles: true, cancelable: true });
+  Object.defineProperty(ev, 'key', { value: key });
+  Object.defineProperty(ev, 'isComposing', { value: isComposing });
+  Object.defineProperty(ev, 'keyCode', { value: keyCode });
+  target.dispatchEvent(ev);
+  return ev;
+}
+function maybeSubmit(document, ev) {
+  if (ev.defaultPrevented) return;
+  const form = document.querySelector('form');
+  form.dispatchEvent(new document.defaultView.Event('submit', { bubbles: true, cancelable: true }));
+}
+
 test('IME composition Enter does not submit a city search', async () => {
   const s = setup();
   s.click('[data-weather-toggle]');
   const input = s.document.querySelector('input');
   input.value = '北';
-  const Ctor = s.window.KeyboardEvent || s.window.Event;
-  const ev = new Ctor('keydown', { key: 'Enter', bubbles: true, cancelable: true });
-  Object.defineProperty(ev, 'key', { value: 'Enter' });
-  Object.defineProperty(ev, 'isComposing', { value: true });
-  Object.defineProperty(ev, 'keyCode', { value: 229 });
-  input.dispatchEvent(ev);
+  const ev = keydown(s.window, input, { key: 'Enter', isComposing: true, keyCode: 229 });
   await tick();
+  assert.equal(ev.defaultPrevented, true);
   assert.equal(s.calls.search, 0);
+});
+
+test('non-Enter composition keydown is not cancelled', () => {
+  const s = setup();
+  s.click('[data-weather-toggle]');
+  const input = s.document.querySelector('input');
+  input.value = '北';
+  for (const key of ['Process', 'a', 'Escape']) {
+    const ev = keydown(s.window, input, { key, isComposing: true, keyCode: 229 });
+    assert.equal(ev.defaultPrevented, false, `${key} during composition must not be preventDefaulted`);
+  }
+  assert.equal(s.calls.search, 0);
+  assert.equal(s.document.querySelector('#weather-panel').hidden, false);
+});
+
+test('composition start/end then candidate-confirm Enter does not search; a later Enter does', async () => {
+  const s = setup();
+  s.click('[data-weather-toggle]');
+  const input = s.document.querySelector('input');
+  input.value = '北京';
+  input.dispatchEvent(new s.window.Event('compositionstart', { bubbles: true }));
+  const during = keydown(s.window, input, { key: 'Enter', isComposing: true, keyCode: 229 });
+  maybeSubmit(s.document, during);
+  await tick();
+  assert.equal(during.defaultPrevented, true);
+  assert.equal(s.calls.search, 0);
+  input.dispatchEvent(new s.window.Event('compositionend', { bubbles: true }));
+  const confirm = keydown(s.window, input, { key: 'Enter', isComposing: false, keyCode: 13 });
+  maybeSubmit(s.document, confirm);
+  await tick();
+  assert.equal(confirm.defaultPrevented, true, 'Enter that confirms an IME candidate must not submit');
+  assert.equal(s.calls.search, 0);
+  await tick();
+  const later = keydown(s.window, input, { key: 'Enter', isComposing: false, keyCode: 13 });
+  maybeSubmit(s.document, later);
+  await tick();
+  assert.equal(later.defaultPrevented, false);
+  assert.equal(s.calls.search, 1);
+});
+
+test('unfinished composition after close does not block Enter or Escape on the next open', async () => {
+  const s = setup();
+  s.click('[data-weather-toggle]');
+  const input = s.document.querySelector('input');
+  input.value = '北';
+  input.dispatchEvent(new s.window.Event('compositionstart', { bubbles: true }));
+  s.click('[data-weather-toggle]', { detail: 1 });
+  assert.equal(s.document.querySelector('#weather-panel').hidden, true);
+  assert.equal(s.calls.search, 0);
+  s.click('[data-weather-toggle]', { detail: 1 });
+  const live = s.document.querySelector('input');
+  assert.ok(live);
+  live.value = '北京';
+  const enter = keydown(s.window, live, { key: 'Enter', isComposing: false, keyCode: 13 });
+  maybeSubmit(s.document, enter);
+  await tick();
+  assert.equal(enter.defaultPrevented, false, 'Enter after a closed composition must not stay suppressed');
+  assert.equal(s.calls.search, 1);
+  const escTarget = s.document.querySelector('input') ?? s.document;
+  const esc = keydown(s.window, escTarget, { key: 'Escape' });
+  assert.equal(esc.defaultPrevented, true);
+  assert.equal(s.document.querySelector('#weather-panel').hidden, true);
+});
+
+test('unfinished composition after a redraw does not block Enter on the replacement input', async () => {
+  const s = setup();
+  s.click('[data-weather-toggle]');
+  const input = s.document.querySelector('input');
+  input.value = '北';
+  input.dispatchEvent(new s.window.Event('compositionstart', { bubbles: true }));
+  input.value = '';
+  input.dispatchEvent(new s.window.Event('input', { bubbles: true }));
+  const live = s.document.querySelector('input');
+  assert.ok(live);
+  assert.notEqual(live, input, 'draw must replace the composing input');
+  live.value = '北京';
+  const enter = keydown(s.window, live, { key: 'Enter', isComposing: false, keyCode: 13 });
+  maybeSubmit(s.document, enter);
+  await tick();
+  assert.equal(enter.defaultPrevented, false);
+  assert.equal(s.calls.search, 1);
 });
 
 test('clearing the search field cancels an in-flight request and keeps the query empty', async () => {
@@ -510,4 +625,49 @@ test('Escape with no lastPointer still pointer-suppresses when the trigger is :h
   assert.equal(s.document.querySelector('#weather-panel').hidden, true);
   assert.equal(item.classList.contains('is-tip-pointer-suppressed'), true);
   assert.equal(item.classList.contains('is-tip-focus-suppressed'), true);
+});
+
+test('legacy stored GeoNames id is kept as a manual city but never sent as a WeatherAPI id', async () => {
+  const places = [];
+  const writes = [];
+  const s = setup({
+    storage: {
+      getItem: () =>
+        JSON.stringify({ name: '北京', latitude: 39.9, longitude: 116.4, id: 1816670, detail: '北京市 · 中国' }),
+      setItem: (_key, value) => writes.push(JSON.parse(value)),
+      removeItem() {},
+    },
+    service: {
+      weather: async (place) => {
+        places.push(place);
+        return weather;
+      },
+    },
+  });
+  assert.equal(s.calls.weather, 0);
+  s.click('[data-weather-toggle]');
+  await tick();
+  assert.equal(places.length, 1);
+  assert.equal(places[0].name, '北京');
+  assert.equal(places[0].id, undefined);
+  assert.equal(places[0].provider, 'legacy-wgs84');
+  assert.equal(writes[0].id, undefined);
+  assert.equal(writes[0].provider, 'legacy-wgs84');
+  assert.equal(JSON.stringify(writes[0]).includes('1816670'), false);
+  assert.match(s.document.querySelector('#weather-panel').textContent, /北京/);
+});
+
+test('forecast error codes use the matching dictionary entry', async () => {
+  const { WeatherRequestError } = await import('../src/scripts/weather/service.ts');
+  const s = setup({
+    service: {
+      weather: async () => {
+        throw new WeatherRequestError('RATE_LIMITED');
+      },
+    },
+  });
+  await s.search();
+  s.click('[data-weather-city]');
+  await tick();
+  assert.match(s.document.querySelector('#weather-panel').textContent, /请求过于频繁/);
 });

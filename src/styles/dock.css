@@ -275,7 +275,6 @@
     }
     .dock.is-tip-pointer-suppressed .dock-floating-tip,
     .dock.is-tip-focus-suppressed .dock-floating-tip {
-      opacity: 0;
       transition: none;
     }
   }

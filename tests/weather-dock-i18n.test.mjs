@@ -43,10 +43,13 @@ for (const [lang, dictionary] of Object.entries({ zh, en }))
       assert.equal(button.getAttribute('aria-label'), 'dictionary neutral');
       dock.failed();
       assert.equal(button.getAttribute('aria-label'), 'dictionary unavailable');
-      dock.success({ name: '@location', latitude: 0, longitude: 0 }, { code: 0, isDay: true });
+      dock.success(
+        { name: '@location', latitude: 0, longitude: 0 },
+        { code: 1000, isDay: true, time: Math.floor(Date.now() / 1000) },
+      );
       assert.equal(
         button.getAttribute('aria-label'),
-        `dictionary summary:dictionary location:${lang === 'zh' ? '晴' : 'Clear sky'}`,
+        `dictionary summary:dictionary location:${lang === 'zh' ? '晴' : 'Sunny'}`,
       );
     } finally {
       for (const key of keys) dictionary[key] = original[key];

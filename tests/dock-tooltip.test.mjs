@@ -43,10 +43,13 @@ test('bottom tooltip is positioned in outer Dock, not inside scroll clipping anc
   const css = readFileSync(new URL('../src/styles/dock.css', import.meta.url), 'utf8');
   assert.match(css, /\.dock-floating-tip\.on/);
   assert.match(css, /overflow-y: hidden/);
-  assert.match(
-    css,
-    /\.dock\.is-tip-pointer-suppressed\s+\.dock-floating-tip\s*,\s*\.dock\.is-tip-focus-suppressed\s+\.dock-floating-tip\s*\{[^}]*opacity:\s*0[^}]*transition:\s*none/,
+  const rootRule = css.match(
+    /\.dock\.is-tip-pointer-suppressed\s+\.dock-floating-tip\s*,\s*\.dock\.is-tip-focus-suppressed\s+\.dock-floating-tip\s*\{[^}]*\}/,
   );
+  assert.ok(rootRule, 'root suppression rule must exist for instant hide');
+  assert.match(rootRule[0], /transition:\s*none/);
+  assert.doesNotMatch(rootRule[0], /opacity:\s*0/, 'a single root channel must not veto .on from the other channel');
+  assert.match(css, /\.dock-floating-tip\.on\s*\{[^}]*opacity:\s*1/);
 });
 test('keyboard focus drives text, scrolling updates coordinates and hides offscreen control', () => {
   const s = setup();
@@ -151,4 +154,32 @@ test('Esc with no lastPointer still suppresses pointer when the item is :hover',
   assert.equal(s.item.classList.contains('is-tip-focus-suppressed'), true);
   refreshDockTooltip(s.dock);
   assert.equal(s.tip.classList.contains('on'), false);
+});
+
+test('focus suppression must not hide a pointer-driven floating tip', () => {
+  const s = setup();
+  s.document.activeElement = s.button;
+  const origFocus = s.button.matches.bind(s.button);
+  s.button.matches = (sel) => (sel === ':focus-visible' ? false : origFocus(sel));
+  afterWeatherPanelClose(s.dock, s.item, { pointerOnItem: false, suppressFocus: true });
+  assert.equal(s.item.classList.contains('is-tip-focus-suppressed'), true);
+  assert.equal(s.item.classList.contains('is-tip-pointer-suppressed'), false);
+  s.item.classList.add('is-hover');
+  refreshDockTooltip(s.dock);
+  assert.equal(s.tip.classList.contains('on'), true);
+  assert.equal(s.tip.textContent, '天气');
+});
+
+test('pointer suppression must not hide a focus-visible floating tip', () => {
+  const s = setup();
+  s.item.classList.remove('is-hover');
+  s.document.activeElement = s.button;
+  const orig = s.button.matches.bind(s.button);
+  s.button.matches = (sel) => (sel === ':focus-visible' ? true : orig(sel));
+  setDockTipSuppression(s.dock, s.item, { pointer: true, focus: false });
+  refreshDockTooltip(s.dock);
+  assert.equal(s.item.classList.contains('is-tip-pointer-suppressed'), true);
+  assert.equal(s.item.classList.contains('is-tip-focus-suppressed'), false);
+  assert.equal(s.tip.classList.contains('on'), true);
+  assert.equal(s.tip.textContent, '天气');
 });

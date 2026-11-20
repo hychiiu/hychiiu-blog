@@ -94,10 +94,13 @@ test('desktop tooltip channels are independent and reduced-motion tips do not sl
   assert.match(css, /:not\(\.is-tip-pointer-suppressed\)/);
   assert.match(css, /:not\(\.is-tip-focus-suppressed\)/);
   assert.match(css, /\.dock-btn:focus-visible/);
-  assert.match(
-    css,
-    /\.dock\.is-tip-pointer-suppressed\s+\.dock-floating-tip\s*,\s*\.dock\.is-tip-focus-suppressed\s+\.dock-floating-tip\s*\{[^}]*opacity:\s*0[^}]*transition:\s*none/,
+  const rootRule = css.match(
+    /\.dock\.is-tip-pointer-suppressed\s+\.dock-floating-tip\s*,\s*\.dock\.is-tip-focus-suppressed\s+\.dock-floating-tip\s*\{[^}]*\}/,
   );
+  assert.ok(rootRule, 'root suppression rule must exist for instant hide');
+  assert.match(rootRule[0], /transition:\s*none/);
+  assert.doesNotMatch(rootRule[0], /opacity:\s*0/);
+  assert.match(css, /\.dock-floating-tip\.on\s*\{[^}]*opacity:\s*1/);
   assert.doesNotMatch(css, /translate\(-4px/);
   assert.doesNotMatch(css, /translate\(-50%, 4px\)/);
   const script = read('src/scripts/dock.ts');

@@ -26,23 +26,23 @@ test('default and unknown use approved neutral gap-cloud/short-dash, not clear s
   assert.equal(inner(dockWeatherIcon()), fixture.paths.unknown);
   assert.notEqual(dockWeatherIcon(), dockWeatherIcon('sun'));
 });
-test('every documented condition code maps to an approved v2 glyph, including 97 and unknown', () => {
+test('every documented WeatherAPI condition code maps to an approved v2 glyph, including 1036/1063 and unknown', () => {
   const groups = {
-    sun: [0],
-    partly: [1, 2],
-    cloud: [3],
-    fog: [45, 48],
-    rain: [51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82],
-    snow: [71, 73, 75, 77, 85, 86],
-    storm: [95, 96, 97, 99],
-    unknown: [999],
+    sun: [1000],
+    partly: [1003],
+    cloud: [1006, 1009],
+    fog: [1012, 1030, 1036, 1135, 1147],
+    rain: [1063, 1069, 1183, 1189, 1195, 1240],
+    snow: [1066, 1117, 1213, 1225, 1237],
+    storm: [1087, 1273, 1276, 1279, 1282],
+    unknown: [999, 0, 61],
   };
   for (const [icon, codes] of Object.entries(groups))
     for (const code of codes) {
       assert.equal(condition(code, 'zh').icon, icon);
       assert.equal(inner(dockWeatherIcon(condition(code, 'en').icon)), fixture.paths[icon]);
     }
-  assert.equal(inner(dockWeatherIcon(condition(0, 'en', false).icon)), fixture.paths.moon);
+  assert.equal(inner(dockWeatherIcon(condition(1000, 'en', false).icon)), fixture.paths.moon);
 });
 test('clear day half-sun and clear night full-moon/shallow-arc cannot reuse theme icons', () => {
   const theme = readFileSync(new URL('../src/components/Icon.astro', import.meta.url), 'utf8');

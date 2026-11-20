@@ -15,7 +15,7 @@
 - DESIGN.md may only update §11 popup-unification wording.
 - Follow `/workspace/blog-weather-dialog-ui-20261120/DESIGN-SPEC.md`. Do not invent visuals. Example cities/temps are not real weather.
 - New user-facing copy lives in `src/i18n/zh.ts` and `src/i18n/en.ts`.
-- Privacy copy describes current wired behavior (Open-Meteo + optional native geolocation after an informed click, no IP). Do not promise AMap, load a live SDK, enable undeployed routes, production-mock config, or silently fall back to IP.
+- Privacy copy describes current wired behavior (same-origin WeatherAPI.com + optional native geolocation after an informed click, no IP). Do not promise AMap, load a live SDK, enable undeployed routes, production-mock config, or silently fall back to IP.
 - Keep the three uncommitted lifecycle files and refine them.
 - Parent production GUI (Asia/Shanghai, this session): residual inline `.dock-tip` at opacity 1 after same-button close on a hard-reloaded home and after successful in-site navigation; also after Esc, Tab to EN, and mouse outside the Dock. Floating tip is `display: none` at ≥1024px. Opening DevTools made the residue disappear. Natural `:hover`/`:focus-within`/`__yhDock` were not captured, so this is not a confirmed root cause. The no-swap lifecycle fix is not the only cause; the close-dismiss state machine and hover-mirror cleanup must both be tested. Parent will arrange later browser checks.
 - No Shell Playwright/CDP.

@@ -46,18 +46,21 @@ function setup({ networkFailure = false } = {}) {
     fetcher: async (url) => {
       requests.push(new URL(url));
       if (networkFailure) throw Error('offline');
-      if (String(url).includes('geocoding-api')) {
-        const q = new URL(url).searchParams.get('name');
+      const target = new URL(url);
+      if (target.pathname.endsWith('/api/weather/search')) {
+        const q = target.searchParams.get('q');
         return {
           ok: true,
           json: async () => ({
+            provider: 'weatherapi',
             results: [
               {
-                id: 1,
+                provider: 'weatherapi',
+                id: q === '北京' ? 1111 : 2801268,
                 name: q,
                 latitude: 39.9,
                 longitude: 116.4,
-                admin1: q === '北京' ? '北京市' : 'England',
+                region: q === '北京' ? '北京市' : 'England',
                 country: q === '北京' ? '中国' : 'United Kingdom',
               },
             ],
@@ -67,9 +70,20 @@ function setup({ networkFailure = false } = {}) {
       return {
         ok: true,
         json: async () => ({
-          timezone: 'Asia/Shanghai',
-          current: { temperature_2m: 18, weather_code: 2, is_day: 1, time: 1795146300 },
-          daily: { temperature_2m_max: [21], temperature_2m_min: [14] },
+          provider: 'weatherapi',
+          weather: {
+            provider: 'weatherapi',
+            temperature: 18,
+            code: 1003,
+            isDay: true,
+            high: 21,
+            low: 14,
+            time: Math.floor(Date.now() / 1000),
+            timezone: 'Asia/Shanghai',
+            humidity: 60,
+            windKph: 12,
+            windDegree: 90,
+          },
         }),
       };
     },
@@ -129,7 +143,7 @@ for (const via of ['button', 'enter'])
       assert.equal(s.document.querySelector('#weather-panel').hidden, false);
       assert.match(s.document.querySelector('[data-weather-city]').textContent, new RegExp(query));
       assert.equal(s.requests.length, 1);
-      assert.equal(s.requests[0].searchParams.get('name'), query);
+      assert.equal(s.requests[0].searchParams.get('q'), query);
       s.click('[data-weather-city]');
       await tick();
       assert.equal(s.requests.length, 2);

@@ -244,11 +244,12 @@ function setHover(d: HTMLElement, item: Element | null) {
   refreshDockTooltip(d);
 }
 
-/** 跳转（含视图过渡）结束：按最后的指针位置同步悬停与放大 */
+/** 跳转结束：中止时把激活项收回到 location.pathname；成功则保留 start() 预览的目标，由 after-swap 的 syncDock 再对齐。旧导航不会走到这里（身份守卫在 bindDockNavigation）。同时按最后的指针位置校正悬停与放大。 */
 function endNavigation(d: HTMLElement, cancelled = false) {
   S.navigating = false;
   const xy = S.lastXY;
   S.lastXY = null;
+  if (cancelled) setActive(d, navKeyFor(location.pathname));
   if (xy) {
     const hit = document.elementFromPoint(xy[0], xy[1]);
     const inDock = !!hit && d.contains(hit);
@@ -323,7 +324,7 @@ function bind(d: HTMLElement) {
     {
       start(to) {
         S.navigating = true;
-        // 前进 / 后退等非点击跳转：同样在加载前就切换激活项。
+        // 前进 / 后退等非点击跳转：加载前先预览目标激活项；若 preparation 中止，endNavigation 按实际路径收回。
         const key = navKeyFor(to.pathname);
         if (key) setActive(d, key);
       },

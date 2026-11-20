@@ -8,6 +8,7 @@ import ts from 'typescript';
 import { parseHTML } from 'linkedom';
 import * as dockTooltip from '../src/scripts/dock-tooltip.ts';
 import { dockMotion } from '../src/config/motion.ts';
+import { isNavActive } from '../src/config/nav.ts';
 
 const require = createRequire(import.meta.url);
 const source = ts.transpileModule(readFileSync(new URL('../src/scripts/dock.ts', import.meta.url), 'utf8'), {
@@ -25,11 +26,22 @@ function deferred() {
   });
   return { promise, resolve, reject };
 }
-function setup() {
-  const { document, window: dom } = parseHTML(`<html data-lang="zh"><body><nav data-dock>
+function setup({ nav = false, pathname = '/' } = {}) {
+  const { document, window: dom } = parseHTML(
+    nav
+      ? `<html data-lang="zh"><body><nav data-dock>
+    <div data-dock-list>
+      <div class="dock-item"><a class="dock-btn" data-nav="home" data-home data-paths="/" aria-current="page">home</a></div>
+      <div class="dock-item"><a class="dock-btn" data-nav="posts" data-paths="/posts/ /tags/">posts</a></div>
+      <div class="dock-item"><a class="dock-btn" data-nav="about" data-paths="/about/">about</a></div>
+      <div class="dock-item" id="weather"><button class="dock-btn" aria-expanded="false" data-label-zh="天气"></button><span class="dock-tip">天气</span></div>
+    </div>
+    <span data-dock-floating-tip></span></nav><main id="outside"></main></body></html>`
+      : `<html data-lang="zh"><body><nav data-dock>
     <div data-dock-list><div class="dock-item" id="weather"><button class="dock-btn" aria-expanded="false" data-label-zh="天气"></button><span class="dock-tip">天气</span></div>
     <div class="dock-item"><a class="dock-btn" id="language" href="/en/" data-label-zh="English">EN</a></div></div>
-    <span data-dock-floating-tip></span></nav><main id="outside"></main></body></html>`);
+    <span data-dock-floating-tip></span></nav><main id="outside"></main></body></html>`,
+  );
   const media = { matches: true, addEventListener() {} };
   const window = { matchMedia: () => media, addEventListener() {} };
   const frames = [],
@@ -44,7 +56,7 @@ function setup() {
   const dependencies = {
     './dock-geometry': { dockDotPosition: () => null },
     './dock-tooltip': dockTooltip,
-    '../config/nav': { isNavActive: () => false },
+    '../config/nav': { isNavActive: nav ? isNavActive : () => false },
     '../config/locales': {
       defaultLang: 'zh',
       langs: ['zh', 'en'],
@@ -60,7 +72,7 @@ function setup() {
     document,
     window,
     exports: {},
-    location: { pathname: '/' },
+    location: { pathname },
     queueMicrotask,
     requestAnimationFrame: (callback) => {
       frames.push(callback);
@@ -79,12 +91,13 @@ function setup() {
   fire(document, 'astro:page-load');
   const dock = document.querySelector('[data-dock]'),
     item = document.querySelector('#weather');
-  const prepare = (signal = new AbortController().signal, loader = async () => {}) =>
-    fire(document, 'astro:before-preparation', { to: new URL('https://hychiiu.com/posts/'), signal, loader });
+  const prepare = (signal = new AbortController().signal, loader = async () => {}, path = '/posts/') =>
+    fire(document, 'astro:before-preparation', { to: new URL(`https://hychiiu.com${path}`), signal, loader });
   const swap = (signal, finished) =>
     fire(document, 'astro:before-swap', { signal, viewTransition: finished ? { finished } : undefined });
   const hover = () => fire(item.querySelector('button'), 'pointerover', { pointerType: 'mouse' });
-  return { document, dock, item, frames, registrations, fire, prepare, swap, hover, state: window.__yhDock };
+  const current = () => document.querySelector('[data-nav][aria-current="page"]')?.dataset.nav ?? null;
+  return { document, dock, item, frames, registrations, fire, prepare, swap, hover, current, state: window.__yhDock };
 }
 
 test('aborted preparation without swap releases navigation and stale hover', async () => {
@@ -235,4 +248,34 @@ test('navigation abort listeners are removed on supersession and completion', as
   second.abort();
   await tick();
   assert.equal(s.state.navigating, false);
+});
+
+test('aborted home-to-posts preparation restores aria-current to location.pathname', async () => {
+  const s = setup({ nav: true, pathname: '/' }),
+    controller = new AbortController();
+  assert.equal(s.current(), 'home');
+  s.prepare(controller.signal, async () => {}, '/posts/');
+  assert.equal(s.current(), 'posts', 'start() may preview the destination before swap');
+  controller.abort();
+  await tick();
+  assert.equal(s.state.navigating, false);
+  assert.equal(s.current(), 'home', 'abort must restore the actual path, not leave the previewed item');
+});
+
+test('an aborted older navigation must not restore over a newer one', async () => {
+  const s = setup({ nav: true, pathname: '/' }),
+    first = new AbortController(),
+    second = new AbortController();
+  s.prepare(first.signal, async () => {}, '/posts/');
+  assert.equal(s.current(), 'posts');
+  s.prepare(second.signal, async () => {}, '/about/');
+  assert.equal(s.current(), 'about');
+  first.abort();
+  await tick();
+  assert.equal(s.state.navigating, true);
+  assert.equal(s.current(), 'about', 'old abort must not restore home over the newer destination');
+  second.abort();
+  await tick();
+  assert.equal(s.state.navigating, false);
+  assert.equal(s.current(), 'home');
 });
