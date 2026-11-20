@@ -1,5 +1,7 @@
 # Dynamic Weather Dock Icons Implementation Plan
 
+> Artwork and asset hashes below are historical for the first implementation. The owner subsequently approved the UI-designer v2 half-sun/full-moon set. Its sole current source, replacement plan and evidence are in `2026-11-20-ui-designer-v2-artwork.md`; behavior/controller work below remains current.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Show the approved v2 weather glyph for the latest successfully acquired city without expanding location or network behavior.
