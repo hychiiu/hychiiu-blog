@@ -9,7 +9,7 @@ The owner approved the revised desktop/mobile mockups on 2026-11-20 (Asia/Shangh
 - Shared 20px left inset for city, temperature, description, high/low and footer. Weather glyph sits to the right of the temperature group; °C is 0.35em. Compact footer, no empty spacer. First-use title and text share this inset, small glyph top right, equal-width stacked buttons.
 - Existing tokens, serif headings, sans UI and mono metadata; both themes and locales. Keep 38px compact mobile slots; allow constrained horizontal Dock scrolling when all items cannot physically fit (including future archive), not smaller targets.
 
-The Dock entrance is permanently the combined sun-and-cloud glyph, never the actual clear-sky sun or moon. Actual condition icons belong only inside the popover; the theme toggle retains its existing independent sun/moon icons (owner clarification 2026-11-20).
+Historical fixed-icon rule (superseded by the owner later on 2026-11-20): the Dock originally used combined sun/cloud permanently. The approved dynamic v2 rule in `2026-11-20-dynamic-weather-icons.md` now follows successful current conditions, with dedicated sun/thermometer and crescent/two-stars artwork distinct from theme icons. Theme icons and location behavior remain unchanged.
 
 ## Behavior and privacy
 

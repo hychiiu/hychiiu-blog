@@ -1,4 +1,5 @@
 import { weatherConfig } from '../../config/weather.ts';
+import { createWeatherDock } from './dock-state.ts';
 import { validPlace, type Place, type WeatherLang, type WeatherService } from './service.ts';
 import { renderWeather, type WeatherState } from './view.ts';
 
@@ -13,6 +14,8 @@ const bound = new WeakSet<Document>();
 export function bindWeather({ document: doc, window: win, service, geolocation, storage }: Host) {
   if (bound.has(doc)) return;
   bound.add(doc);
+  const weatherDock = createWeatherDock(doc);
+  weatherDock.sync();
   const panel = () => doc.querySelector<HTMLElement>('#weather-panel');
   const trigger = () => doc.querySelector<HTMLButtonElement>('[data-weather-toggle]');
   const lang = (): WeatherLang => (doc.documentElement.dataset.lang === 'en' ? 'en' : 'zh');
@@ -102,10 +105,12 @@ export function bindWeather({ document: doc, window: win, service, geolocation, 
           storage?.removeItem(weatherConfig.storageKey);
         } catch {}
       }
+      weatherDock.success(place, weather);
       state = { mode: 'weather', place, weather };
       draw('[data-weather-action="manual"]', true);
     } catch {
       if (ticket !== generation || !open) return;
+      weatherDock.failed();
       state = {
         mode: 'error',
         message:
@@ -260,6 +265,7 @@ export function bindWeather({ document: doc, window: win, service, geolocation, 
   });
   doc.addEventListener('astro:before-preparation', () => close(false));
   doc.addEventListener('astro:after-swap', () => {
+    weatherDock.sync();
     if (!open && panel()) panel()!.innerHTML = '';
   });
   win.addEventListener('resize', position);

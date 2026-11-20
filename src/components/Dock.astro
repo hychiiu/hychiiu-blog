@@ -11,7 +11,7 @@ import { getPosts, getNotes } from '../utils/content';
 import Icon from './Icon.astro';
 import '../styles/dock.css';
 import '../styles/weather.css';
-import { weatherIcon } from '../scripts/weather/icons';
+import { dockWeatherIcon } from '../scripts/weather/dock-icons';
 interface Props {
   lang: Lang;
   alternates: Record<Lang, string>;
@@ -84,7 +84,7 @@ const other = otherLang(lang);
         data-label-zh="天气"
         data-label-en="Weather"
       >
-        <Fragment set:html={weatherIcon('partly')} />
+        <Fragment set:html={dockWeatherIcon()} />
       </button>
       <span class="dock-tip" aria-hidden="true">
         {lang === 'zh' ? '天气' : 'Weather'}
